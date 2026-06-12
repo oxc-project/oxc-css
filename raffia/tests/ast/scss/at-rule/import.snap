@@ -163,9 +163,94 @@ Stylesheet(
         end: 70,
       ),
     ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "import",
+        raw: "import",
+        span: Span(
+          start: 74,
+          end: 80,
+        ),
+      ),
+      prelude: Some(ImportPrelude(
+        type: "ImportPrelude",
+        href: Function(
+          type: "Function",
+          name: Ident(
+            type: "Ident",
+            name: "url",
+            raw: "url",
+            span: Span(
+              start: 81,
+              end: 84,
+            ),
+          ),
+          args: [
+            SassBinaryExpression(
+              type: "SassBinaryExpression",
+              left: SassVariable(
+                type: "SassVariable",
+                name: Ident(
+                  type: "Ident",
+                  name: "foundation-dir",
+                  raw: "foundation-dir",
+                  span: Span(
+                    start: 86,
+                    end: 100,
+                  ),
+                ),
+                span: Span(
+                  start: 85,
+                  end: 100,
+                ),
+              ),
+              op: SassBinaryOperator(
+                type: "SassBinaryOperator",
+                kind: Plus,
+                span: Span(
+                  start: 100,
+                  end: 101,
+                ),
+              ),
+              right: Str(
+                type: "Str",
+                value: "/components/grid",
+                raw: "\"/components/grid\"",
+                span: Span(
+                  start: 101,
+                  end: 119,
+                ),
+              ),
+              span: Span(
+                start: 85,
+                end: 119,
+              ),
+            ),
+          ],
+          span: Span(
+            start: 81,
+            end: 120,
+          ),
+        ),
+        layer: None,
+        supports: None,
+        media: None,
+        span: Span(
+          start: 81,
+          end: 120,
+        ),
+      )),
+      block: None,
+      span: Span(
+        start: 73,
+        end: 120,
+      ),
+    ),
   ],
   span: Span(
     start: 0,
-    end: 72,
+    end: 122,
   ),
 )

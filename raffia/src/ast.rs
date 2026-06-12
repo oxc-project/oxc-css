@@ -586,6 +586,9 @@ pub struct ImportPrelude<'s> {
 pub enum ImportPreludeHref<'s> {
     Str(InterpolableStr<'s>),
     Url(Url<'s>),
+    /// Sass only: `url(...)` whose content is not a parsable URL but is
+    /// valid SassScript, e.g. `@import url($dir+"/path");`.
+    Function(Function<'s>),
 }
 
 #[derive(Clone, Debug, Spanned, PartialEq)]

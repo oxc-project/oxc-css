@@ -1,6 +1,6 @@
 use super::Parser;
 use crate::{
-    Parse,
+    Parse, Syntax,
     ast::*,
     bump,
     error::{Error, ErrorKind, PResult},
@@ -14,7 +14,23 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ImportPrelude<'s> {
     fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
         let href = match &peek!(input).token {
             Token::Str(..) | Token::StrTemplate(..) => input.parse().map(ImportPreludeHref::Str)?,
-            _ => input.parse().map(ImportPreludeHref::Url)?,
+            _ => match input.try_parse(Url::parse) {
+                Ok(url) => ImportPreludeHref::Url(url),
+                // Sass only: the content of `url(...)` may be SassScript that
+                // is not a parsable URL, e.g. `@import url($dir+"/path");`.
+                // Mirrors the fallback in `parse_component_value_atom`.
+                Err(error) if matches!(input.syntax, Syntax::Scss | Syntax::Sass) => {
+                    let function_name: Ident = expect!(input, Ident).into();
+                    if !function_name.name.eq_ignore_ascii_case("url") {
+                        return Err(error);
+                    }
+                    input
+                        .parse_function(InterpolableIdent::Literal(function_name))
+                        .map(ImportPreludeHref::Function)
+                        .map_err(|_| error)?
+                }
+                Err(error) => return Err(error),
+            },
         };
         let mut span = href.span().clone();
 

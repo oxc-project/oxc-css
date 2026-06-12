@@ -1,2 +1,4 @@
 @import "mod";
 @import "landscape" screen and (orientation: landscape);
+
+@import url($foundation-dir+"/components/grid");
