@@ -25,4 +25,8 @@ error: invalid ID selector name
 10 │ #-2 {
    │ ^^^
 
-
+error: invalid ID selector name
+   ┌─ invalid-id-selector.css:13:1
+   │
+13 │ #- {
+   │ ^^

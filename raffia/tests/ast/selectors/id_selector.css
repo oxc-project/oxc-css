@@ -42,3 +42,7 @@ div#thing::before {}
 #\; {}
 #u-m\00002b {}
 #f\\\'o\\\'o {}
+#-a-b-c- {}
+#-foo {}
+#--foo {}
+#-\3A x {}
