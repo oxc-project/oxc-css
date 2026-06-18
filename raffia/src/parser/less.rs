@@ -441,20 +441,28 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                         span: Span { start, end },
                     }
                 }
+                // A `+`/`-` is a binary operator only when followed by
+                // whitespace. lessc is whitespace-sensitive here: `@a - @b`
+                // is subtraction, but `@a -@b` is two values (`-@b` is a
+                // signed value, not an operator) — see the `margin` shorthand.
                 TokenWithSpan {
                     token: Token::Plus(..),
-                    ..
-                } if precedence == PRECEDENCE_PLUS => LessOperationOperator {
-                    kind: LessOperationOperatorKind::Plus,
-                    span: bump!(self).span,
-                },
+                    span,
+                } if precedence == PRECEDENCE_PLUS && is_followed_by_whitespace(self.source, span.end) => {
+                    LessOperationOperator {
+                        kind: LessOperationOperatorKind::Plus,
+                        span: bump!(self).span,
+                    }
+                }
                 TokenWithSpan {
                     token: Token::Minus(..),
-                    ..
-                } if precedence == PRECEDENCE_PLUS => LessOperationOperator {
-                    kind: LessOperationOperatorKind::Minus,
-                    span: bump!(self).span,
-                },
+                    span,
+                } if precedence == PRECEDENCE_PLUS && is_followed_by_whitespace(self.source, span.end) => {
+                    LessOperationOperator {
+                        kind: LessOperationOperatorKind::Minus,
+                        span: bump!(self).span,
+                    }
+                }
                 TokenWithSpan {
                     token: Token::Number(token),
                     span,
@@ -1967,4 +1975,10 @@ fn can_be_division_operand(left: &ComponentValue) -> bool {
             | ComponentValue::LessBinaryOperation(..)
             | ComponentValue::LessParenthesizedOperation(..)
     )
+}
+
+/// Whether the byte at `pos` in `source` is ASCII whitespace. Used to tell a
+/// `+`/`-` binary operator (followed by whitespace) from a value sign.
+fn is_followed_by_whitespace(source: &str, pos: usize) -> bool {
+    source.as_bytes().get(pos).is_some_and(u8::is_ascii_whitespace)
 }
