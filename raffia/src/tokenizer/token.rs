@@ -69,6 +69,7 @@ pub enum Token<'s> {
     NumberSign(NumberSign),
     Percent(Percent),
     Percentage(Percentage<'s>),
+    Placeholder(Placeholder<'s>),
     Plus(Plus),
     PlusUnderscore(PlusUnderscore),
     Question(Question),
@@ -118,6 +119,20 @@ pub struct At {}
 #[cfg_attr(feature = "serialize", serde(tag = "kind", rename_all = "camelCase"))]
 pub struct AtKeyword<'s> {
     pub ident: Ident<'s>,
+}
+
+/// An atomic backtick-delimited template placeholder token (see
+/// [`ParserOptions::template_placeholder`](crate::config::ParserOptions)),
+/// carrying the parsed decimal index and any glued literal suffix.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serialize", derive(Serialize))]
+#[cfg_attr(feature = "serialize", serde(tag = "kind", rename_all = "camelCase"))]
+pub struct Placeholder<'s> {
+    pub index: u32,
+    /// An ident-continuation run glued directly after the placeholder
+    /// (`` `PLACEHOLDER-0`px `` -> index 0, suffix `"px"`), empty when none.
+    /// Mirrors `#{$x}px` being a single identifier rather than two tokens.
+    pub suffix: &'s str,
 }
 
 #[derive(Clone, Debug, PartialEq)]

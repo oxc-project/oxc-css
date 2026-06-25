@@ -15,12 +15,19 @@ use crate::{
 
 impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for Declaration<'s> {
     fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
-        let name = input
-            .with_state(ParserState {
-                qualified_rule_ctx: Some(QualifiedRuleContext::DeclarationName),
-                ..input.state
-            })
-            .parse::<InterpolableIdent>()?;
+        // A css-in-js `${}` placeholder may stand in for the property name
+        // (`${foo}: ${bar}`); it is not a real ident, so accept it directly.
+        let name = if let Token::Placeholder(..) = peek!(input).token {
+            let (placeholder, span) = expect!(input, Placeholder);
+            InterpolableIdent::Placeholder((placeholder, span).into())
+        } else {
+            input
+                .with_state(ParserState {
+                    qualified_rule_ctx: Some(QualifiedRuleContext::DeclarationName),
+                    ..input.state
+                })
+                .parse::<InterpolableIdent>()?
+        };
 
         // https://tailwindcss.com/docs/theme#overriding-the-default-theme
         let name_suffix = if let TokenWithSpan {
@@ -281,6 +288,11 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     fn parse_statements(&mut self, is_top_level: bool) -> PResult<Vec<Statement<'s>>> {
         let mut statements = Vec::with_capacity(1);
         loop {
+            // Set true for braced blocks AND `${}` placeholder statements: both
+            // make the trailing terminator optional. A placeholder substitutes a
+            // whole statement/declaration and, like postcss, needs no `;`, so the
+            // next statement may follow directly (`${mixin}\n@media {...}`,
+            // `${a} ${b}`, `${foo}: ${bar}`).
             let mut is_block_element = false;
             let TokenWithSpan { token, span } = peek!(self);
             match token {
@@ -468,6 +480,37 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                         }
                     }
                 },
+                Token::Placeholder(..) => {
+                    // A placeholder may start a qualified rule (a substituted
+                    // selector, e.g. CSS-in-JS `${Component} { ... }`) or stand
+                    // alone as a statement (e.g. `` `PLACEHOLDER-0`; ``).
+                    //
+                    // A placeholder-led selector must not absorb across a newline:
+                    // prettier keeps `${mixin}` on its own line and the following
+                    // selector as a separate rule (`${mixin}\n& > .x {}` is two
+                    // statements, not one). So only attempt the rule when the block
+                    // `{` is reachable without an intervening newline-then-selector.
+                    //
+                    // A placeholder may also be a declaration property name
+                    // (`${foo}: ${bar}`), so try a declaration before falling back
+                    // to a bare placeholder statement.
+                    let ph_end = peek!(self).span.end;
+                    if self.placeholder_starts_qualified_rule(ph_end)
+                        && let Ok(rule) = self.try_parse(QualifiedRule::parse)
+                    {
+                        statements.push(Statement::QualifiedRule(rule));
+                        is_block_element = true;
+                    } else if let Ok(declaration) = self.try_parse(Declaration::parse) {
+                        // Reached only via the placeholder token above, so this
+                        // is the `${foo}: ${bar}` form (placeholder property name).
+                        statements.push(Statement::Declaration(declaration));
+                        is_block_element = true;
+                    } else {
+                        let (placeholder, span) = expect!(self, Placeholder);
+                        statements.push(Statement::Placeholder((placeholder, span).into()));
+                        is_block_element = true;
+                    }
+                }
                 Token::Percent(..) if matches!(self.syntax, Syntax::Scss | Syntax::Sass) => {
                     statements.push(Statement::QualifiedRule(self.parse()?));
                     is_block_element = true;
@@ -546,5 +589,40 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
             }
         }
         Ok(statements)
+    }
+
+    /// Whether a statement-position `${}` placeholder (ending at byte `from`)
+    /// should be offered to `QualifiedRule::parse`. The css-in-js rule the parser
+    /// can't see on its own, matching prettier:
+    /// - a bare `{` after the placeholder IS absorbed — the placeholder is the
+    ///   selector for that block (`${mixin}\n{ color: red }` is one rule; a bare
+    ///   `{...}` is meaningless without a selector, so this is the only valid read)
+    /// - but selector CONTENT appearing after a newline splits into a separate
+    ///   rule (`${mixin}\n& > .x {}` is two statements, not one)
+    ///
+    /// So this only answers "is a `{` reachable before any non-whitespace content
+    /// appears past a newline?" — the real grammar (strings, comments, `#{...}`
+    /// interpolations, validity) is left to `QualifiedRule::parse`, which runs
+    /// next and rolls back if this guess was wrong. Deliberately NOT a tokenizer:
+    /// it never early-exits on `;`/`}` (those may sit inside an attribute string
+    /// or comment), so it can't misclassify a same-line selector containing them.
+    fn placeholder_starts_qualified_rule(&self, from: usize) -> bool {
+        let mut newline_seen = false;
+        for &b in &self.source.as_bytes()[from..] {
+            match b {
+                // First `{` (block opener or `#{` interpolation), even after a
+                // newline with no content yet: the placeholder is its selector.
+                b'{' => return true,
+                // `\r`, `\r\n`, and `\n` all count as a newline (the tokenizer
+                // treats a bare `\r` as a line break too).
+                b'\n' | b'\r' => newline_seen = true,
+                _ if b.is_ascii_whitespace() => {}
+                // Non-whitespace content after a newline = a separate rule.
+                _ if newline_seen => return false,
+                _ => {}
+            }
+        }
+        // No block at all -> a declaration or a bare placeholder, not a rule.
+        false
     }
 }

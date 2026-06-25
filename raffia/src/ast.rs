@@ -271,6 +271,7 @@ pub enum ComponentValue<'s> {
     LessVariableVariable(LessVariableVariable<'s>),
     Number(Number<'s>),
     Percentage(Percentage<'s>),
+    Placeholder(Placeholder<'s>),
     Ratio(Ratio<'s>),
     SassArbitraryArgument(SassArbitraryArgument<'s>),
     SassBinaryExpression(SassBinaryExpression<'s>),
@@ -629,6 +630,24 @@ pub enum InterpolableIdent<'s> {
     Literal(Ident<'s>),
     SassInterpolated(SassInterpolatedIdent<'s>),
     LessInterpolated(LessInterpolatedIdent<'s>),
+    Placeholder(Placeholder<'s>),
+}
+
+/// An atomic backtick-delimited template placeholder node (see
+/// [`ParserOptions::template_placeholder`](crate::config::ParserOptions)),
+/// carrying the parsed decimal index. Appears in value, selector, and
+/// statement positions where a downstream formatter substitutes interpolations.
+#[derive(Clone, Debug, Spanned, PartialEq)]
+#[cfg_attr(feature = "serialize", derive(Serialize))]
+#[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
+#[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
+pub struct Placeholder<'s> {
+    pub index: u32,
+    /// An ident-continuation run glued directly after the placeholder
+    /// (`` `PLACEHOLDER-0`px `` -> index 0, suffix `"px"`), empty when none.
+    /// Mirrors `#{$x}px` being a single identifier rather than two tokens.
+    pub suffix: &'s str,
+    pub span: Span,
 }
 
 #[derive(Clone, Debug, Spanned, PartialEq)]
@@ -2548,6 +2567,7 @@ pub enum Statement<'s> {
     LessMixinDefinition(LessMixinDefinition<'s>),
     LessVariableCall(LessVariableCall<'s>),
     LessVariableDeclaration(LessVariableDeclaration<'s>),
+    Placeholder(Placeholder<'s>),
     QualifiedRule(QualifiedRule<'s>),
     SassIfAtRule(SassIfAtRule<'s>),
     SassVariableDeclaration(SassVariableDeclaration<'s>),

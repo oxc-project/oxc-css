@@ -271,6 +271,10 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
             Token::BacktickCode(..) if self.syntax == Syntax::Less => {
                 self.parse().map(ComponentValue::LessJavaScriptSnippet)
             }
+            Token::Placeholder(..) => {
+                let (placeholder, span) = expect!(self, Placeholder);
+                Ok(ComponentValue::Placeholder((placeholder, span).into()))
+            }
             _ => Err(Error {
                 kind: ErrorKind::ExpectComponentValue,
                 span: token_with_span.span.clone(),
@@ -879,6 +883,12 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for Ident<'s> {
 
 impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for InterpolableIdent<'s> {
     fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+        // A css-in-js placeholder stands in for an interpolated ident anywhere one
+        // is expected (id selector `#${x}`, attribute value `[a=${x}]`, ...).
+        if let Token::Placeholder(..) = peek!(input).token {
+            let (placeholder, span) = expect!(input, Placeholder);
+            return Ok(InterpolableIdent::Placeholder((placeholder, span).into()));
+        }
         match input.syntax {
             Syntax::Css => input.parse().map(InterpolableIdent::Literal),
             Syntax::Scss | Syntax::Sass => input.parse_sass_interpolated_ident(),

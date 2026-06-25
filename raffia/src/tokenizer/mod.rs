@@ -1,5 +1,5 @@
 use crate::{
-    config::Syntax,
+    config::{Syntax, TemplatePlaceholder},
     error::{Error, ErrorKind, PResult},
     pos::Span,
 };
@@ -23,6 +23,7 @@ pub(crate) struct TokenizerState<'s> {
 pub struct Tokenizer<'cmt, 's: 'cmt> {
     source: &'s str,
     syntax: Syntax,
+    template_placeholder: Option<TemplatePlaceholder>,
     pub(crate) comments: Option<&'cmt mut Vec<Comment<'s>>>,
     pub(crate) state: TokenizerState<'s>,
 }
@@ -31,6 +32,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
     pub fn new(
         source: &'s str,
         syntax: Syntax,
+        template_placeholder: Option<TemplatePlaceholder>,
         comments: Option<&'cmt mut Vec<Comment<'s>>>,
     ) -> Self {
         let mut chars = source.char_indices().peekable();
@@ -40,6 +42,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         Self {
             source,
             syntax,
+            template_placeholder,
             comments,
             state: TokenizerState {
                 chars,
@@ -158,6 +161,9 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
                     && matches!(chars.peek(), Some((_, c)) if is_start_of_ident(*c)) =>
             {
                 self.scan_less_lbrace_var()
+            }
+            (Some((_, '`')), _) if self.template_placeholder.is_some() => {
+                self.scan_template_placeholder()
             }
             (Some((_, '`')), _) if self.syntax == Syntax::Less => self.scan_backtick_code(),
             (Some(..), ..) => self.scan_punc(),
@@ -1079,6 +1085,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
     fn scan_at_keyword(&mut self) -> PResult<TokenWithSpan<'s>> {
         let (start, c) = self.state.chars.next().expect("expect char `@`");
         debug_assert_eq!(c, '@');
+
         let (ident, span) = self.scan_ident_sequence()?;
         Ok(TokenWithSpan {
             token: Token::AtKeyword(AtKeyword { ident }),
@@ -1086,6 +1093,92 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
                 start,
                 end: span.end,
             },
+        })
+    }
+
+    /// Scan a backtick-delimited template placeholder `` `<prefix><digits>` `` whose
+    /// opening backtick is at the current position. Emits a [`Token::Placeholder`].
+    /// A backtick that doesn't form a valid placeholder is invalid (backtick is
+    /// not valid SCSS) and errors like any unknown token.
+    fn scan_template_placeholder(&mut self) -> PResult<TokenWithSpan<'s>> {
+        let start = self.current_offset();
+        if let Some((placeholder, end)) = self.match_placeholder(start) {
+            // Affixes and digits are ASCII, so `end` lands on a char boundary.
+            while self.current_offset() < end {
+                self.state.chars.next();
+            }
+            Ok(TokenWithSpan {
+                token: Token::Placeholder(placeholder),
+                span: Span { start, end },
+            })
+        } else {
+            self.state.chars.next(); // consume the stray backtick
+            Err(Error {
+                kind: ErrorKind::UnknownToken,
+                span: Span {
+                    start,
+                    end: start + 1,
+                },
+            })
+        }
+    }
+
+    /// Match the placeholder shape `` `<prefix><digits>` `` whose opening backtick
+    /// is at byte offset `at`. Returns the parsed token and its end offset (past
+    /// the closing backtick and any glued suffix), or `None` when the option is
+    /// unset or the shape doesn't match. An index that overflows `u32` doesn't
+    /// match (so the caller errors) instead of panicking. Does not advance.
+    fn match_placeholder(&self, at: usize) -> Option<(Placeholder<'s>, usize)> {
+        // Bind `source` as `&'s str` so the suffix slice has lifetime `'s`
+        // (independent of `&self`), letting callers mutate the tokenizer while
+        // holding the returned token.
+        let source: &'s str = self.source;
+        let ph = self.template_placeholder?;
+        // `at` is the opening backtick.
+        let after_open = source[at + 1..].strip_prefix(ph.prefix)?;
+        let digits_len = after_open.bytes().take_while(u8::is_ascii_digit).count();
+        if digits_len == 0 || !after_open[digits_len..].starts_with('`') {
+            return None;
+        }
+        let index = after_open[..digits_len].parse::<u32>().ok()?;
+        // Past the closing backtick (`+ 1`).
+        let close_end = at + 1 + ph.prefix.len() + digits_len + 1;
+        // A directly-glued ident-continuation run is the placeholder's literal
+        // suffix (`` `PLACEHOLDER-0`px `` -> index 0, suffix "px"), mirroring
+        // `#{$x}px` being a single identifier. A whitespace or delimiter ends it.
+        // Bytes >= 0x80 are non-ASCII ident chars (whole UTF-8 sequences), so the
+        // run always ends on a char boundary.
+        let suffix_len = source[close_end..]
+            .bytes()
+            .take_while(|&b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_' || b >= 0x80)
+            .count();
+        let end = close_end + suffix_len;
+        Some((
+            Placeholder {
+                index,
+                suffix: &source[close_end..end],
+            },
+            end,
+        ))
+    }
+
+    /// If a placeholder begins exactly at the current position, scan and return
+    /// it (advancing past it); otherwise leave the tokenizer untouched and
+    /// return `None`. Used where a placeholder must be detected without first
+    /// skipping whitespace (e.g. a class selector name), so callers can't rely
+    /// on the main dispatch having already emitted the token.
+    pub(crate) fn scan_placeholder(&mut self) -> Option<TokenWithSpan<'s>> {
+        let start = self.current_offset();
+        if !self.source[start..].starts_with('`') {
+            return None;
+        }
+        let (placeholder, end) = self.match_placeholder(start)?;
+        while self.current_offset() < end {
+            self.state.chars.next();
+        }
+        Some(TokenWithSpan {
+            token: Token::Placeholder(placeholder),
+            span: Span { start, end },
         })
     }
 

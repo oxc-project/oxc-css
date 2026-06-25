@@ -596,7 +596,11 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for AttributeSelector<'s> {
         let value = if matcher.is_some() {
             match peek!(input) {
                 TokenWithSpan {
-                    token: Token::Ident(..) | Token::HashLBrace(..) | Token::AtLBraceVar(..),
+                    token:
+                        Token::Ident(..)
+                        | Token::HashLBrace(..)
+                        | Token::AtLBraceVar(..)
+                        | Token::Placeholder(..),
                     ..
                 } => Some(AttributeSelectorValue::Ident(input.parse()?)),
                 TokenWithSpan {
@@ -665,7 +669,25 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ClassSelector<'s> {
         let (_, dot_span) = expect!(input, Dot);
         let start = dot_span.start;
         let end;
-        let name = if input.syntax == Syntax::Css {
+        // Detect an adjacent placeholder without `peek!`: `peek!` skips
+        // whitespace and caches a token, which would both break the no-ws rule
+        // (the name must immediately follow the dot) and trip the empty-cache
+        // assertion in the `expect_without_ws_or_comments!` fallback. `scan_placeholder`
+        // returns `None` (leaving the tokenizer untouched) unless a placeholder
+        // begins exactly here, so the fallback paths run with an empty cache.
+        let placeholder = if input.options.template_placeholder.is_some() {
+            input.tokenizer.scan_placeholder()
+        } else {
+            None
+        };
+        let name = if let Some(TokenWithSpan {
+            token: Token::Placeholder(placeholder),
+            span,
+        }) = placeholder
+        {
+            end = span.end;
+            InterpolableIdent::Placeholder((placeholder, span).into())
+        } else if input.syntax == Syntax::Css {
             let (ident, ident_span) = expect_without_ws_or_comments!(input, Ident);
             end = ident_span.end;
             InterpolableIdent::Literal((ident, ident_span).into())
@@ -785,6 +807,14 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CompoundSelector<'s> {
                 } if matches!(input.syntax, Syntax::Scss | Syntax::Sass)
                     && !util::has_ws(input.source, end, span.start) =>
                 {
+                    let child = input.parse::<SimpleSelector>()?;
+                    end = child.span().end;
+                    children.push(child);
+                }
+                TokenWithSpan {
+                    token: Token::Placeholder(..),
+                    span,
+                } if !util::has_ws(input.source, end, span.start) => {
                     let child = input.parse::<SimpleSelector>()?;
                     end = child.span().end;
                     children.push(child);
@@ -1394,6 +1424,23 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SimpleSelector<'s> {
             } if matches!(input.syntax, Syntax::Scss | Syntax::Sass) => {
                 input.parse().map(SimpleSelector::SassPlaceholder)
             }
+            TokenWithSpan {
+                token: Token::Placeholder(..),
+                ..
+            } => {
+                let name = input.parse::<InterpolableIdent>()?;
+                let span = name.span().clone();
+                Ok(SimpleSelector::Type(TypeSelector::TagName(
+                    TagNameSelector {
+                        name: WqName {
+                            name,
+                            prefix: None,
+                            span: span.clone(),
+                        },
+                        span,
+                    },
+                )))
+            }
             token_with_span => Err(Error {
                 kind: ErrorKind::ExpectSimpleSelector,
                 span: token_with_span.span.clone(),
@@ -1544,7 +1591,8 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                     | Token::Bar(..) // selector like `|type` (with <ns-prefix>)
                     | Token::AtLBraceVar(..)
                     | Token::NumberSign(..)
-                    | Token::HashLBrace(..),
+                    | Token::HashLBrace(..)
+                    | Token::Placeholder(..), // `${a} ${b}` descendant
                 span,
             } if pos < span.start => Ok(Some(Combinator {
                 kind: CombinatorKind::Descendant,

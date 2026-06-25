@@ -58,11 +58,23 @@ impl<'cmt, 's: 'cmt> ParserBuilder<'cmt, 's> {
 
     /// Build a parser.
     pub fn build(self) -> Parser<'cmt, 's> {
+        let options = self.options.unwrap_or_default();
+        // Backtick is not valid CSS/SCSS/Sass; the placeholder lexer path only
+        // makes sense for SCSS (in Less, backtick is the inline-JS delimiter).
+        debug_assert!(
+            options.template_placeholder.is_none() || self.syntax == Syntax::Scss,
+            "template_placeholder requires Syntax::Scss (backtick is Less's inline-JS delimiter)",
+        );
         Parser {
             source: self.source,
             syntax: self.syntax,
-            options: self.options.unwrap_or_default(),
-            tokenizer: Tokenizer::new(self.source, self.syntax, self.comments),
+            options,
+            tokenizer: Tokenizer::new(
+                self.source,
+                self.syntax,
+                options.template_placeholder,
+                self.comments,
+            ),
             state: Default::default(),
             recoverable_errors: vec![],
             cached_token: None,

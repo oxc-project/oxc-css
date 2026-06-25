@@ -43,7 +43,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
             source,
             syntax,
             options: Default::default(),
-            tokenizer: Tokenizer::new(source, syntax, None),
+            tokenizer: Tokenizer::new(source, syntax, None, None),
             state: Default::default(),
             recoverable_errors: vec![],
             cached_token: None,

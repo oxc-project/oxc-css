@@ -2,7 +2,7 @@ use crate::{
     Span,
     ast::{
         Dimension, DimensionKind, Ident, InterpolableIdentStaticPart, InterpolableStrStaticPart,
-        InterpolableUrlStaticPart, Number, Str,
+        InterpolableUrlStaticPart, Number, Placeholder, Str,
     },
     error::{Error, ErrorKind, PResult},
     tokenizer::token,
@@ -106,6 +106,16 @@ impl<'s> From<(token::Ident<'s>, Span)> for Ident<'s> {
         Ident {
             name: token.name(),
             raw: token.raw,
+            span,
+        }
+    }
+}
+
+impl<'s> From<(token::Placeholder<'s>, Span)> for Placeholder<'s> {
+    fn from((token, span): (token::Placeholder<'s>, Span)) -> Self {
+        Placeholder {
+            index: token.index,
+            suffix: token.suffix,
             span,
         }
     }

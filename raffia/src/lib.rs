@@ -97,6 +97,35 @@
 //! assert_eq!(parser.recoverable_errors().len(), 2);
 //! ```
 //!
+//! #### `template_placeholder`
+//!
+//! By default, a backtick is a syntax error outside Less. Setting this option
+//! makes the parser recognize a backtick-delimited token of the shape
+//! `` `<prefix><decimal index>` `` as an atomic
+//! [`Placeholder`](crate::ast::Placeholder) node (in value, selector, and
+//! statement positions) carrying the parsed index. The token terminates at the
+//! closing backtick, so a following identifier re-lexes separately. This is
+//! designed for downstream formatters that substitute template interpolations
+//! (e.g. CSS-in-JS `${expr}`) with such placeholders before parsing. It MUST be
+//! used with [`Syntax::Scss`] (backtick is Less's inline-JS delimiter).
+//!
+//! ```rust
+//! use raffia::{ast::*, TemplatePlaceholder, ParserBuilder, ParserOptions, Syntax};
+//!
+//! let options = ParserOptions {
+//!     template_placeholder: Some(TemplatePlaceholder {
+//!         prefix: "PLACEHOLDER-",
+//!     }),
+//!     ..Default::default()
+//! };
+//! let builder = ParserBuilder::new("a { width: `PLACEHOLDER-0`; }")
+//!     .syntax(Syntax::Scss)
+//!     .options(options);
+//! let mut parser = builder.build();
+//!
+//! assert!(parser.parse::<Stylesheet>().is_ok());
+//! ```
+//!
 //! ### Parse Partial Structure
 //!
 //! Sometimes you don't want to parse a full stylesheet.
@@ -149,7 +178,7 @@
 //!
 //! Note that Raffia only supports serialization. Deserialization isn't supported.
 
-pub use config::{ParserOptions, Syntax};
+pub use config::{ParserOptions, Syntax, TemplatePlaceholder};
 pub use parser::{Parse, Parser, ParserBuilder};
 pub use pos::{Span, Spanned};
 pub use span_ignored_eq::SpanIgnoredEq;

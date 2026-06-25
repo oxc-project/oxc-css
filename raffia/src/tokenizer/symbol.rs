@@ -319,6 +319,13 @@ impl TokenSymbol for Percentage<'_> {
     }
 }
 
+impl TokenSymbol for Placeholder<'_> {
+    #[inline]
+    fn symbol() -> &'static str {
+        "<placeholder>"
+    }
+}
+
 impl TokenSymbol for Plus {
     #[inline]
     fn symbol() -> &'static str {
@@ -466,6 +473,7 @@ impl Token<'_> {
             NumberSign(..) => "#",
             Percent(..) => "%",
             Percentage(..) => "<percentage>",
+            Placeholder(..) => "<placeholder>",
             Plus(..) => "+",
             PlusUnderscore(..) => "+_",
             Question(..) => "?",

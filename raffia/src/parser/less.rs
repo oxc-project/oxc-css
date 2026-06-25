@@ -448,7 +448,9 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                 TokenWithSpan {
                     token: Token::Plus(..),
                     span,
-                } if precedence == PRECEDENCE_PLUS && is_followed_by_whitespace(self.source, span.end) => {
+                } if precedence == PRECEDENCE_PLUS
+                    && is_followed_by_whitespace(self.source, span.end) =>
+                {
                     LessOperationOperator {
                         kind: LessOperationOperatorKind::Plus,
                         span: bump!(self).span,
@@ -457,7 +459,9 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                 TokenWithSpan {
                     token: Token::Minus(..),
                     span,
-                } if precedence == PRECEDENCE_PLUS && is_followed_by_whitespace(self.source, span.end) => {
+                } if precedence == PRECEDENCE_PLUS
+                    && is_followed_by_whitespace(self.source, span.end) =>
+                {
                     LessOperationOperator {
                         kind: LessOperationOperatorKind::Minus,
                         span: bump!(self).span,
@@ -1980,5 +1984,8 @@ fn can_be_division_operand(left: &ComponentValue) -> bool {
 /// Whether the byte at `pos` in `source` is ASCII whitespace. Used to tell a
 /// `+`/`-` binary operator (followed by whitespace) from a value sign.
 fn is_followed_by_whitespace(source: &str, pos: usize) -> bool {
-    source.as_bytes().get(pos).is_some_and(u8::is_ascii_whitespace)
+    source
+        .as_bytes()
+        .get(pos)
+        .is_some_and(u8::is_ascii_whitespace)
 }
