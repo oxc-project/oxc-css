@@ -9,7 +9,6 @@ license = "MIT"
 exclude = ["/tests"]
 
 [dependencies]
-oxc-css-parser-macro = { path = "../oxc_css_parser_macro", version = "0.0.1" }
 oxc_allocator = ">=0.137.0"
 serde = { version = "1.0", features = ["derive"], optional = true }
 

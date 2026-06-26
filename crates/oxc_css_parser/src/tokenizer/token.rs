@@ -1,11 +1,10 @@
 //! All supported tokens, and with comments.
 
 use crate::pos::Span;
-use oxc_css_parser_macro::{EnumAsIs, SpanIgnoredEq, Spanned};
 #[cfg(feature = "serialize")]
 use serde::Serialize;
 
-#[derive(Clone, Debug, Spanned, PartialEq, SpanIgnoredEq)]
+#[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 pub struct Comment<'s> {
@@ -14,14 +13,14 @@ pub struct Comment<'s> {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq, SpanIgnoredEq, EnumAsIs)]
+#[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 pub enum CommentKind {
     Block,
     Line,
 }
 
-#[derive(Clone, Debug, PartialEq, EnumAsIs)]
+#[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 pub enum Token<'s> {
     Eof(Eof),
@@ -86,7 +85,7 @@ pub enum Token<'s> {
     UrlTemplate(UrlTemplate<'s>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 pub struct TokenWithSpan<'s> {
@@ -444,3 +443,5 @@ pub struct UrlTemplate<'s> {
     pub escaped: bool,
     pub tail: bool,
 }
+
+include!("token_generated.rs");

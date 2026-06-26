@@ -2,7 +2,6 @@
 resolver = "3"
 members = [
   "crates/oxc_css_parser",
-  "crates/oxc_css_parser_macro",
   "wasm",
 ]
 
