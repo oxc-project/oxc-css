@@ -2,7 +2,7 @@
 name = "oxc-css-parser"
 version = "0.0.1"
 edition = "2024"
-authors = ["Pig Fang <g-plane@hotmail.com>"]
+authors = []
 description = "Parser for CSS, SCSS, Sass, and Less."
 repository = "https://github.com/oxc-project/oxc-css-parser"
 license = "MIT"

@@ -2,7 +2,7 @@
 name = "oxc-css-parser-macro"
 version = "0.0.1"
 edition = "2024"
-authors = ["Pig Fang <g-plane@hotmail.com>"]
+authors = []
 description = "Procedural macros for oxc-css-parser."
 repository = "https://github.com/oxc-project/oxc-css-parser"
 license = "MIT"
