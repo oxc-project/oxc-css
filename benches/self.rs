@@ -1,13 +1,22 @@
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use oxc_css_parser::{Parser, Syntax, ast::Stylesheet};
-use std::{fs, hint::black_box, time::Duration};
+use std::{fs, hint::black_box, path::Path, time::Duration};
 
 fn bench_parser(c: &mut Criterion) {
     let mut group = c.benchmark_group("self");
     group.measurement_time(Duration::from_secs(12));
 
-    fs::read_dir("bench_data")
-        .unwrap()
+    let bench_data_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../..")
+        .join("bench_data");
+
+    fs::read_dir(&bench_data_dir)
+        .unwrap_or_else(|error| {
+            panic!(
+                "failed to read benchmark data directory {}: {error}",
+                bench_data_dir.display()
+            )
+        })
         .filter_map(|entry| entry.ok())
         .filter_map(|entry| {
             entry
