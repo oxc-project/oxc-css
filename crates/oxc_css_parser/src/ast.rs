@@ -2267,13 +2267,13 @@ pub enum Statement<'a> {
     LessExtendRule(LessExtendRule<'a>),
     LessFunctionCall(Function<'a>),
     LessMixinCall(LessMixinCall<'a>),
-    LessMixinDefinition(LessMixinDefinition<'a>),
+    LessMixinDefinition(Box<'a, LessMixinDefinition<'a>>),
     LessVariableCall(LessVariableCall<'a>),
-    LessVariableDeclaration(LessVariableDeclaration<'a>),
+    LessVariableDeclaration(Box<'a, LessVariableDeclaration<'a>>),
     Placeholder(Placeholder<'a>),
     QualifiedRule(QualifiedRule<'a>),
-    SassIfAtRule(SassIfAtRule<'a>),
-    SassVariableDeclaration(SassVariableDeclaration<'a>),
+    SassIfAtRule(Box<'a, SassIfAtRule<'a>>),
+    SassVariableDeclaration(Box<'a, SassVariableDeclaration<'a>>),
     UnknownSassAtRule(Box<'a, UnknownSassAtRule<'a>>),
 }
 
