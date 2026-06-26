@@ -297,7 +297,10 @@ impl<'a> Parser<'a> {
                             if let Ok(sass_var_decl) =
                                 self.try_parse(SassVariableDeclaration::parse)
                             {
-                                statements.push(Statement::SassVariableDeclaration(sass_var_decl));
+                                statements.push(Statement::SassVariableDeclaration(arena_box!(
+                                    self,
+                                    sass_var_decl
+                                )));
                             } else if self.state.in_keyframes_at_rule {
                                 statements.push(Statement::KeyframeBlock(self.parse()?));
                                 is_block_element = true;
@@ -367,7 +370,7 @@ impl<'a> Parser<'a> {
                         stmt
                     } else if let Ok(mixin_def) = self.try_parse(LessMixinDefinition::parse) {
                         is_block_element = true;
-                        Statement::LessMixinDefinition(mixin_def)
+                        Statement::LessMixinDefinition(arena_box!(self, mixin_def))
                     } else {
                         self.parse().map(Statement::LessMixinCall)?
                     };
@@ -408,7 +411,8 @@ impl<'a> Parser<'a> {
                         let at_keyword_name = at_keyword.ident.name();
                         match &*at_keyword_name {
                             "if" => {
-                                statements.push(Statement::SassIfAtRule(self.parse()?));
+                                statements
+                                    .push(Statement::SassIfAtRule(arena_box!(self, self.parse()?)));
                                 is_block_element = true;
                             }
                             "else" => {
@@ -432,9 +436,10 @@ impl<'a> Parser<'a> {
                                 less_variable_declaration.value,
                                 ComponentValue::LessDetachedRuleset(..)
                             );
-                            statements.push(Statement::LessVariableDeclaration(
-                                less_variable_declaration,
-                            ));
+                            statements.push(Statement::LessVariableDeclaration(arena_box!(
+                                self,
+                                less_variable_declaration
+                            )));
                         } else if let Ok(variable_call) = self.try_parse(LessVariableCall::parse) {
                             statements.push(Statement::LessVariableCall(variable_call));
                         } else {
@@ -480,7 +485,8 @@ impl<'a> Parser<'a> {
                     is_block_element = true;
                 }
                 Token::DollarVar(..) if matches!(self.syntax, Syntax::Scss | Syntax::Sass) => {
-                    statements.push(Statement::SassVariableDeclaration(self.parse()?));
+                    statements
+                        .push(Statement::SassVariableDeclaration(arena_box!(self, self.parse()?)));
                 }
                 Token::GreaterThan(..) | Token::Plus(..) | Token::Tilde(..) | Token::BarBar(..) => {
                     if self.syntax == Syntax::Less {
