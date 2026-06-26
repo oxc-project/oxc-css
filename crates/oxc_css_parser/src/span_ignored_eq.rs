@@ -1,5 +1,4 @@
 use crate::Span;
-use smallvec::SmallVec;
 use std::borrow::Cow;
 
 /// Compare equality of two AST nodes without respecting their spans.
@@ -93,7 +92,7 @@ where
     }
 }
 
-impl<T, const N: usize> SpanIgnoredEq for SmallVec<[T; N]>
+impl<'a, T> SpanIgnoredEq for oxc_allocator::Vec<'a, T>
 where
     T: SpanIgnoredEq,
 {
@@ -118,7 +117,7 @@ where
     }
 }
 
-impl<T> SpanIgnoredEq for Box<T>
+impl<'a, T> SpanIgnoredEq for oxc_allocator::Box<'a, T>
 where
     T: SpanIgnoredEq,
 {

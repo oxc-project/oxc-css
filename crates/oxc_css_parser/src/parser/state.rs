@@ -27,33 +27,33 @@ pub(super) const SASS_CTX_IN_PARENS: u8 = 8;
 pub(super) const LESS_CTX_ALLOW_DIV: u8 = 1;
 pub(super) const LESS_CTX_ALLOW_KEYFRAME_BLOCK: u8 = 2;
 
-impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
-    pub(super) fn with_state(&mut self, state: ParserState) -> WithState<'cmt, 's, '_> {
+impl<'a> Parser<'a> {
+    pub(super) fn with_state(&mut self, state: ParserState) -> WithState<'a, '_> {
         let original_state = mem::replace(&mut self.state, state);
         WithState { parser: self, original_state }
     }
 }
 
-pub(super) struct WithState<'cmt, 's: 'cmt, 'p> {
-    parser: &'p mut Parser<'cmt, 's>,
+pub(super) struct WithState<'a, 'p> {
+    parser: &'p mut Parser<'a>,
     original_state: ParserState,
 }
 
-impl<'cmt, 's: 'cmt, 'p> Deref for WithState<'cmt, 's, 'p> {
-    type Target = Parser<'cmt, 's>;
+impl<'a, 'p> Deref for WithState<'a, 'p> {
+    type Target = Parser<'a>;
 
     fn deref(&self) -> &Self::Target {
         self.parser
     }
 }
 
-impl<'cmt, 's: 'cmt, 'p> DerefMut for WithState<'cmt, 's, 'p> {
+impl<'a, 'p> DerefMut for WithState<'a, 'p> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.parser
     }
 }
 
-impl<'cmt, 's: 'cmt, 'p> Drop for WithState<'cmt, 's, 'p> {
+impl<'a, 'p> Drop for WithState<'a, 'p> {
     fn drop(&mut self) {
         mem::swap(&mut self.parser.state, &mut self.original_state);
     }

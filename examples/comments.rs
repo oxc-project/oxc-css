@@ -1,8 +1,9 @@
-use oxc_css_parser::{ParserBuilder, ast::Stylesheet};
+use oxc_css_parser::{Allocator, ParserBuilder, ast::Stylesheet};
 
 fn main() {
-    let mut comments = vec![];
+    let allocator = Allocator::default();
     let mut parser = ParserBuilder::new(
+        &allocator,
         "
 a {
     /* comment */
@@ -10,8 +11,8 @@ a {
 }
     ",
     )
-    .comments(&mut comments)
+    .comments()
     .build();
     let _ = parser.parse::<Stylesheet>().unwrap();
-    println!("{:#?}", comments);
+    println!("{:#?}", parser.comments());
 }

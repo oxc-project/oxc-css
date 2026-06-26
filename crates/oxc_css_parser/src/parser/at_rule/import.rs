@@ -1,6 +1,6 @@
 use super::Parser;
 use crate::{
-    Parse, Syntax,
+    Parse, Syntax, arena_vec,
     ast::*,
     bump,
     error::{Error, ErrorKind, PResult},
@@ -10,8 +10,8 @@ use crate::{
 };
 
 // https://www.w3.org/TR/css-cascade-5/#at-import
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ImportPrelude<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ImportPrelude<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let href = match &peek!(input).token {
             Token::Str(..) | Token::StrTemplate(..) => input.parse().map(ImportPreludeHref::Str)?,
             _ => match input.try_parse(Url::parse) {
@@ -20,7 +20,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ImportPrelude<'s> {
                 // is not a parsable URL, e.g. `@import url($dir+"/path");`.
                 // Mirrors the fallback in `parse_component_value_atom`.
                 Err(error) if matches!(input.syntax, Syntax::Scss | Syntax::Sass) => {
-                    let function_name: Ident = expect!(input, Ident).into();
+                    let (function_name, function_name_span) = expect!(input, Ident);
+                    let function_name = input.ident(function_name, function_name_span);
                     if !function_name.name.eq_ignore_ascii_case("url") {
                         return Err(error);
                     }
@@ -42,7 +43,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ImportPrelude<'s> {
                         if span.start == ident.span.end =>
                     {
                         bump!(input);
-                        let args = vec![input.parse().map(ComponentValue::LayerName)?];
+                        let args = arena_vec!(input; input.parse().map(ComponentValue::LayerName)?);
                         let end = expect!(input, RParen).1.end;
                         let span = Span { start: ident.span.start, end };
                         ImportPreludeLayer::WithName(Function {

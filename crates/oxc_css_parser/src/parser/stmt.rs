@@ -3,7 +3,7 @@ use super::{
     state::{ParserState, QualifiedRuleContext},
 };
 use crate::{
-    Parse, Syntax,
+    Parse, Syntax, arena_box, arena_vec,
     ast::*,
     bump, eat,
     error::{Error, ErrorKind, PResult},
@@ -13,8 +13,8 @@ use crate::{
     util::PairedToken,
 };
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for Declaration<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for Declaration<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         // A css-in-js `${}` placeholder may stand in for the property name
         // (`${foo}: ${bar}`); it is not a real ident, so accept it directly.
         let name = if let Token::Placeholder(..) = peek!(input).token {
@@ -64,7 +64,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for Declaration<'s> {
                         break 'value values;
                     }
 
-                    let mut values = Vec::with_capacity(3);
+                    let mut values = parser.vec_with_capacity(3);
                     let mut pairs = Vec::with_capacity(1);
                     loop {
                         match &peek!(parser).token {
@@ -146,8 +146,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for Declaration<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ImportantAnnotation<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ImportantAnnotation<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, span) = expect!(input, Exclamation);
         let ident: Ident = input.parse::<Ident>()?;
         let span = Span { start: span.start, end: ident.span.end };
@@ -159,8 +159,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ImportantAnnotation<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for QualifiedRule<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for QualifiedRule<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let selector_list = input
             .with_state(ParserState {
                 qualified_rule_ctx: Some(QualifiedRuleContext::Selector),
@@ -173,8 +173,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for QualifiedRule<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SimpleBlock<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SimpleBlock<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let is_sass = input.syntax == Syntax::Sass;
         let start = if is_sass {
             if let Some((_, span)) = eat!(input, Indent) {
@@ -182,7 +182,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SimpleBlock<'s> {
             } else {
                 let offset = peek!(input).span.start;
                 return Ok(SimpleBlock {
-                    statements: vec![],
+                    statements: arena_vec!(input),
                     span: Span { start: offset, end: offset },
                 });
             }
@@ -209,17 +209,17 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SimpleBlock<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for Stylesheet<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for Stylesheet<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let statements = input.parse_statements(/* is_top_level */ true)?;
         expect!(input, Eof);
         Ok(Stylesheet { statements, span: Span { start: 0, end: input.source.len() } })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
-    fn parse_declaration_value(&mut self) -> PResult<Vec<ComponentValue<'s>>> {
-        let mut values = Vec::with_capacity(3);
+impl<'a> Parser<'a> {
+    fn parse_declaration_value(&mut self) -> PResult<oxc_allocator::Vec<'a, ComponentValue<'a>>> {
+        let mut values = self.vec_with_capacity(3);
         loop {
             match &peek!(self).token {
                 Token::RBrace(..)
@@ -246,8 +246,11 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         Ok(values)
     }
 
-    fn parse_statements(&mut self, is_top_level: bool) -> PResult<Vec<Statement<'s>>> {
-        let mut statements = Vec::with_capacity(1);
+    fn parse_statements(
+        &mut self,
+        is_top_level: bool,
+    ) -> PResult<oxc_allocator::Vec<'a, Statement<'a>>> {
+        let mut statements = self.vec_with_capacity(1);
         loop {
             // Set true for braced blocks AND `${}` placeholder statements: both
             // make the trailing terminator optional. A placeholder substitutes a
@@ -497,7 +500,8 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                 Token::At(..) if matches!(self.syntax, Syntax::Scss | Syntax::Sass) => {
                     let unknown_sass_at_rule = self.parse::<UnknownSassAtRule>()?;
                     is_block_element = unknown_sass_at_rule.block.is_some();
-                    statements.push(Statement::UnknownSassAtRule(Box::new(unknown_sass_at_rule)));
+                    statements
+                        .push(Statement::UnknownSassAtRule(arena_box!(self, unknown_sass_at_rule)));
                 }
                 Token::Percentage(..)
                     if self.state.in_keyframes_at_rule

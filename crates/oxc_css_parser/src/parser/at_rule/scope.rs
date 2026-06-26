@@ -9,8 +9,8 @@ use crate::{
     tokenizer::{Token, TokenWithSpan},
 };
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ScopeEnd<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ScopeEnd<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let to_span = match bump!(input) {
             TokenWithSpan { token: Token::Ident(ident), span }
                 if ident.name().eq_ignore_ascii_case("to") =>
@@ -32,8 +32,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ScopeEnd<'s> {
 }
 
 // https://drafts.csswg.org/css-cascade-6/#scope-syntax
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ScopePrelude<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ScopePrelude<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let start = if let Token::LParen(..) = peek!(input).token {
             Some(input.parse::<ScopeStart>()?)
         } else {
@@ -62,8 +62,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ScopePrelude<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ScopeStart<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ScopeStart<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, Span { start, .. }) = expect!(input, LParen);
         let selector = input.parse()?;
         let (_, Span { end, .. }) = expect!(input, RParen);

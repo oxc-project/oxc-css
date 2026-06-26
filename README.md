@@ -8,9 +8,10 @@
 ## Example
 
 ```rust
-use oxc_css_parser::{ast::Stylesheet, Parser, Syntax};
+use oxc_css_parser::{Allocator, Parser, Syntax, ast::Stylesheet};
 
-let mut parser = Parser::new("a { color: green }", Syntax::Css);
+let allocator = Allocator::default();
+let mut parser = Parser::new(&allocator, "a { color: green }", Syntax::Css);
 let ast = parser.parse::<Stylesheet>().unwrap();
 println!("{:#?}", ast);
 ```

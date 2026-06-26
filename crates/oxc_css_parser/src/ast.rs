@@ -1,6 +1,7 @@
 //! All kinds of AST nodes are here.
 
 use crate::{pos::Span, tokenizer::TokenWithSpan};
+use oxc_allocator::{Box, Vec};
 #[cfg(feature = "variant_helpers")]
 use oxc_css_parser_macro::EnumAsIs;
 #[cfg(feature = "span_ignored_eq")]
@@ -8,10 +9,8 @@ use oxc_css_parser_macro::SpanIgnoredEq;
 use oxc_css_parser_macro::Spanned;
 #[cfg(feature = "serialize")]
 use serde::Serialize;
-use smallvec::SmallVec;
-use std::borrow::Cow;
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -21,74 +20,74 @@ pub struct AnPlusB {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct AtRule<'s> {
-    pub name: Ident<'s>,
-    pub prelude: Option<AtRulePrelude<'s>>,
-    pub block: Option<SimpleBlock<'s>>,
+pub struct AtRule<'a> {
+    pub name: Ident<'a>,
+    pub prelude: Option<AtRulePrelude<'a>>,
+    pub block: Option<SimpleBlock<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum AtRulePrelude<'s> {
-    Charset(Str<'s>),
-    ColorProfile(ColorProfilePrelude<'s>),
-    Container(ContainerPrelude<'s>),
-    CounterStyle(InterpolableIdent<'s>),
-    CustomMedia(Box<CustomMedia<'s>>),
-    CustomSelector(Box<CustomSelectorPrelude<'s>>),
-    Document(DocumentPrelude<'s>),
-    FontFeatureValues(FontFamilyName<'s>),
-    FontPaletteValues(InterpolableIdent<'s>),
-    Import(Box<ImportPrelude<'s>>),
-    Keyframes(KeyframesName<'s>),
-    Layer(LayerNames<'s>),
-    LessImport(Box<LessImportPrelude<'s>>),
-    LessPlugin(Box<LessPlugin<'s>>),
-    Media(MediaQueryList<'s>),
-    Namespace(Box<NamespacePrelude<'s>>),
-    Nest(SelectorList<'s>),
-    Page(PageSelectorList<'s>),
-    PositionTry(InterpolableIdent<'s>),
-    Property(InterpolableIdent<'s>),
-    SassAtRoot(SassAtRoot<'s>),
-    SassContent(SassContent<'s>),
-    SassEach(Box<SassEach<'s>>),
-    SassExpr(Box<ComponentValue<'s>>),
-    SassExtend(Box<SassExtend<'s>>),
-    SassFor(Box<SassFor<'s>>),
-    SassForward(Box<SassForward<'s>>),
-    SassFunction(Box<SassFunction<'s>>),
-    SassImport(SassImportPrelude<'s>),
-    SassInclude(Box<SassInclude<'s>>),
-    SassMixin(Box<SassMixin<'s>>),
-    SassUse(Box<SassUse<'s>>),
-    Scope(Box<ScopePrelude<'s>>),
-    ScrollTimeline(InterpolableIdent<'s>),
-    Supports(SupportsCondition<'s>),
-    Unknown(Box<UnknownAtRulePrelude<'s>>),
+pub enum AtRulePrelude<'a> {
+    Charset(Str<'a>),
+    ColorProfile(ColorProfilePrelude<'a>),
+    Container(ContainerPrelude<'a>),
+    CounterStyle(InterpolableIdent<'a>),
+    CustomMedia(Box<'a, CustomMedia<'a>>),
+    CustomSelector(Box<'a, CustomSelectorPrelude<'a>>),
+    Document(DocumentPrelude<'a>),
+    FontFeatureValues(FontFamilyName<'a>),
+    FontPaletteValues(InterpolableIdent<'a>),
+    Import(Box<'a, ImportPrelude<'a>>),
+    Keyframes(KeyframesName<'a>),
+    Layer(LayerNames<'a>),
+    LessImport(Box<'a, LessImportPrelude<'a>>),
+    LessPlugin(Box<'a, LessPlugin<'a>>),
+    Media(MediaQueryList<'a>),
+    Namespace(Box<'a, NamespacePrelude<'a>>),
+    Nest(SelectorList<'a>),
+    Page(PageSelectorList<'a>),
+    PositionTry(InterpolableIdent<'a>),
+    Property(InterpolableIdent<'a>),
+    SassAtRoot(SassAtRoot<'a>),
+    SassContent(SassContent<'a>),
+    SassEach(Box<'a, SassEach<'a>>),
+    SassExpr(Box<'a, ComponentValue<'a>>),
+    SassExtend(Box<'a, SassExtend<'a>>),
+    SassFor(Box<'a, SassFor<'a>>),
+    SassForward(Box<'a, SassForward<'a>>),
+    SassFunction(Box<'a, SassFunction<'a>>),
+    SassImport(SassImportPrelude<'a>),
+    SassInclude(Box<'a, SassInclude<'a>>),
+    SassMixin(Box<'a, SassMixin<'a>>),
+    SassUse(Box<'a, SassUse<'a>>),
+    Scope(Box<'a, ScopePrelude<'a>>),
+    ScrollTimeline(InterpolableIdent<'a>),
+    Supports(SupportsCondition<'a>),
+    Unknown(Box<'a, UnknownAtRulePrelude<'a>>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct AttributeSelector<'s> {
-    pub name: WqName<'s>,
+pub struct AttributeSelector<'a> {
+    pub name: WqName<'a>,
     pub matcher: Option<AttributeSelectorMatcher>,
-    pub value: Option<AttributeSelectorValue<'s>>,
-    pub modifier: Option<AttributeSelectorModifier<'s>>,
+    pub value: Option<AttributeSelectorValue<'a>>,
+    pub modifier: Option<AttributeSelectorModifier<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -97,7 +96,7 @@ pub struct AttributeSelectorMatcher {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum AttributeSelectorMatcherKind {
@@ -115,48 +114,48 @@ pub enum AttributeSelectorMatcherKind {
     Substring,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct AttributeSelectorModifier<'s> {
-    pub ident: InterpolableIdent<'s>,
+pub struct AttributeSelectorModifier<'a> {
+    pub ident: InterpolableIdent<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum AttributeSelectorValue<'s> {
-    Ident(InterpolableIdent<'s>),
-    Str(InterpolableStr<'s>),
-    Percentage(Percentage<'s>),
-    LessEscapedStr(LessEscapedStr<'s>),
+pub enum AttributeSelectorValue<'a> {
+    Ident(InterpolableIdent<'a>),
+    Str(InterpolableStr<'a>),
+    Percentage(Percentage<'a>),
+    LessEscapedStr(LessEscapedStr<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct BracketBlock<'s> {
-    pub value: Vec<ComponentValue<'s>>,
+pub struct BracketBlock<'a> {
+    pub value: Vec<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Calc<'s> {
-    pub left: Box<ComponentValue<'s>>,
+pub struct Calc<'a> {
+    pub left: Box<'a, ComponentValue<'a>>,
     pub op: CalcOperator,
-    pub right: Box<ComponentValue<'s>>,
+    pub right: Box<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -165,7 +164,7 @@ pub struct CalcOperator {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum CalcOperatorKind {
@@ -175,26 +174,26 @@ pub enum CalcOperatorKind {
     Division,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ClassSelector<'s> {
-    pub name: InterpolableIdent<'s>,
+pub struct ClassSelector<'a> {
+    pub name: InterpolableIdent<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum ColorProfilePrelude<'s> {
-    DashedIdent(InterpolableIdent<'s>),
-    DeviceCmyk(Ident<'s>),
+pub enum ColorProfilePrelude<'a> {
+    DashedIdent(InterpolableIdent<'a>),
+    DeviceCmyk(Ident<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -203,7 +202,7 @@ pub struct Combinator {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum CombinatorKind {
@@ -219,241 +218,241 @@ pub enum CombinatorKind {
     Column,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ComplexSelector<'s> {
-    pub children: SmallVec<[ComplexSelectorChild<'s>; 3]>,
+pub struct ComplexSelector<'a> {
+    pub children: Vec<'a, ComplexSelectorChild<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum ComplexSelectorChild<'s> {
-    CompoundSelector(CompoundSelector<'s>),
+pub enum ComplexSelectorChild<'a> {
+    CompoundSelector(CompoundSelector<'a>),
     Combinator(Combinator),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum ComponentValue<'s> {
-    BracketBlock(BracketBlock<'s>),
-    Calc(Calc<'s>),
+pub enum ComponentValue<'a> {
+    BracketBlock(BracketBlock<'a>),
+    Calc(Calc<'a>),
     Delimiter(Delimiter),
-    Dimension(Dimension<'s>),
-    Function(Function<'s>),
-    HexColor(HexColor<'s>),
-    IdSelector(IdSelector<'s>),
-    ImportantAnnotation(ImportantAnnotation<'s>),
-    InterpolableIdent(InterpolableIdent<'s>),
-    InterpolableStr(InterpolableStr<'s>),
-    LayerName(LayerName<'s>),
-    LessBinaryOperation(LessBinaryOperation<'s>),
-    LessCondition(Box<LessCondition<'s>>),
-    LessDetachedRuleset(LessDetachedRuleset<'s>),
-    LessEscapedStr(LessEscapedStr<'s>),
-    LessJavaScriptSnippet(LessJavaScriptSnippet<'s>),
-    LessList(LessList<'s>),
-    LessMixinCall(LessMixinCall<'s>),
-    LessNamespaceValue(Box<LessNamespaceValue<'s>>),
-    LessNegativeValue(LessNegativeValue<'s>),
-    LessParenthesizedOperation(LessParenthesizedOperation<'s>),
+    Dimension(Dimension<'a>),
+    Function(Function<'a>),
+    HexColor(HexColor<'a>),
+    IdSelector(IdSelector<'a>),
+    ImportantAnnotation(ImportantAnnotation<'a>),
+    InterpolableIdent(InterpolableIdent<'a>),
+    InterpolableStr(InterpolableStr<'a>),
+    LayerName(LayerName<'a>),
+    LessBinaryOperation(LessBinaryOperation<'a>),
+    LessCondition(Box<'a, LessCondition<'a>>),
+    LessDetachedRuleset(LessDetachedRuleset<'a>),
+    LessEscapedStr(LessEscapedStr<'a>),
+    LessJavaScriptSnippet(LessJavaScriptSnippet<'a>),
+    LessList(LessList<'a>),
+    LessMixinCall(LessMixinCall<'a>),
+    LessNamespaceValue(Box<'a, LessNamespaceValue<'a>>),
+    LessNegativeValue(LessNegativeValue<'a>),
+    LessParenthesizedOperation(LessParenthesizedOperation<'a>),
     LessPercentKeyword(LessPercentKeyword),
-    LessPropertyVariable(LessPropertyVariable<'s>),
-    LessVariable(LessVariable<'s>),
-    LessVariableVariable(LessVariableVariable<'s>),
-    Number(Number<'s>),
-    Percentage(Percentage<'s>),
-    Placeholder(Placeholder<'s>),
-    Ratio(Ratio<'s>),
-    SassArbitraryArgument(SassArbitraryArgument<'s>),
-    SassBinaryExpression(SassBinaryExpression<'s>),
-    SassKeywordArgument(SassKeywordArgument<'s>),
-    SassList(SassList<'s>),
-    SassMap(SassMap<'s>),
-    SassQualifiedName(SassQualifiedName<'s>),
-    SassNestingDeclaration(SassNestingDeclaration<'s>),
-    SassParenthesizedExpression(SassParenthesizedExpression<'s>),
-    SassParentSelector(NestingSelector<'s>),
-    SassUnaryExpression(SassUnaryExpression<'s>),
-    SassVariable(SassVariable<'s>),
-    TokenWithSpan(TokenWithSpan<'s>),
-    UnicodeRange(UnicodeRange<'s>),
-    Url(Url<'s>),
+    LessPropertyVariable(LessPropertyVariable<'a>),
+    LessVariable(LessVariable<'a>),
+    LessVariableVariable(LessVariableVariable<'a>),
+    Number(Number<'a>),
+    Percentage(Percentage<'a>),
+    Placeholder(Placeholder<'a>),
+    Ratio(Ratio<'a>),
+    SassArbitraryArgument(SassArbitraryArgument<'a>),
+    SassBinaryExpression(SassBinaryExpression<'a>),
+    SassKeywordArgument(SassKeywordArgument<'a>),
+    SassList(SassList<'a>),
+    SassMap(SassMap<'a>),
+    SassQualifiedName(SassQualifiedName<'a>),
+    SassNestingDeclaration(SassNestingDeclaration<'a>),
+    SassParenthesizedExpression(SassParenthesizedExpression<'a>),
+    SassParentSelector(NestingSelector<'a>),
+    SassUnaryExpression(SassUnaryExpression<'a>),
+    SassVariable(SassVariable<'a>),
+    TokenWithSpan(TokenWithSpan<'a>),
+    UnicodeRange(UnicodeRange<'a>),
+    Url(Url<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ComponentValues<'s> {
-    pub values: Vec<ComponentValue<'s>>,
+pub struct ComponentValues<'a> {
+    pub values: Vec<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct CompoundSelector<'s> {
-    pub children: Vec<SimpleSelector<'s>>,
+pub struct CompoundSelector<'a> {
+    pub children: Vec<'a, SimpleSelector<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct CompoundSelectorList<'s> {
-    pub selectors: Vec<CompoundSelector<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct CompoundSelectorList<'a> {
+    pub selectors: Vec<'a, CompoundSelector<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ContainerCondition<'s> {
-    pub conditions: Vec<ContainerConditionKind<'s>>,
+pub struct ContainerCondition<'a> {
+    pub conditions: Vec<'a, ContainerConditionKind<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum ContainerConditionKind<'s> {
-    QueryInParens(QueryInParens<'s>),
-    And(ContainerConditionAnd<'s>),
-    Or(ContainerConditionOr<'s>),
-    Not(ContainerConditionNot<'s>),
+pub enum ContainerConditionKind<'a> {
+    QueryInParens(QueryInParens<'a>),
+    And(ContainerConditionAnd<'a>),
+    Or(ContainerConditionOr<'a>),
+    Not(ContainerConditionNot<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ContainerConditionAnd<'s> {
-    pub keyword: Ident<'s>,
-    pub query_in_parens: QueryInParens<'s>,
+pub struct ContainerConditionAnd<'a> {
+    pub keyword: Ident<'a>,
+    pub query_in_parens: QueryInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ContainerConditionNot<'s> {
-    pub keyword: Ident<'s>,
-    pub query_in_parens: QueryInParens<'s>,
+pub struct ContainerConditionNot<'a> {
+    pub keyword: Ident<'a>,
+    pub query_in_parens: QueryInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ContainerConditionOr<'s> {
-    pub keyword: Ident<'s>,
-    pub query_in_parens: QueryInParens<'s>,
+pub struct ContainerConditionOr<'a> {
+    pub keyword: Ident<'a>,
+    pub query_in_parens: QueryInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ContainerPrelude<'s> {
-    pub name: Option<InterpolableIdent<'s>>,
-    pub condition: ContainerCondition<'s>,
+pub struct ContainerPrelude<'a> {
+    pub name: Option<InterpolableIdent<'a>>,
+    pub condition: ContainerCondition<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct CustomMedia<'s> {
-    pub name: InterpolableIdent<'s>,
-    pub value: CustomMediaValue<'s>,
+pub struct CustomMedia<'a> {
+    pub name: InterpolableIdent<'a>,
+    pub value: CustomMediaValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum CustomMediaValue<'s> {
-    MediaQueryList(MediaQueryList<'s>),
-    True(Ident<'s>),
-    False(Ident<'s>),
+pub enum CustomMediaValue<'a> {
+    MediaQueryList(MediaQueryList<'a>),
+    True(Ident<'a>),
+    False(Ident<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct CustomSelector<'s> {
-    pub prefix_arg: Option<CustomSelectorArg<'s>>,
-    pub name: Ident<'s>,
-    pub args: Option<CustomSelectorArgs<'s>>,
+pub struct CustomSelector<'a> {
+    pub prefix_arg: Option<CustomSelectorArg<'a>>,
+    pub name: Ident<'a>,
+    pub args: Option<CustomSelectorArgs<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct CustomSelectorArg<'s> {
-    pub name: Ident<'s>,
+pub struct CustomSelectorArg<'a> {
+    pub name: Ident<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct CustomSelectorArgs<'s> {
-    pub args: Vec<CustomSelectorArg<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct CustomSelectorArgs<'a> {
+    pub args: Vec<'a, CustomSelectorArg<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct CustomSelectorPrelude<'s> {
-    pub custom_selector: CustomSelector<'s>,
-    pub selector: SelectorList<'s>,
+pub struct CustomSelectorPrelude<'a> {
+    pub custom_selector: CustomSelector<'a>,
+    pub selector: SelectorList<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Declaration<'s> {
-    pub name: InterpolableIdent<'s>,
+pub struct Declaration<'a> {
+    pub name: InterpolableIdent<'a>,
     pub name_suffix: Option<char>,
     pub colon_span: Span,
-    pub value: Vec<ComponentValue<'s>>,
-    pub important: Option<ImportantAnnotation<'s>>,
+    pub value: Vec<'a, ComponentValue<'a>>,
+    pub important: Option<ImportantAnnotation<'a>>,
     pub less_property_merge: Option<LessPropertyMerge>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -462,7 +461,7 @@ pub struct Delimiter {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum DelimiterKind {
@@ -471,18 +470,18 @@ pub enum DelimiterKind {
     Semicolon,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Dimension<'s> {
-    pub value: Number<'s>,
-    pub unit: Ident<'s>,
+pub struct Dimension<'a> {
+    pub value: Number<'a>,
+    pub unit: Ident<'a>,
     pub kind: DimensionKind,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum DimensionKind {
@@ -495,304 +494,304 @@ pub enum DimensionKind {
     Unknown,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct DocumentPrelude<'s> {
-    pub matchers: Vec<DocumentPreludeMatcher<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct DocumentPrelude<'a> {
+    pub matchers: Vec<'a, DocumentPreludeMatcher<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum DocumentPreludeMatcher<'s> {
-    Url(Url<'s>),
-    Function(Function<'s>),
+pub enum DocumentPreludeMatcher<'a> {
+    Url(Url<'a>),
+    Function(Function<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum FontFamilyName<'s> {
-    Str(InterpolableStr<'s>),
-    Unquoted(UnquotedFontFamilyName<'s>),
+pub enum FontFamilyName<'a> {
+    Str(InterpolableStr<'a>),
+    Unquoted(UnquotedFontFamilyName<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Function<'s> {
-    pub name: FunctionName<'s>,
-    pub args: Vec<ComponentValue<'s>>,
+pub struct Function<'a> {
+    pub name: FunctionName<'a>,
+    pub args: Vec<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum FunctionName<'s> {
-    Ident(InterpolableIdent<'s>),
-    SassQualifiedName(Box<SassQualifiedName<'s>>),
+pub enum FunctionName<'a> {
+    Ident(InterpolableIdent<'a>),
+    SassQualifiedName(Box<'a, SassQualifiedName<'a>>),
     LessListFunction(LessListFunction),
     LessFormatFunction(LessFormatFunction),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct HexColor<'s> {
-    pub value: Cow<'s, str>,
-    pub raw: &'s str,
+pub struct HexColor<'a> {
+    pub value: &'a str,
+    pub raw: &'a str,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Ident<'s> {
-    pub name: Cow<'s, str>,
-    pub raw: &'s str,
+pub struct Ident<'a> {
+    pub name: &'a str,
+    pub raw: &'a str,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ImportPrelude<'s> {
-    pub href: ImportPreludeHref<'s>,
-    pub layer: Option<ImportPreludeLayer<'s>>,
-    pub supports: Option<ImportPreludeSupports<'s>>,
-    pub media: Option<MediaQueryList<'s>>,
+pub struct ImportPrelude<'a> {
+    pub href: ImportPreludeHref<'a>,
+    pub layer: Option<ImportPreludeLayer<'a>>,
+    pub supports: Option<ImportPreludeSupports<'a>>,
+    pub media: Option<MediaQueryList<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum ImportPreludeHref<'s> {
-    Str(InterpolableStr<'s>),
-    Url(Url<'s>),
+pub enum ImportPreludeHref<'a> {
+    Str(InterpolableStr<'a>),
+    Url(Url<'a>),
     /// Sass only: `url(...)` whose content is not a parsable URL but is
     /// valid SassScript, e.g. `@import url($dir+"/path");`.
-    Function(Function<'s>),
+    Function(Function<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum ImportPreludeLayer<'s> {
-    Empty(Ident<'s>),
-    WithName(Function<'s>),
+pub enum ImportPreludeLayer<'a> {
+    Empty(Ident<'a>),
+    WithName(Function<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ImportPreludeSupports<'s> {
-    pub kind: ImportPreludeSupportsKind<'s>,
+pub struct ImportPreludeSupports<'a> {
+    pub kind: ImportPreludeSupportsKind<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum ImportPreludeSupportsKind<'s> {
-    SupportsCondition(SupportsCondition<'s>),
-    Declaration(Declaration<'s>),
+pub enum ImportPreludeSupportsKind<'a> {
+    SupportsCondition(SupportsCondition<'a>),
+    Declaration(Declaration<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum InterpolableIdent<'s> {
-    Literal(Ident<'s>),
-    SassInterpolated(SassInterpolatedIdent<'s>),
-    LessInterpolated(LessInterpolatedIdent<'s>),
-    Placeholder(Placeholder<'s>),
+pub enum InterpolableIdent<'a> {
+    Literal(Ident<'a>),
+    SassInterpolated(SassInterpolatedIdent<'a>),
+    LessInterpolated(LessInterpolatedIdent<'a>),
+    Placeholder(Placeholder<'a>),
 }
 
 /// An atomic backtick-delimited template placeholder node (see
 /// [`ParserOptions::template_placeholder`](crate::config::ParserOptions)),
 /// carrying the parsed decimal index. Appears in value, selector, and
 /// statement positions where a downstream formatter substitutes interpolations.
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Placeholder<'s> {
+pub struct Placeholder<'a> {
     pub index: u32,
     /// An ident-continuation run glued directly after the placeholder
     /// (`` `PLACEHOLDER-0`px `` -> index 0, suffix `"px"`), empty when none.
     /// Mirrors `#{$x}px` being a single identifier rather than two tokens.
-    pub suffix: &'s str,
+    pub suffix: &'a str,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct InterpolableIdentStaticPart<'s> {
-    pub value: Cow<'s, str>,
-    pub raw: &'s str,
+pub struct InterpolableIdentStaticPart<'a> {
+    pub value: &'a str,
+    pub raw: &'a str,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum InterpolableStr<'s> {
-    Literal(Str<'s>),
-    SassInterpolated(SassInterpolatedStr<'s>),
-    LessInterpolated(LessInterpolatedStr<'s>),
+pub enum InterpolableStr<'a> {
+    Literal(Str<'a>),
+    SassInterpolated(SassInterpolatedStr<'a>),
+    LessInterpolated(LessInterpolatedStr<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct InterpolableStrStaticPart<'s> {
-    pub value: Cow<'s, str>,
-    pub raw: &'s str,
+pub struct InterpolableStrStaticPart<'a> {
+    pub value: &'a str,
+    pub raw: &'a str,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct InterpolableUrlStaticPart<'s> {
-    pub value: Cow<'s, str>,
-    pub raw: &'s str,
+pub struct InterpolableUrlStaticPart<'a> {
+    pub value: &'a str,
+    pub raw: &'a str,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct IdSelector<'s> {
-    pub name: InterpolableIdent<'s>,
+pub struct IdSelector<'a> {
+    pub name: InterpolableIdent<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ImportantAnnotation<'s> {
-    pub ident: Ident<'s>,
+pub struct ImportantAnnotation<'a> {
+    pub ident: Ident<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct KeyframeBlock<'s> {
-    pub selectors: Vec<KeyframeSelector<'s>>,
-    pub comma_spans: Vec<Span>,
-    pub block: SimpleBlock<'s>,
+pub struct KeyframeBlock<'a> {
+    pub selectors: Vec<'a, KeyframeSelector<'a>>,
+    pub comma_spans: Vec<'a, Span>,
+    pub block: SimpleBlock<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum KeyframeSelector<'s> {
-    Ident(InterpolableIdent<'s>),
-    Percentage(Percentage<'s>),
+pub enum KeyframeSelector<'a> {
+    Ident(InterpolableIdent<'a>),
+    Percentage(Percentage<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum KeyframesName<'s> {
-    Ident(InterpolableIdent<'s>),
-    Str(InterpolableStr<'s>),
-    LessVariable(LessVariable<'s>),
-    LessEscapedStr(LessEscapedStr<'s>),
+pub enum KeyframesName<'a> {
+    Ident(InterpolableIdent<'a>),
+    Str(InterpolableStr<'a>),
+    LessVariable(LessVariable<'a>),
+    LessEscapedStr(LessEscapedStr<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LanguageRange<'s> {
-    Str(InterpolableStr<'s>),
-    Ident(InterpolableIdent<'s>),
+pub enum LanguageRange<'a> {
+    Str(InterpolableStr<'a>),
+    Ident(InterpolableIdent<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LanguageRangeList<'s> {
-    pub ranges: Vec<LanguageRange<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct LanguageRangeList<'a> {
+    pub ranges: Vec<'a, LanguageRange<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LayerName<'s> {
-    pub idents: Vec<InterpolableIdent<'s>>,
+pub struct LayerName<'a> {
+    pub idents: Vec<'a, InterpolableIdent<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LayerNames<'s> {
-    pub names: Vec<LayerName<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct LayerNames<'a> {
+    pub names: Vec<'a, LayerName<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessBinaryCondition<'s> {
-    pub left: Box<LessCondition<'s>>,
+pub struct LessBinaryCondition<'a> {
+    pub left: Box<'a, LessCondition<'a>>,
     pub op: LessBinaryConditionOperator,
-    pub right: Box<LessCondition<'s>>,
+    pub right: Box<'a, LessCondition<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -801,7 +800,7 @@ pub struct LessBinaryConditionOperator {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum LessBinaryConditionOperatorKind {
@@ -816,101 +815,101 @@ pub enum LessBinaryConditionOperatorKind {
     Or,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessBinaryOperation<'s> {
-    pub left: Box<ComponentValue<'s>>,
+pub struct LessBinaryOperation<'a> {
+    pub left: Box<'a, ComponentValue<'a>>,
     pub op: LessOperationOperator,
-    pub right: Box<ComponentValue<'s>>,
+    pub right: Box<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LessCondition<'s> {
-    Binary(LessBinaryCondition<'s>),
-    Negated(LessNegatedCondition<'s>),
-    Parenthesized(LessParenthesizedCondition<'s>),
-    Value(ComponentValue<'s>),
+pub enum LessCondition<'a> {
+    Binary(LessBinaryCondition<'a>),
+    Negated(LessNegatedCondition<'a>),
+    Parenthesized(LessParenthesizedCondition<'a>),
+    Value(ComponentValue<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessConditionalQualifiedRule<'s> {
-    pub selector: SelectorList<'s>,
-    pub guard: LessConditions<'s>,
-    pub block: SimpleBlock<'s>,
+pub struct LessConditionalQualifiedRule<'a> {
+    pub selector: SelectorList<'a>,
+    pub guard: LessConditions<'a>,
+    pub block: SimpleBlock<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessConditions<'s> {
-    pub conditions: Vec<LessCondition<'s>>,
+pub struct LessConditions<'a> {
+    pub conditions: Vec<'a, LessCondition<'a>>,
     pub when_span: Span,
-    pub comma_spans: Vec<Span>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessDetachedRuleset<'s> {
-    pub block: SimpleBlock<'s>,
+pub struct LessDetachedRuleset<'a> {
+    pub block: SimpleBlock<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessEscapedStr<'s> {
-    pub str: Str<'s>,
+pub struct LessEscapedStr<'a> {
+    pub str: Str<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessExtend<'s> {
-    pub selector: ComplexSelector<'s>,
-    pub all: Option<Ident<'s>>,
+pub struct LessExtend<'a> {
+    pub selector: ComplexSelector<'a>,
+    pub all: Option<Ident<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessExtendList<'s> {
-    pub elements: Vec<LessExtend<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct LessExtendList<'a> {
+    pub elements: Vec<'a, LessExtend<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessExtendRule<'s> {
-    pub nesting_selector: NestingSelector<'s>,
-    pub name_of_extend: Ident<'s>,
-    pub extend: LessExtendList<'s>,
+pub struct LessExtendRule<'a> {
+    pub nesting_selector: NestingSelector<'a>,
+    pub name_of_extend: Ident<'a>,
+    pub extend: LessExtendList<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -918,89 +917,89 @@ pub struct LessFormatFunction {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessImportOptions<'s> {
-    pub names: Vec<Ident<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct LessImportOptions<'a> {
+    pub names: Vec<'a, Ident<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessImportPrelude<'s> {
-    pub href: ImportPreludeHref<'s>,
-    pub options: LessImportOptions<'s>,
-    pub media: Option<MediaQueryList<'s>>,
+pub struct LessImportPrelude<'a> {
+    pub href: ImportPreludeHref<'a>,
+    pub options: LessImportOptions<'a>,
+    pub media: Option<MediaQueryList<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessInterpolatedIdent<'s> {
-    pub elements: Vec<LessInterpolatedIdentElement<'s>>,
+pub struct LessInterpolatedIdent<'a> {
+    pub elements: Vec<'a, LessInterpolatedIdentElement<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LessInterpolatedIdentElement<'s> {
-    Variable(LessVariableInterpolation<'s>),
-    Property(LessPropertyInterpolation<'s>),
-    Static(InterpolableIdentStaticPart<'s>),
+pub enum LessInterpolatedIdentElement<'a> {
+    Variable(LessVariableInterpolation<'a>),
+    Property(LessPropertyInterpolation<'a>),
+    Static(InterpolableIdentStaticPart<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessInterpolatedStr<'s> {
-    pub elements: Vec<LessInterpolatedStrElement<'s>>,
+pub struct LessInterpolatedStr<'a> {
+    pub elements: Vec<'a, LessInterpolatedStrElement<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LessInterpolatedStrElement<'s> {
-    Variable(LessVariableInterpolation<'s>),
-    Property(LessPropertyInterpolation<'s>),
-    Static(InterpolableStrStaticPart<'s>),
+pub enum LessInterpolatedStrElement<'a> {
+    Variable(LessVariableInterpolation<'a>),
+    Property(LessPropertyInterpolation<'a>),
+    Static(InterpolableStrStaticPart<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessJavaScriptSnippet<'s> {
-    pub code: &'s str,
-    pub raw: &'s str,
+pub struct LessJavaScriptSnippet<'a> {
+    pub code: &'a str,
+    pub raw: &'a str,
     pub escaped: bool,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessList<'s> {
-    pub elements: Vec<ComponentValue<'s>>,
-    pub comma_spans: Option<Vec<Span>>,
+pub struct LessList<'a> {
+    pub elements: Vec<'a, ComponentValue<'a>>,
+    pub comma_spans: Option<Vec<'a, Span>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -1008,239 +1007,239 @@ pub struct LessListFunction {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessLookup<'s> {
-    pub name: Option<LessLookupName<'s>>,
+pub struct LessLookup<'a> {
+    pub name: Option<LessLookupName<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LessLookupName<'s> {
-    LessVariable(LessVariable<'s>),
-    LessVariableVariable(LessVariableVariable<'s>),
-    LessPropertyVariable(LessPropertyVariable<'s>),
-    Ident(Ident<'s>),
+pub enum LessLookupName<'a> {
+    LessVariable(LessVariable<'a>),
+    LessVariableVariable(LessVariableVariable<'a>),
+    LessPropertyVariable(LessPropertyVariable<'a>),
+    Ident(Ident<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessLookups<'s> {
-    pub lookups: Vec<LessLookup<'s>>,
+pub struct LessLookups<'a> {
+    pub lookups: Vec<'a, LessLookup<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LessMixinArgument<'s> {
-    Named(LessMixinNamedArgument<'s>),
-    Value(ComponentValue<'s>),
-    Variadic(LessMixinVariadicArgument<'s>),
+pub enum LessMixinArgument<'a> {
+    Named(LessMixinNamedArgument<'a>),
+    Value(ComponentValue<'a>),
+    Variadic(LessMixinVariadicArgument<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinArguments<'s> {
-    pub args: Vec<LessMixinArgument<'s>>,
+pub struct LessMixinArguments<'a> {
+    pub args: Vec<'a, LessMixinArgument<'a>>,
     pub is_comma_separated: bool,
-    pub separator_spans: Vec<Span>,
+    pub separator_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinCall<'s> {
-    pub callee: LessMixinCallee<'s>,
-    pub args: Option<LessMixinArguments<'s>>,
-    pub important: Option<ImportantAnnotation<'s>>,
+pub struct LessMixinCall<'a> {
+    pub callee: LessMixinCallee<'a>,
+    pub args: Option<LessMixinArguments<'a>>,
+    pub important: Option<ImportantAnnotation<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinCallee<'s> {
-    pub children: Vec<LessMixinCalleeChild<'s>>,
+pub struct LessMixinCallee<'a> {
+    pub children: Vec<'a, LessMixinCalleeChild<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinCalleeChild<'s> {
-    pub name: LessMixinName<'s>,
+pub struct LessMixinCalleeChild<'a> {
+    pub name: LessMixinName<'a>,
     pub combinator: Option<Combinator>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinDefinition<'s> {
-    pub name: LessMixinName<'s>,
-    pub params: LessMixinParameters<'s>,
-    pub guard: Option<LessConditions<'s>>,
-    pub block: SimpleBlock<'s>,
+pub struct LessMixinDefinition<'a> {
+    pub name: LessMixinName<'a>,
+    pub params: LessMixinParameters<'a>,
+    pub guard: Option<LessConditions<'a>>,
+    pub block: SimpleBlock<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LessMixinName<'s> {
-    ClassSelector(ClassSelector<'s>),
-    IdSelector(IdSelector<'s>),
+pub enum LessMixinName<'a> {
+    ClassSelector(ClassSelector<'a>),
+    IdSelector(IdSelector<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinNamedArgument<'s> {
-    pub name: LessMixinParameterName<'s>,
+pub struct LessMixinNamedArgument<'a> {
+    pub name: LessMixinParameterName<'a>,
     pub colon_span: Span,
-    pub value: ComponentValue<'s>,
+    pub value: ComponentValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinNamedParameter<'s> {
-    pub name: LessMixinParameterName<'s>,
-    pub value: Option<LessMixinNamedParameterDefaultValue<'s>>,
+pub struct LessMixinNamedParameter<'a> {
+    pub name: LessMixinParameterName<'a>,
+    pub value: Option<LessMixinNamedParameterDefaultValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinNamedParameterDefaultValue<'s> {
+pub struct LessMixinNamedParameterDefaultValue<'a> {
     pub colon_span: Span,
-    pub value: ComponentValue<'s>,
+    pub value: ComponentValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LessMixinParameter<'s> {
-    Named(LessMixinNamedParameter<'s>),
-    Unnamed(LessMixinUnnamedParameter<'s>),
-    Variadic(LessMixinVariadicParameter<'s>),
+pub enum LessMixinParameter<'a> {
+    Named(LessMixinNamedParameter<'a>),
+    Unnamed(LessMixinUnnamedParameter<'a>),
+    Variadic(LessMixinVariadicParameter<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinParameters<'s> {
-    pub params: Vec<LessMixinParameter<'s>>,
+pub struct LessMixinParameters<'a> {
+    pub params: Vec<'a, LessMixinParameter<'a>>,
     pub is_comma_separated: bool,
-    pub separator_spans: Vec<Span>,
+    pub separator_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LessMixinParameterName<'s> {
-    Variable(LessVariable<'s>),
-    PropertyVariable(LessPropertyVariable<'s>),
+pub enum LessMixinParameterName<'a> {
+    Variable(LessVariable<'a>),
+    PropertyVariable(LessPropertyVariable<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinUnnamedParameter<'s> {
-    pub value: ComponentValue<'s>,
+pub struct LessMixinUnnamedParameter<'a> {
+    pub value: ComponentValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinVariadicArgument<'s> {
-    pub name: LessMixinParameterName<'s>,
+pub struct LessMixinVariadicArgument<'a> {
+    pub name: LessMixinParameterName<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessMixinVariadicParameter<'s> {
-    pub name: Option<LessMixinParameterName<'s>>,
+pub struct LessMixinVariadicParameter<'a> {
+    pub name: Option<LessMixinParameterName<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessNamespaceValue<'s> {
-    pub callee: LessNamespaceValueCallee<'s>,
-    pub lookups: LessLookups<'s>,
+pub struct LessNamespaceValue<'a> {
+    pub callee: LessNamespaceValueCallee<'a>,
+    pub lookups: LessLookups<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LessNamespaceValueCallee<'s> {
-    LessMixinCall(LessMixinCall<'s>),
-    LessVariable(LessVariable<'s>),
+pub enum LessNamespaceValueCallee<'a> {
+    LessMixinCall(LessMixinCall<'a>),
+    LessVariable(LessVariable<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessNegatedCondition<'s> {
-    pub condition: Box<LessCondition<'s>>,
+pub struct LessNegatedCondition<'a> {
+    pub condition: Box<'a, LessCondition<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessNegativeValue<'s> {
-    pub value: Box<ComponentValue<'s>>,
+pub struct LessNegativeValue<'a> {
+    pub value: Box<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -1249,7 +1248,7 @@ pub struct LessOperationOperator {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum LessOperationOperatorKind {
@@ -1259,25 +1258,25 @@ pub enum LessOperationOperatorKind {
     Minus,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessParenthesizedCondition<'s> {
-    pub condition: Box<LessCondition<'s>>,
+pub struct LessParenthesizedCondition<'a> {
+    pub condition: Box<'a, LessCondition<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessParenthesizedOperation<'s> {
-    pub operation: Box<ComponentValue<'s>>,
+pub struct LessParenthesizedOperation<'a> {
+    pub operation: Box<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -1285,36 +1284,36 @@ pub struct LessPercentKeyword {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessPlugin<'s> {
-    pub path: LessPluginPath<'s>,
-    pub args: Option<TokenSeq<'s>>,
+pub struct LessPlugin<'a> {
+    pub path: LessPluginPath<'a>,
+    pub args: Option<TokenSeq<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum LessPluginPath<'s> {
-    Str(Str<'s>),
-    Url(Url<'s>),
+pub enum LessPluginPath<'a> {
+    Str(Str<'a>),
+    Url(Url<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessPropertyInterpolation<'s> {
-    pub name: Ident<'s>,
+pub struct LessPropertyInterpolation<'a> {
+    pub name: Ident<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -1323,7 +1322,7 @@ pub struct LessPropertyMerge {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum LessPropertyMergeKind {
@@ -1331,116 +1330,116 @@ pub enum LessPropertyMergeKind {
     Space,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessPropertyVariable<'s> {
-    pub name: Ident<'s>,
+pub struct LessPropertyVariable<'a> {
+    pub name: Ident<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessVariable<'s> {
-    pub name: Ident<'s>,
+pub struct LessVariable<'a> {
+    pub name: Ident<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessVariableCall<'s> {
-    pub variable: LessVariable<'s>,
+pub struct LessVariableCall<'a> {
+    pub variable: LessVariable<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessVariableDeclaration<'s> {
-    pub name: LessVariable<'s>,
+pub struct LessVariableDeclaration<'a> {
+    pub name: LessVariable<'a>,
     pub colon_span: Span,
-    pub value: ComponentValue<'s>,
+    pub value: ComponentValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessVariableInterpolation<'s> {
-    pub name: Ident<'s>,
+pub struct LessVariableInterpolation<'a> {
+    pub name: Ident<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct LessVariableVariable<'s> {
-    pub variable: LessVariable<'s>,
+pub struct LessVariableVariable<'a> {
+    pub variable: LessVariable<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaAnd<'s> {
-    pub keyword: Ident<'s>,
-    pub media_in_parens: MediaInParens<'s>,
+pub struct MediaAnd<'a> {
+    pub keyword: Ident<'a>,
+    pub media_in_parens: MediaInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaCondition<'s> {
-    pub conditions: Vec<MediaConditionKind<'s>>,
+pub struct MediaCondition<'a> {
+    pub conditions: Vec<'a, MediaConditionKind<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaConditionAfterMediaType<'s> {
-    pub and: Ident<'s>,
-    pub condition: MediaCondition<'s>,
+pub struct MediaConditionAfterMediaType<'a> {
+    pub and: Ident<'a>,
+    pub condition: MediaCondition<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum MediaConditionKind<'s> {
-    MediaInParens(MediaInParens<'s>),
-    And(MediaAnd<'s>),
-    Or(MediaOr<'s>),
-    Not(MediaNot<'s>),
+pub enum MediaConditionKind<'a> {
+    MediaInParens(MediaInParens<'a>),
+    And(MediaAnd<'a>),
+    Or(MediaOr<'a>),
+    Not(MediaNot<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum MediaFeature<'s> {
-    Plain(MediaFeaturePlain<'s>),
-    Boolean(MediaFeatureBoolean<'s>),
-    Range(MediaFeatureRange<'s>),
-    RangeInterval(MediaFeatureRangeInterval<'s>),
+pub enum MediaFeature<'a> {
+    Plain(MediaFeaturePlain<'a>),
+    Boolean(MediaFeatureBoolean<'a>),
+    Range(MediaFeatureRange<'a>),
+    RangeInterval(MediaFeatureRangeInterval<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -1449,7 +1448,7 @@ pub struct MediaFeatureComparison {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum MediaFeatureComparisonKind {
@@ -1460,183 +1459,183 @@ pub enum MediaFeatureComparisonKind {
     Equal,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum MediaFeatureName<'s> {
-    Ident(InterpolableIdent<'s>),
-    SassVariable(SassVariable<'s>),
+pub enum MediaFeatureName<'a> {
+    Ident(InterpolableIdent<'a>),
+    SassVariable(SassVariable<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaFeatureBoolean<'s> {
-    pub name: MediaFeatureName<'s>,
+pub struct MediaFeatureBoolean<'a> {
+    pub name: MediaFeatureName<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaFeaturePlain<'s> {
-    pub name: MediaFeatureName<'s>,
+pub struct MediaFeaturePlain<'a> {
+    pub name: MediaFeatureName<'a>,
     pub colon_span: Span,
-    pub value: ComponentValue<'s>,
+    pub value: ComponentValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaFeatureRange<'s> {
-    pub left: ComponentValue<'s>,
+pub struct MediaFeatureRange<'a> {
+    pub left: ComponentValue<'a>,
     pub comparison: MediaFeatureComparison,
-    pub right: ComponentValue<'s>,
+    pub right: ComponentValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaFeatureRangeInterval<'s> {
-    pub left: ComponentValue<'s>,
+pub struct MediaFeatureRangeInterval<'a> {
+    pub left: ComponentValue<'a>,
     pub left_comparison: MediaFeatureComparison,
-    pub name: MediaFeatureName<'s>,
+    pub name: MediaFeatureName<'a>,
     pub right_comparison: MediaFeatureComparison,
-    pub right: ComponentValue<'s>,
+    pub right: ComponentValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaInParens<'s> {
-    pub kind: MediaInParensKind<'s>,
+pub struct MediaInParens<'a> {
+    pub kind: MediaInParensKind<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum MediaInParensKind<'s> {
-    MediaCondition(MediaCondition<'s>),
-    MediaFeature(Box<MediaFeature<'s>>),
-    SassInterpolation(SassInterpolatedIdent<'s>),
+pub enum MediaInParensKind<'a> {
+    MediaCondition(MediaCondition<'a>),
+    MediaFeature(Box<'a, MediaFeature<'a>>),
+    SassInterpolation(SassInterpolatedIdent<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaNot<'s> {
-    pub keyword: Ident<'s>,
-    pub media_in_parens: MediaInParens<'s>,
+pub struct MediaNot<'a> {
+    pub keyword: Ident<'a>,
+    pub media_in_parens: MediaInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaOr<'s> {
-    pub keyword: Ident<'s>,
-    pub media_in_parens: MediaInParens<'s>,
+pub struct MediaOr<'a> {
+    pub keyword: Ident<'a>,
+    pub media_in_parens: MediaInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum MediaQuery<'s> {
-    ConditionOnly(MediaCondition<'s>),
-    WithType(MediaQueryWithType<'s>),
-    Function(Function<'s>),
-    LessVariable(LessVariable<'s>),
-    LessNamespaceValue(Box<LessNamespaceValue<'s>>),
+pub enum MediaQuery<'a> {
+    ConditionOnly(MediaCondition<'a>),
+    WithType(MediaQueryWithType<'a>),
+    Function(Function<'a>),
+    LessVariable(LessVariable<'a>),
+    LessNamespaceValue(Box<'a, LessNamespaceValue<'a>>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaQueryList<'s> {
-    pub queries: Vec<MediaQuery<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct MediaQueryList<'a> {
+    pub queries: Vec<'a, MediaQuery<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct MediaQueryWithType<'s> {
-    pub modifier: Option<Ident<'s>>,
-    pub media_type: InterpolableIdent<'s>,
-    pub condition: Option<MediaConditionAfterMediaType<'s>>,
+pub struct MediaQueryWithType<'a> {
+    pub modifier: Option<Ident<'a>>,
+    pub media_type: InterpolableIdent<'a>,
+    pub condition: Option<MediaConditionAfterMediaType<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct NamespacePrelude<'s> {
-    pub prefix: Option<InterpolableIdent<'s>>,
-    pub uri: NamespacePreludeUri<'s>,
+pub struct NamespacePrelude<'a> {
+    pub prefix: Option<InterpolableIdent<'a>>,
+    pub uri: NamespacePreludeUri<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum NamespacePreludeUri<'s> {
-    Str(InterpolableStr<'s>),
-    Url(Url<'s>),
+pub enum NamespacePreludeUri<'a> {
+    Str(InterpolableStr<'a>),
+    Url(Url<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct NestingSelector<'s> {
-    pub suffix: Option<InterpolableIdent<'s>>,
+pub struct NestingSelector<'a> {
+    pub suffix: Option<InterpolableIdent<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct NsPrefix<'s> {
-    pub kind: Option<NsPrefixKind<'s>>,
+pub struct NsPrefix<'a> {
+    pub kind: Option<NsPrefixKind<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum NsPrefixKind<'s> {
-    Ident(InterpolableIdent<'s>),
+pub enum NsPrefixKind<'a> {
+    Ident(InterpolableIdent<'a>),
     Universal(NsPrefixUniversal),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -1644,268 +1643,268 @@ pub struct NsPrefixUniversal {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Nth<'s> {
-    pub index: NthIndex<'s>,
-    pub matcher: Option<NthMatcher<'s>>,
+pub struct Nth<'a> {
+    pub index: NthIndex<'a>,
+    pub matcher: Option<NthMatcher<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum NthIndex<'s> {
-    Odd(Ident<'s>),
-    Even(Ident<'s>),
-    Integer(Number<'s>),
+pub enum NthIndex<'a> {
+    Odd(Ident<'a>),
+    Even(Ident<'a>),
+    Integer(Number<'a>),
     AnPlusB(AnPlusB),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct NthMatcher<'s> {
-    pub selector: Option<SelectorList<'s>>,
+pub struct NthMatcher<'a> {
+    pub selector: Option<SelectorList<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Number<'s> {
+pub struct Number<'a> {
     pub value: f32,
-    pub raw: &'s str,
+    pub raw: &'a str,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct PageSelector<'s> {
-    pub name: Option<InterpolableIdent<'s>>,
-    pub pseudo: Vec<PseudoPage<'s>>,
+pub struct PageSelector<'a> {
+    pub name: Option<InterpolableIdent<'a>>,
+    pub pseudo: Vec<'a, PseudoPage<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct PageSelectorList<'s> {
-    pub selectors: Vec<PageSelector<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct PageSelectorList<'a> {
+    pub selectors: Vec<'a, PageSelector<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Percentage<'s> {
-    pub value: Number<'s>,
+pub struct Percentage<'a> {
+    pub value: Number<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct PseudoClassSelector<'s> {
-    pub name: InterpolableIdent<'s>,
-    pub arg: Option<PseudoClassSelectorArg<'s>>,
+pub struct PseudoClassSelector<'a> {
+    pub name: InterpolableIdent<'a>,
+    pub arg: Option<PseudoClassSelectorArg<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct PseudoClassSelectorArg<'s> {
-    pub kind: PseudoClassSelectorArgKind<'s>,
+pub struct PseudoClassSelectorArg<'a> {
+    pub kind: PseudoClassSelectorArgKind<'a>,
     pub l_paren: Span,
     pub r_paren: Span,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum PseudoClassSelectorArgKind<'s> {
-    CompoundSelector(CompoundSelector<'s>),
-    CompoundSelectorList(CompoundSelectorList<'s>),
-    Ident(InterpolableIdent<'s>),
-    LanguageRangeList(LanguageRangeList<'s>),
-    Nth(Nth<'s>),
-    Number(Number<'s>),
-    RelativeSelectorList(RelativeSelectorList<'s>),
-    SelectorList(SelectorList<'s>),
-    LessExtendList(LessExtendList<'s>),
-    TokenSeq(TokenSeq<'s>),
+pub enum PseudoClassSelectorArgKind<'a> {
+    CompoundSelector(CompoundSelector<'a>),
+    CompoundSelectorList(CompoundSelectorList<'a>),
+    Ident(InterpolableIdent<'a>),
+    LanguageRangeList(LanguageRangeList<'a>),
+    Nth(Nth<'a>),
+    Number(Number<'a>),
+    RelativeSelectorList(RelativeSelectorList<'a>),
+    SelectorList(SelectorList<'a>),
+    LessExtendList(LessExtendList<'a>),
+    TokenSeq(TokenSeq<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct PseudoElementSelector<'s> {
-    pub name: InterpolableIdent<'s>,
-    pub arg: Option<PseudoElementSelectorArg<'s>>,
+pub struct PseudoElementSelector<'a> {
+    pub name: InterpolableIdent<'a>,
+    pub arg: Option<PseudoElementSelectorArg<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct PseudoElementSelectorArg<'s> {
-    pub kind: PseudoElementSelectorArgKind<'s>,
+pub struct PseudoElementSelectorArg<'a> {
+    pub kind: PseudoElementSelectorArgKind<'a>,
     pub l_paren: Span,
     pub r_paren: Span,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum PseudoElementSelectorArgKind<'s> {
-    CompoundSelector(CompoundSelector<'s>),
-    Ident(InterpolableIdent<'s>),
-    TokenSeq(TokenSeq<'s>),
+pub enum PseudoElementSelectorArgKind<'a> {
+    CompoundSelector(CompoundSelector<'a>),
+    Ident(InterpolableIdent<'a>),
+    TokenSeq(TokenSeq<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct PseudoPage<'s> {
-    pub name: InterpolableIdent<'s>,
+pub struct PseudoPage<'a> {
+    pub name: InterpolableIdent<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct QualifiedRule<'s> {
-    pub selector: SelectorList<'s>,
-    pub block: SimpleBlock<'s>,
+pub struct QualifiedRule<'a> {
+    pub selector: SelectorList<'a>,
+    pub block: SimpleBlock<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct QueryInParens<'s> {
-    pub kind: QueryInParensKind<'s>,
+pub struct QueryInParens<'a> {
+    pub kind: QueryInParensKind<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum QueryInParensKind<'s> {
-    ContainerCondition(ContainerCondition<'s>),
-    SizeFeature(Box<MediaFeature<'s>>),
-    StyleQuery(StyleQuery<'s>),
-    ScrollState(Box<MediaFeature<'s>>),
+pub enum QueryInParensKind<'a> {
+    ContainerCondition(ContainerCondition<'a>),
+    SizeFeature(Box<'a, MediaFeature<'a>>),
+    StyleQuery(StyleQuery<'a>),
+    ScrollState(Box<'a, MediaFeature<'a>>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Ratio<'s> {
-    pub numerator: Number<'s>,
+pub struct Ratio<'a> {
+    pub numerator: Number<'a>,
     pub solidus_span: Span,
-    pub denominator: Number<'s>,
+    pub denominator: Number<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct RelativeSelector<'s> {
+pub struct RelativeSelector<'a> {
     pub combinator: Option<Combinator>,
-    pub complex_selector: ComplexSelector<'s>,
+    pub complex_selector: ComplexSelector<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct RelativeSelectorList<'s> {
-    pub selectors: Vec<RelativeSelector<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct RelativeSelectorList<'a> {
+    pub selectors: Vec<'a, RelativeSelector<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassArbitraryArgument<'s> {
-    pub value: Box<ComponentValue<'s>>,
+pub struct SassArbitraryArgument<'a> {
+    pub value: Box<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassArbitraryParameter<'s> {
-    pub name: SassVariable<'s>,
+pub struct SassArbitraryParameter<'a> {
+    pub name: SassVariable<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassAtRoot<'s> {
-    pub kind: SassAtRootKind<'s>,
+pub struct SassAtRoot<'a> {
+    pub kind: SassAtRootKind<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SassAtRootKind<'s> {
-    Selector(SelectorList<'s>),
-    Query(SassAtRootQuery<'s>),
+pub enum SassAtRootKind<'a> {
+    Selector(SelectorList<'a>),
+    Query(SassAtRootQuery<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassAtRootQuery<'s> {
+pub struct SassAtRootQuery<'a> {
     pub modifier: SassAtRootQueryModifier,
     pub colon_span: Span,
     /// space-separated rule names
-    pub rules: Vec<SassAtRootQueryRule<'s>>,
+    pub rules: Vec<'a, SassAtRootQueryRule<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -1914,7 +1913,7 @@ pub struct SassAtRootQueryModifier {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum SassAtRootQueryModifierKind {
@@ -1922,28 +1921,28 @@ pub enum SassAtRootQueryModifierKind {
     Without,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SassAtRootQueryRule<'s> {
-    Ident(InterpolableIdent<'s>),
-    Str(InterpolableStr<'s>),
+pub enum SassAtRootQueryRule<'a> {
+    Ident(InterpolableIdent<'a>),
+    Str(InterpolableStr<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassBinaryExpression<'s> {
-    pub left: Box<ComponentValue<'s>>,
+pub struct SassBinaryExpression<'a> {
+    pub left: Box<'a, ComponentValue<'a>>,
     pub op: SassBinaryOperator,
-    pub right: Box<ComponentValue<'s>>,
+    pub right: Box<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -1952,7 +1951,7 @@ pub struct SassBinaryOperator {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum SassBinaryOperatorKind {
@@ -1971,71 +1970,71 @@ pub enum SassBinaryOperatorKind {
     Or,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassConditionalClause<'s> {
-    pub condition: ComponentValue<'s>,
-    pub block: SimpleBlock<'s>,
+pub struct SassConditionalClause<'a> {
+    pub condition: ComponentValue<'a>,
+    pub block: SimpleBlock<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassContent<'s> {
-    pub args: Vec<ComponentValue<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct SassContent<'a> {
+    pub args: Vec<'a, ComponentValue<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassEach<'s> {
-    pub bindings: Vec<SassVariable<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct SassEach<'a> {
+    pub bindings: Vec<'a, SassVariable<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub in_span: Span,
-    pub expr: ComponentValue<'s>,
+    pub expr: ComponentValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassExtend<'s> {
-    pub selectors: CompoundSelectorList<'s>,
-    pub optional: Option<SassFlag<'s>>,
+pub struct SassExtend<'a> {
+    pub selectors: CompoundSelectorList<'a>,
+    pub optional: Option<SassFlag<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassFlag<'s> {
-    pub keyword: Ident<'s>,
+pub struct SassFlag<'a> {
+    pub keyword: Ident<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassFor<'s> {
-    pub binding: SassVariable<'s>,
+pub struct SassFor<'a> {
+    pub binding: SassVariable<'a>,
     pub from_span: Span,
-    pub start: ComponentValue<'s>,
-    pub end: ComponentValue<'s>,
+    pub start: ComponentValue<'a>,
+    pub end: ComponentValue<'a>,
     pub boundary: SassForBoundary,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -2044,7 +2043,7 @@ pub struct SassForBoundary {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum SassForBoundaryKind {
@@ -2052,50 +2051,50 @@ pub enum SassForBoundaryKind {
     Exclusive,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassForward<'s> {
-    pub path: InterpolableStr<'s>,
-    pub prefix: Option<SassForwardPrefix<'s>>,
-    pub visibility: Option<SassForwardVisibility<'s>>,
-    pub config: Option<SassModuleConfig<'s>>,
+pub struct SassForward<'a> {
+    pub path: InterpolableStr<'a>,
+    pub prefix: Option<SassForwardPrefix<'a>>,
+    pub visibility: Option<SassForwardVisibility<'a>>,
+    pub config: Option<SassModuleConfig<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SassForwardMember<'s> {
-    Ident(Ident<'s>),
-    Variable(SassVariable<'s>),
+pub enum SassForwardMember<'a> {
+    Ident(Ident<'a>),
+    Variable(SassVariable<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassForwardPrefix<'s> {
+pub struct SassForwardPrefix<'a> {
     pub as_span: Span,
-    pub name: Ident<'s>,
+    pub name: Ident<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassForwardVisibility<'s> {
+pub struct SassForwardVisibility<'a> {
     pub modifier: SassForwardVisibilityModifier,
-    pub members: Vec<SassForwardMember<'s>>,
-    pub comma_spans: Vec<Span>,
+    pub members: Vec<'a, SassForwardMember<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -2104,7 +2103,7 @@ pub struct SassForwardVisibilityModifier {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum SassForwardVisibilityModifierKind {
@@ -2112,291 +2111,291 @@ pub enum SassForwardVisibilityModifierKind {
     Show,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassFunction<'s> {
-    pub name: Ident<'s>,
-    pub parameters: SassParameters<'s>,
+pub struct SassFunction<'a> {
+    pub name: Ident<'a>,
+    pub parameters: SassParameters<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassIfAtRule<'s> {
-    pub if_clause: SassConditionalClause<'s>,
-    pub else_if_clauses: Vec<SassConditionalClause<'s>>,
-    pub else_clause: Option<SimpleBlock<'s>>,
-    pub else_spans: Vec<Span>,
+pub struct SassIfAtRule<'a> {
+    pub if_clause: SassConditionalClause<'a>,
+    pub else_if_clauses: Vec<'a, SassConditionalClause<'a>>,
+    pub else_clause: Option<SimpleBlock<'a>>,
+    pub else_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassImportPrelude<'s> {
-    pub paths: Vec<Str<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct SassImportPrelude<'a> {
+    pub paths: Vec<'a, Str<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassInclude<'s> {
-    pub name: FunctionName<'s>,
-    pub arguments: Option<SassIncludeArgs<'s>>,
-    pub content_block_params: Option<SassIncludeContentBlockParams<'s>>,
+pub struct SassInclude<'a> {
+    pub name: FunctionName<'a>,
+    pub arguments: Option<SassIncludeArgs<'a>>,
+    pub content_block_params: Option<SassIncludeContentBlockParams<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassIncludeArgs<'s> {
-    pub args: Vec<ComponentValue<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct SassIncludeArgs<'a> {
+    pub args: Vec<'a, ComponentValue<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassIncludeContentBlockParams<'s> {
+pub struct SassIncludeContentBlockParams<'a> {
     pub using_span: Span,
-    pub params: SassParameters<'s>,
+    pub params: SassParameters<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassInterpolatedIdent<'s> {
-    pub elements: Vec<SassInterpolatedIdentElement<'s>>,
+pub struct SassInterpolatedIdent<'a> {
+    pub elements: Vec<'a, SassInterpolatedIdentElement<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SassInterpolatedIdentElement<'s> {
-    Expression(ComponentValue<'s>),
-    Static(InterpolableIdentStaticPart<'s>),
+pub enum SassInterpolatedIdentElement<'a> {
+    Expression(ComponentValue<'a>),
+    Static(InterpolableIdentStaticPart<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassInterpolatedStr<'s> {
-    pub elements: Vec<SassInterpolatedStrElement<'s>>,
+pub struct SassInterpolatedStr<'a> {
+    pub elements: Vec<'a, SassInterpolatedStrElement<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SassInterpolatedStrElement<'s> {
-    Expression(ComponentValue<'s>),
-    Static(InterpolableStrStaticPart<'s>),
+pub enum SassInterpolatedStrElement<'a> {
+    Expression(ComponentValue<'a>),
+    Static(InterpolableStrStaticPart<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassInterpolatedUrl<'s> {
-    pub elements: Vec<SassInterpolatedUrlElement<'s>>,
+pub struct SassInterpolatedUrl<'a> {
+    pub elements: Vec<'a, SassInterpolatedUrlElement<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SassInterpolatedUrlElement<'s> {
-    Expression(ComponentValue<'s>),
-    Static(InterpolableUrlStaticPart<'s>),
+pub enum SassInterpolatedUrlElement<'a> {
+    Expression(ComponentValue<'a>),
+    Static(InterpolableUrlStaticPart<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassKeywordArgument<'s> {
-    pub name: SassVariable<'s>,
+pub struct SassKeywordArgument<'a> {
+    pub name: SassVariable<'a>,
     pub colon_span: Span,
-    pub value: Box<ComponentValue<'s>>,
+    pub value: Box<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassList<'s> {
-    pub elements: Vec<ComponentValue<'s>>,
-    pub comma_spans: Option<Vec<Span>>,
+pub struct SassList<'a> {
+    pub elements: Vec<'a, ComponentValue<'a>>,
+    pub comma_spans: Option<Vec<'a, Span>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassMap<'s> {
-    pub items: Vec<SassMapItem<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct SassMap<'a> {
+    pub items: Vec<'a, SassMapItem<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassMapItem<'s> {
-    pub key: ComponentValue<'s>,
+pub struct SassMapItem<'a> {
+    pub key: ComponentValue<'a>,
     pub colon_span: Span,
-    pub value: ComponentValue<'s>,
+    pub value: ComponentValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassMixin<'s> {
-    pub name: Ident<'s>,
-    pub parameters: Option<SassParameters<'s>>,
+pub struct SassMixin<'a> {
+    pub name: Ident<'a>,
+    pub parameters: Option<SassParameters<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassModuleConfig<'s> {
+pub struct SassModuleConfig<'a> {
     pub with_span: Span,
     pub lparen_span: Span,
-    pub items: Vec<SassModuleConfigItem<'s>>,
-    pub comma_spans: Vec<Span>,
+    pub items: Vec<'a, SassModuleConfigItem<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassModuleConfigItem<'s> {
-    pub variable: SassVariable<'s>,
+pub struct SassModuleConfigItem<'a> {
+    pub variable: SassVariable<'a>,
     pub colon_span: Span,
-    pub value: ComponentValue<'s>,
-    pub flags: Vec<SassFlag<'s>>,
+    pub value: ComponentValue<'a>,
+    pub flags: Vec<'a, SassFlag<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SassModuleMemberName<'s> {
-    Ident(Ident<'s>),
-    Variable(SassVariable<'s>),
+pub enum SassModuleMemberName<'a> {
+    Ident(Ident<'a>),
+    Variable(SassVariable<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassNestingDeclaration<'s> {
-    pub block: SimpleBlock<'s>,
+pub struct SassNestingDeclaration<'a> {
+    pub block: SimpleBlock<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassParameter<'s> {
-    pub name: SassVariable<'s>,
-    pub default_value: Option<SassParameterDefaultValue<'s>>,
+pub struct SassParameter<'a> {
+    pub name: SassVariable<'a>,
+    pub default_value: Option<SassParameterDefaultValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassParameterDefaultValue<'s> {
+pub struct SassParameterDefaultValue<'a> {
     pub colon_span: Span,
-    pub value: ComponentValue<'s>,
+    pub value: ComponentValue<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassParameters<'s> {
-    pub params: Vec<SassParameter<'s>>,
-    pub arbitrary_param: Option<SassArbitraryParameter<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct SassParameters<'a> {
+    pub params: Vec<'a, SassParameter<'a>>,
+    pub arbitrary_param: Option<SassArbitraryParameter<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassParenthesizedExpression<'s> {
-    pub expr: Box<ComponentValue<'s>>,
+pub struct SassParenthesizedExpression<'a> {
+    pub expr: Box<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassPlaceholderSelector<'s> {
-    pub name: InterpolableIdent<'s>,
+pub struct SassPlaceholderSelector<'a> {
+    pub name: InterpolableIdent<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassQualifiedName<'s> {
-    pub module: Ident<'s>,
-    pub member: SassModuleMemberName<'s>,
+pub struct SassQualifiedName<'a> {
+    pub module: Ident<'a>,
+    pub member: SassModuleMemberName<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassUnaryExpression<'s> {
+pub struct SassUnaryExpression<'a> {
     pub op: SassUnaryOperator,
-    pub expr: Box<ComponentValue<'s>>,
+    pub expr: Box<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -2405,7 +2404,7 @@ pub struct SassUnaryOperator {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 pub enum SassUnaryOperatorKind {
@@ -2414,7 +2413,7 @@ pub enum SassUnaryOperatorKind {
     Not,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
@@ -2422,468 +2421,468 @@ pub struct SassUnnamedNamespace {
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassUse<'s> {
-    pub path: InterpolableStr<'s>,
-    pub namespace: Option<SassUseNamespace<'s>>,
-    pub config: Option<SassModuleConfig<'s>>,
+pub struct SassUse<'a> {
+    pub path: InterpolableStr<'a>,
+    pub namespace: Option<SassUseNamespace<'a>>,
+    pub config: Option<SassModuleConfig<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassUseNamespace<'s> {
+pub struct SassUseNamespace<'a> {
     pub as_span: Span,
-    pub kind: SassUseNamespaceKind<'s>,
+    pub kind: SassUseNamespaceKind<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SassUseNamespaceKind<'s> {
-    Named(Ident<'s>),
+pub enum SassUseNamespaceKind<'a> {
+    Named(Ident<'a>),
     Unnamed(SassUnnamedNamespace),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassVariable<'s> {
-    pub name: Ident<'s>,
+pub struct SassVariable<'a> {
+    pub name: Ident<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SassVariableDeclaration<'s> {
-    pub namespace: Option<Ident<'s>>,
-    pub name: SassVariable<'s>,
+pub struct SassVariableDeclaration<'a> {
+    pub namespace: Option<Ident<'a>>,
+    pub name: SassVariable<'a>,
     pub colon_span: Span,
-    pub value: ComponentValue<'s>,
-    pub flags: Vec<SassFlag<'s>>,
+    pub value: ComponentValue<'a>,
+    pub flags: Vec<'a, SassFlag<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ScopeEnd<'s> {
+pub struct ScopeEnd<'a> {
     pub to_span: Span,
     pub lparen_span: Span,
-    pub selector: SelectorList<'s>,
+    pub selector: SelectorList<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum ScopePrelude<'s> {
-    StartOnly(ScopeStart<'s>),
-    EndOnly(ScopeEnd<'s>),
-    Both(ScopeStartWithEnd<'s>),
+pub enum ScopePrelude<'a> {
+    StartOnly(ScopeStart<'a>),
+    EndOnly(ScopeEnd<'a>),
+    Both(ScopeStartWithEnd<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ScopeStart<'s> {
-    pub selector: SelectorList<'s>,
+pub struct ScopeStart<'a> {
+    pub selector: SelectorList<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct ScopeStartWithEnd<'s> {
-    pub start: ScopeStart<'s>,
-    pub end: ScopeEnd<'s>,
+pub struct ScopeStartWithEnd<'a> {
+    pub start: ScopeStart<'a>,
+    pub end: ScopeEnd<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SelectorList<'s> {
-    pub selectors: Vec<ComplexSelector<'s>>,
-    pub comma_spans: Vec<Span>,
+pub struct SelectorList<'a> {
+    pub selectors: Vec<'a, ComplexSelector<'a>>,
+    pub comma_spans: Vec<'a, Span>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SimpleBlock<'s> {
-    pub statements: Vec<Statement<'s>>,
+pub struct SimpleBlock<'a> {
+    pub statements: Vec<'a, Statement<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SimpleSelector<'s> {
-    Class(ClassSelector<'s>),
-    Id(IdSelector<'s>),
-    Type(TypeSelector<'s>),
-    Attribute(AttributeSelector<'s>),
-    PseudoClass(PseudoClassSelector<'s>),
-    PseudoElement(PseudoElementSelector<'s>),
-    Nesting(NestingSelector<'s>),
-    SassPlaceholder(SassPlaceholderSelector<'s>),
+pub enum SimpleSelector<'a> {
+    Class(ClassSelector<'a>),
+    Id(IdSelector<'a>),
+    Type(TypeSelector<'a>),
+    Attribute(AttributeSelector<'a>),
+    PseudoClass(PseudoClassSelector<'a>),
+    PseudoElement(PseudoElementSelector<'a>),
+    Nesting(NestingSelector<'a>),
+    SassPlaceholder(SassPlaceholderSelector<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum Statement<'s> {
-    AtRule(AtRule<'s>),
-    Declaration(Declaration<'s>),
-    KeyframeBlock(KeyframeBlock<'s>),
-    LessConditionalQualifiedRule(LessConditionalQualifiedRule<'s>),
-    LessExtendRule(LessExtendRule<'s>),
-    LessFunctionCall(Function<'s>),
-    LessMixinCall(LessMixinCall<'s>),
-    LessMixinDefinition(LessMixinDefinition<'s>),
-    LessVariableCall(LessVariableCall<'s>),
-    LessVariableDeclaration(LessVariableDeclaration<'s>),
-    Placeholder(Placeholder<'s>),
-    QualifiedRule(QualifiedRule<'s>),
-    SassIfAtRule(SassIfAtRule<'s>),
-    SassVariableDeclaration(SassVariableDeclaration<'s>),
-    UnknownSassAtRule(Box<UnknownSassAtRule<'s>>),
+pub enum Statement<'a> {
+    AtRule(AtRule<'a>),
+    Declaration(Declaration<'a>),
+    KeyframeBlock(KeyframeBlock<'a>),
+    LessConditionalQualifiedRule(LessConditionalQualifiedRule<'a>),
+    LessExtendRule(LessExtendRule<'a>),
+    LessFunctionCall(Function<'a>),
+    LessMixinCall(LessMixinCall<'a>),
+    LessMixinDefinition(LessMixinDefinition<'a>),
+    LessVariableCall(LessVariableCall<'a>),
+    LessVariableDeclaration(LessVariableDeclaration<'a>),
+    Placeholder(Placeholder<'a>),
+    QualifiedRule(QualifiedRule<'a>),
+    SassIfAtRule(SassIfAtRule<'a>),
+    SassVariableDeclaration(SassVariableDeclaration<'a>),
+    UnknownSassAtRule(Box<'a, UnknownSassAtRule<'a>>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Str<'s> {
-    pub value: Cow<'s, str>,
-    pub raw: &'s str,
+pub struct Str<'a> {
+    pub value: &'a str,
+    pub raw: &'a str,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct StyleCondition<'s> {
-    pub conditions: Vec<StyleConditionKind<'s>>,
+pub struct StyleCondition<'a> {
+    pub conditions: Vec<'a, StyleConditionKind<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum StyleConditionKind<'s> {
-    StyleInParens(StyleInParens<'s>),
-    And(StyleConditionAnd<'s>),
-    Or(StyleConditionOr<'s>),
-    Not(StyleConditionNot<'s>),
+pub enum StyleConditionKind<'a> {
+    StyleInParens(StyleInParens<'a>),
+    And(StyleConditionAnd<'a>),
+    Or(StyleConditionOr<'a>),
+    Not(StyleConditionNot<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct StyleConditionAnd<'s> {
-    pub keyword: Ident<'s>,
-    pub style_in_parens: StyleInParens<'s>,
+pub struct StyleConditionAnd<'a> {
+    pub keyword: Ident<'a>,
+    pub style_in_parens: StyleInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct StyleConditionNot<'s> {
-    pub keyword: Ident<'s>,
-    pub style_in_parens: StyleInParens<'s>,
+pub struct StyleConditionNot<'a> {
+    pub keyword: Ident<'a>,
+    pub style_in_parens: StyleInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct StyleConditionOr<'s> {
-    pub keyword: Ident<'s>,
-    pub style_in_parens: StyleInParens<'s>,
+pub struct StyleConditionOr<'a> {
+    pub keyword: Ident<'a>,
+    pub style_in_parens: StyleInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct StyleInParens<'s> {
-    pub kind: StyleInParensKind<'s>,
+pub struct StyleInParens<'a> {
+    pub kind: StyleInParensKind<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum StyleInParensKind<'s> {
-    Condition(StyleCondition<'s>),
-    Feature(Declaration<'s>),
+pub enum StyleInParensKind<'a> {
+    Condition(StyleCondition<'a>),
+    Feature(Declaration<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum StyleQuery<'s> {
-    Condition(StyleCondition<'s>),
-    Feature(Declaration<'s>),
+pub enum StyleQuery<'a> {
+    Condition(StyleCondition<'a>),
+    Feature(Declaration<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Stylesheet<'s> {
-    pub statements: Vec<Statement<'s>>,
+pub struct Stylesheet<'a> {
+    pub statements: Vec<'a, Statement<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SupportsAnd<'s> {
-    pub keyword: Ident<'s>,
-    pub condition: SupportsInParens<'s>,
+pub struct SupportsAnd<'a> {
+    pub keyword: Ident<'a>,
+    pub condition: SupportsInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SupportsCondition<'s> {
-    pub conditions: Vec<SupportsConditionKind<'s>>,
+pub struct SupportsCondition<'a> {
+    pub conditions: Vec<'a, SupportsConditionKind<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SupportsConditionKind<'s> {
-    Not(SupportsNot<'s>),
-    And(SupportsAnd<'s>),
-    Or(SupportsOr<'s>),
-    SupportsInParens(SupportsInParens<'s>),
+pub enum SupportsConditionKind<'a> {
+    Not(SupportsNot<'a>),
+    And(SupportsAnd<'a>),
+    Or(SupportsOr<'a>),
+    SupportsInParens(SupportsInParens<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SupportsDecl<'s> {
-    pub decl: Declaration<'s>,
+pub struct SupportsDecl<'a> {
+    pub decl: Declaration<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SupportsInParens<'s> {
-    pub kind: SupportsInParensKind<'s>,
+pub struct SupportsInParens<'a> {
+    pub kind: SupportsInParensKind<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum SupportsInParensKind<'s> {
-    SupportsCondition(SupportsCondition<'s>),
-    Feature(Box<SupportsDecl<'s>>),
-    Selector(SelectorList<'s>),
-    Function(Function<'s>),
+pub enum SupportsInParensKind<'a> {
+    SupportsCondition(SupportsCondition<'a>),
+    Feature(Box<'a, SupportsDecl<'a>>),
+    Selector(SelectorList<'a>),
+    Function(Function<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SupportsNot<'s> {
-    pub keyword: Ident<'s>,
-    pub condition: SupportsInParens<'s>,
+pub struct SupportsNot<'a> {
+    pub keyword: Ident<'a>,
+    pub condition: SupportsInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct SupportsOr<'s> {
-    pub keyword: Ident<'s>,
-    pub condition: SupportsInParens<'s>,
+pub struct SupportsOr<'a> {
+    pub keyword: Ident<'a>,
+    pub condition: SupportsInParens<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct TagNameSelector<'s> {
-    pub name: WqName<'s>,
+pub struct TagNameSelector<'a> {
+    pub name: WqName<'a>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct TokenSeq<'s> {
-    pub tokens: Vec<TokenWithSpan<'s>>,
+pub struct TokenSeq<'a> {
+    pub tokens: Vec<'a, TokenWithSpan<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum TypeSelector<'s> {
-    TagName(TagNameSelector<'s>),
-    Universal(UniversalSelector<'s>),
+pub enum TypeSelector<'a> {
+    TagName(TagNameSelector<'a>),
+    Universal(UniversalSelector<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct UnicodeRange<'s> {
+pub struct UnicodeRange<'a> {
     pub prefix: char,
     pub start: u32,
-    pub start_raw: &'s str,
+    pub start_raw: &'a str,
     pub end: u32,
-    pub end_raw: Option<&'s str>,
+    pub end_raw: Option<&'a str>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct UniversalSelector<'s> {
-    pub prefix: Option<NsPrefix<'s>>,
+pub struct UniversalSelector<'a> {
+    pub prefix: Option<NsPrefix<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum UnknownAtRulePrelude<'s> {
-    ComponentValue(ComponentValue<'s>),
-    TokenSeq(TokenSeq<'s>),
+pub enum UnknownAtRulePrelude<'a> {
+    ComponentValue(ComponentValue<'a>),
+    TokenSeq(TokenSeq<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct UnknownSassAtRule<'s> {
-    pub name: InterpolableIdent<'s>,
-    pub prelude: Option<UnknownAtRulePrelude<'s>>,
-    pub block: Option<SimpleBlock<'s>>,
+pub struct UnknownSassAtRule<'a> {
+    pub name: InterpolableIdent<'a>,
+    pub prelude: Option<UnknownAtRulePrelude<'a>>,
+    pub block: Option<SimpleBlock<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct UnquotedFontFamilyName<'s> {
-    pub idents: Vec<InterpolableIdent<'s>>,
+pub struct UnquotedFontFamilyName<'a> {
+    pub idents: Vec<'a, InterpolableIdent<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct Url<'s> {
-    pub name: Ident<'s>,
-    pub value: Option<UrlValue<'s>>,
-    pub modifiers: Vec<UrlModifier<'s>>,
+pub struct Url<'a> {
+    pub name: Ident<'a>,
+    pub value: Option<UrlValue<'a>>,
+    pub modifiers: Vec<'a, UrlModifier<'a>>,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum UrlModifier<'s> {
-    Ident(InterpolableIdent<'s>),
-    Function(Function<'s>),
+pub enum UrlModifier<'a> {
+    Ident(InterpolableIdent<'a>),
+    Function(Function<'a>),
 }
 
 /// `)` is excluded
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct UrlRaw<'s> {
-    pub value: Cow<'s, str>,
-    pub raw: &'s str,
+pub struct UrlRaw<'a> {
+    pub value: &'a str,
+    pub raw: &'a str,
     pub span: Span,
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(untagged))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
 #[cfg_attr(feature = "variant_helpers", derive(EnumAsIs))]
-pub enum UrlValue<'s> {
-    Raw(UrlRaw<'s>),
-    SassInterpolated(SassInterpolatedUrl<'s>),
-    Str(InterpolableStr<'s>),
-    LessEscapedStr(LessEscapedStr<'s>),
+pub enum UrlValue<'a> {
+    Raw(UrlRaw<'a>),
+    SassInterpolated(SassInterpolatedUrl<'a>),
+    Str(InterpolableStr<'a>),
+    LessEscapedStr(LessEscapedStr<'a>),
 }
 
-#[derive(Clone, Debug, Spanned, PartialEq)]
+#[derive(Debug, Spanned)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 #[cfg_attr(feature = "span_ignored_eq", derive(SpanIgnoredEq))]
-pub struct WqName<'s> {
-    pub name: InterpolableIdent<'s>,
-    pub prefix: Option<NsPrefix<'s>>,
+pub struct WqName<'a> {
+    pub name: InterpolableIdent<'a>,
+    pub prefix: Option<NsPrefix<'a>>,
     pub span: Span,
 }

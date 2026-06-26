@@ -115,3 +115,28 @@ macro_rules! peek {
         }
     }};
 }
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! arena_box {
+    ($parser:expr, $value:expr) => {{ oxc_allocator::Box::new_in($value, $parser.allocator()) }};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! arena_vec {
+    ($parser:expr) => {{
+        oxc_allocator::Vec::new_in($parser.allocator())
+    }};
+    ($parser:expr; $($value:expr),+ $(,)?) => {{
+        let mut vec = oxc_allocator::Vec::with_capacity_in(
+            <[()]>::len(&[$($crate::arena_vec!(@unit $value)),+]),
+            $parser.allocator(),
+        );
+        $(vec.push($value);)+
+        vec
+    }};
+    (@unit $value:expr) => {
+        ()
+    };
+}

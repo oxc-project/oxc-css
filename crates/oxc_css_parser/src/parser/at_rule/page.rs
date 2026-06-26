@@ -1,6 +1,6 @@
 use super::Parser;
 use crate::{
-    Parse,
+    Parse, arena_vec,
     ast::*,
     eat,
     error::PResult,
@@ -11,10 +11,10 @@ use crate::{
 };
 
 // https://www.w3.org/TR/css-page-3/#syntax-page-selector
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for PageSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for PageSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let mut name = None;
-        let mut pseudo = vec![];
+        let mut pseudo = arena_vec!(input);
         let start;
         let mut end;
 
@@ -46,13 +46,13 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for PageSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for PageSelectorList<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for PageSelectorList<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first = input.parse::<PageSelector>()?;
         let mut span = first.span.clone();
 
-        let mut selectors = vec![first];
-        let mut comma_spans = vec![];
+        let mut selectors = arena_vec!(input; first);
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             selectors.push(input.parse()?);
@@ -65,8 +65,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for PageSelectorList<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for PseudoPage<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for PseudoPage<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, colon_span) = expect!(input, Colon);
         let name = input.parse::<InterpolableIdent>()?;
 

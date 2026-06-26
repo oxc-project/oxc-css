@@ -1,6 +1,6 @@
 use super::Parser;
 use crate::{
-    Parse,
+    Parse, arena_box, arena_vec,
     ast::*,
     eat,
     error::{Error, ErrorKind, PResult},
@@ -9,21 +9,22 @@ use crate::{
     tokenizer::{Token, TokenWithSpan},
 };
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ContainerCondition<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ContainerCondition<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match &peek!(input).token {
             Token::Ident(ident) if ident.name().eq_ignore_ascii_case("not") => {
                 let container_condition_not = input.parse::<ContainerConditionNot>()?;
                 let span = container_condition_not.span.clone();
                 Ok(ContainerCondition {
-                    conditions: vec![ContainerConditionKind::Not(container_condition_not)],
+                    conditions: arena_vec!(input; ContainerConditionKind::Not(container_condition_not)),
                     span,
                 })
             }
             _ => {
                 let first = input.parse::<QueryInParens>()?;
                 let mut span = first.span.clone();
-                let mut conditions = vec![ContainerConditionKind::QueryInParens(first)];
+                let mut conditions =
+                    arena_vec!(input; ContainerConditionKind::QueryInParens(first));
                 if let Token::Ident(ident) = &peek!(input).token {
                     let name = ident.name();
                     if name.eq_ignore_ascii_case("and") {
@@ -55,8 +56,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ContainerCondition<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ContainerConditionAnd<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ContainerConditionAnd<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let keyword = input.parse::<Ident>()?;
         if keyword.name.eq_ignore_ascii_case("and") {
             let query_in_parens = input.parse::<QueryInParens>()?;
@@ -68,8 +69,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ContainerConditionAnd<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ContainerConditionNot<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ContainerConditionNot<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let keyword = input.parse::<Ident>()?;
         if keyword.name.eq_ignore_ascii_case("not") {
             let query_in_parens = input.parse::<QueryInParens>()?;
@@ -81,8 +82,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ContainerConditionNot<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ContainerConditionOr<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ContainerConditionOr<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let keyword = input.parse::<Ident>()?;
         if keyword.name.eq_ignore_ascii_case("or") {
             let query_in_parens = input.parse::<QueryInParens>()?;
@@ -94,13 +95,13 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ContainerConditionOr<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for QueryInParens<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for QueryInParens<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if let Some((_, Span { start, .. })) = eat!(input, LParen) {
             let kind = if let Ok(container_condition) = input.try_parse(ContainerCondition::parse) {
                 QueryInParensKind::ContainerCondition(container_condition)
             } else {
-                QueryInParensKind::SizeFeature(Box::new(input.parse()?))
+                QueryInParensKind::SizeFeature(arena_box!(input, input.parse()?))
             };
             let (_, Span { end, .. }) = expect!(input, RParen);
             Ok(QueryInParens { kind, span: Span { start, end } })
@@ -115,8 +116,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for QueryInParens<'s> {
             } else if keyword.eq_ignore_ascii_case("scroll-state") {
                 // https://drafts.csswg.org/css-conditional-5/#scroll-state-container
                 expect_without_ws_or_comments!(input, LParen);
-                let kind =
-                    input.parse().map(|media| QueryInParensKind::ScrollState(Box::new(media)))?;
+                let media = input.parse()?;
+                let kind = QueryInParensKind::ScrollState(arena_box!(input, media));
                 let (_, Span { end, .. }) = expect!(input, RParen);
                 Ok(QueryInParens { kind, span: Span { start: ident_span.start, end } })
             } else {
@@ -126,21 +127,21 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for QueryInParens<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleCondition<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for StyleCondition<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match &peek!(input).token {
             Token::Ident(ident) if ident.name().eq_ignore_ascii_case("not") => {
                 let style_condition_not = input.parse::<StyleConditionNot>()?;
                 let span = style_condition_not.span.clone();
                 Ok(StyleCondition {
-                    conditions: vec![StyleConditionKind::Not(style_condition_not)],
+                    conditions: arena_vec!(input; StyleConditionKind::Not(style_condition_not)),
                     span,
                 })
             }
             _ => {
                 let first = input.parse::<StyleInParens>()?;
                 let mut span = first.span.clone();
-                let mut conditions = vec![StyleConditionKind::StyleInParens(first)];
+                let mut conditions = arena_vec!(input; StyleConditionKind::StyleInParens(first));
                 if let Token::Ident(ident) = &peek!(input).token {
                     let name = ident.name();
                     if name.eq_ignore_ascii_case("and") {
@@ -172,8 +173,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleCondition<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleConditionAnd<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for StyleConditionAnd<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let ident = input.parse::<Ident>()?;
         if ident.name.eq_ignore_ascii_case("and") {
             let style_in_parens = input.parse::<StyleInParens>()?;
@@ -185,8 +186,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleConditionAnd<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleConditionNot<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for StyleConditionNot<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let keyword = input.parse::<Ident>()?;
         if keyword.name.eq_ignore_ascii_case("not") {
             let style_in_parens = input.parse::<StyleInParens>()?;
@@ -198,8 +199,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleConditionNot<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleConditionOr<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for StyleConditionOr<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let keyword = input.parse::<Ident>()?;
         if keyword.name.eq_ignore_ascii_case("or") {
             let style_in_parens = input.parse::<StyleInParens>()?;
@@ -211,8 +212,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleConditionOr<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleInParens<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for StyleInParens<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, Span { start, .. }) = expect!(input, LParen);
         let kind = input.parse()?;
         let (_, Span { end, .. }) = expect!(input, RParen);
@@ -220,8 +221,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleInParens<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleInParensKind<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for StyleInParensKind<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if let Ok(style_condition) = input.try_parse(StyleCondition::parse) {
             Ok(StyleInParensKind::Condition(style_condition))
         } else {
@@ -230,8 +231,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleInParensKind<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleQuery<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for StyleQuery<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if let Ok(condition) = input.try_parse(StyleCondition::parse) {
             Ok(StyleQuery::Condition(condition))
         } else {
@@ -243,8 +244,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for StyleQuery<'s> {
 }
 
 // https://drafts.csswg.org/css-contain-3/#container-rule
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ContainerPrelude<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ContainerPrelude<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let name = input.try_parse(|parser| match parser.parse()? {
             InterpolableIdent::Literal(ident)
                 if ident.name.eq_ignore_ascii_case("not")

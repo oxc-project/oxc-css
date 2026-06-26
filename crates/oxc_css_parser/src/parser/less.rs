@@ -3,7 +3,7 @@ use super::{
     state::{LESS_CTX_ALLOW_DIV, LESS_CTX_ALLOW_KEYFRAME_BLOCK, ParserState, QualifiedRuleContext},
 };
 use crate::{
-    Parse,
+    Parse, arena_box, arena_vec,
     ast::*,
     bump,
     config::Syntax,
@@ -14,7 +14,7 @@ use crate::{
     tokenizer::{Token, TokenWithSpan},
     util,
 };
-use std::{borrow::Cow, mem};
+use std::mem;
 
 const PRECEDENCE_AND: u8 = 2;
 const PRECEDENCE_OR: u8 = 1;
@@ -22,15 +22,15 @@ const PRECEDENCE_OR: u8 = 1;
 const PRECEDENCE_MULTIPLY: u8 = 2;
 const PRECEDENCE_PLUS: u8 = 1;
 
-impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
+impl<'a> Parser<'a> {
     pub(super) fn parse_less_condition(
         &mut self,
         needs_parens: bool,
-    ) -> PResult<LessCondition<'s>> {
+    ) -> PResult<LessCondition<'a>> {
         self.parse_less_condition_recursively(needs_parens, 0)
     }
 
-    fn parse_less_condition_atom(&mut self) -> PResult<LessCondition<'s>> {
+    fn parse_less_condition_atom(&mut self) -> PResult<LessCondition<'a>> {
         let left =
             self.parse_less_operation(/* allow_mixin_call */ false).map(LessCondition::Value)?;
 
@@ -84,9 +84,9 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
 
         let span = Span { start: left.span().start, end: right.span().end };
         Ok(LessCondition::Binary(LessBinaryCondition {
-            left: Box::new(left),
+            left: arena_box!(self, left),
             op,
-            right: Box::new(right),
+            right: arena_box!(self, right),
             span,
         }))
     }
@@ -94,7 +94,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     fn parse_less_condition_inside_parens(
         &mut self,
         needs_parens: bool,
-    ) -> PResult<LessCondition<'s>> {
+    ) -> PResult<LessCondition<'a>> {
         self.try_parse(|parser| {
             let condition = parser.parse_less_condition(needs_parens);
             match &condition {
@@ -133,7 +133,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         &mut self,
         needs_parens: bool,
         precedence: u8,
-    ) -> PResult<LessCondition<'s>> {
+    ) -> PResult<LessCondition<'a>> {
         let mut left = if precedence >= PRECEDENCE_AND {
             match &peek!(self).token {
                 Token::LParen(..) => {
@@ -141,7 +141,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                     let condition = self.parse_less_condition_inside_parens(needs_parens)?;
                     let (_, Span { end, .. }) = expect!(self, RParen);
                     LessCondition::Parenthesized(LessParenthesizedCondition {
-                        condition: Box::new(condition),
+                        condition: arena_box!(self, condition),
                         span: Span { start, end },
                     })
                 }
@@ -151,7 +151,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                     let condition = self.parse_less_condition_inside_parens(needs_parens)?;
                     let (_, Span { end, .. }) = expect!(self, RParen);
                     LessCondition::Negated(LessNegatedCondition {
-                        condition: Box::new(condition),
+                        condition: arena_box!(self, condition),
                         span: Span { start, end },
                     })
                 }
@@ -194,9 +194,9 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
 
             let span = Span { start: left.span().start, end: right.span().end };
             left = LessCondition::Binary(LessBinaryCondition {
-                left: Box::new(left),
+                left: arena_box!(self, left),
                 op,
-                right: Box::new(right),
+                right: arena_box!(self, right),
                 span,
             });
         }
@@ -204,14 +204,16 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         Ok(left)
     }
 
-    pub(super) fn parse_less_interpolated_ident(&mut self) -> PResult<InterpolableIdent<'s>> {
+    pub(super) fn parse_less_interpolated_ident(&mut self) -> PResult<InterpolableIdent<'a>> {
         debug_assert_eq!(self.syntax, Syntax::Less);
 
         let (first, Span { start, mut end }) = match peek!(self) {
             TokenWithSpan { token: Token::Ident(..), .. } => {
                 let (ident, ident_span) = expect!(self, Ident);
                 (
-                    LessInterpolatedIdentElement::Static((ident, ident_span.clone()).into()),
+                    LessInterpolatedIdentElement::Static(
+                        self.interpolable_ident_static_part(ident, ident_span.clone()),
+                    ),
                     ident_span,
                 )
             }
@@ -266,12 +268,14 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     pub(super) fn parse_less_interpolated_ident_rest(
         &mut self,
         end: &mut usize,
-    ) -> PResult<Vec<LessInterpolatedIdentElement<'s>>> {
-        let mut elements = vec![];
+    ) -> PResult<oxc_allocator::Vec<'a, LessInterpolatedIdentElement<'a>>> {
+        let mut elements = arena_vec!(self);
         loop {
             if let Some((token, span)) = self.tokenizer.scan_ident_template()? {
                 *end = span.end;
-                elements.push(LessInterpolatedIdentElement::Static((token, span).into()));
+                elements.push(LessInterpolatedIdentElement::Static(
+                    self.interpolable_ident_static_part(token, span),
+                ));
             } else {
                 match peek!(self) {
                     TokenWithSpan { token: Token::AtLBraceVar(..), span: at_lbrace_var_span }
@@ -301,16 +305,19 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
 
     pub(super) fn parse_less_maybe_mixin_call_or_with_lookups(
         &mut self,
-    ) -> PResult<ComponentValue<'s>> {
+    ) -> PResult<ComponentValue<'a>> {
         let mixin_call = self.parse::<LessMixinCall>()?;
         if matches!(peek!(self).token, Token::LBracket(..)) {
             let lookups = self.parse::<LessLookups>()?;
             let span = Span { start: mixin_call.span.start, end: lookups.span.end };
-            Ok(ComponentValue::LessNamespaceValue(Box::new(LessNamespaceValue {
-                callee: LessNamespaceValueCallee::LessMixinCall(mixin_call),
-                lookups,
-                span,
-            })))
+            Ok(ComponentValue::LessNamespaceValue(arena_box!(
+                self,
+                LessNamespaceValue {
+                    callee: LessNamespaceValueCallee::LessMixinCall(mixin_call),
+                    lookups,
+                    span,
+                }
+            )))
         } else {
             Ok(ComponentValue::LessMixinCall(mixin_call))
         }
@@ -318,7 +325,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
 
     pub(super) fn parse_less_maybe_variable_or_with_lookups(
         &mut self,
-    ) -> PResult<ComponentValue<'s>> {
+    ) -> PResult<ComponentValue<'a>> {
         let variable = self.parse::<LessVariable>()?;
         match peek!(self) {
             TokenWithSpan { token: Token::LBracket(..), span }
@@ -326,11 +333,14 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
             {
                 let lookups = self.parse::<LessLookups>()?;
                 let span = Span { start: variable.span.start, end: lookups.span.end };
-                Ok(ComponentValue::LessNamespaceValue(Box::new(LessNamespaceValue {
-                    callee: LessNamespaceValueCallee::LessVariable(variable),
-                    lookups,
-                    span,
-                })))
+                Ok(ComponentValue::LessNamespaceValue(arena_box!(
+                    self,
+                    LessNamespaceValue {
+                        callee: LessNamespaceValueCallee::LessVariable(variable),
+                        lookups,
+                        span,
+                    }
+                )))
             }
             _ => Ok(ComponentValue::LessVariable(variable)),
         }
@@ -339,7 +349,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     pub(super) fn parse_less_operation(
         &mut self,
         allow_mixin_call: bool,
-    ) -> PResult<ComponentValue<'s>> {
+    ) -> PResult<ComponentValue<'a>> {
         self.parse_less_operation_recursively(allow_mixin_call, 0)
     }
 
@@ -347,7 +357,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         &mut self,
         allow_mixin_call: bool,
         precedence: u8,
-    ) -> PResult<ComponentValue<'s>> {
+    ) -> PResult<ComponentValue<'a>> {
         let mut left = if precedence >= PRECEDENCE_MULTIPLY {
             match peek!(self).token {
                 Token::LParen(..) => self
@@ -452,9 +462,9 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                             .map(|value| ComponentValue::Number(Number { value, raw, span }))?
                     };
                     left = ComponentValue::LessBinaryOperation(LessBinaryOperation {
-                        left: Box::new(left),
+                        left: arena_box!(self, left),
                         op,
-                        right: Box::new(right),
+                        right: arena_box!(self, right),
                         span,
                     });
                     continue;
@@ -476,7 +486,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                     };
                     let span = Span { start: left.span().start, end: dimension_span.end };
                     let right = {
-                        (
+                        self.dimension(
                             crate::token::Dimension {
                                 value: crate::token::Number {
                                     raw: unsafe {
@@ -490,13 +500,12 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                             },
                             Span { start: dimension_span.start + 1, end: dimension_span.end },
                         )
-                            .try_into()
-                            .map(ComponentValue::Dimension)?
+                        .map(ComponentValue::Dimension)?
                     };
                     left = ComponentValue::LessBinaryOperation(LessBinaryOperation {
-                        left: Box::new(left),
+                        left: arena_box!(self, left),
                         op,
-                        right: Box::new(right),
+                        right: arena_box!(self, right),
                         span,
                     });
                     continue;
@@ -507,9 +516,9 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
             let right = self.parse_less_operation_recursively(allow_mixin_call, precedence + 1)?;
             let span = Span { start: left.span().start, end: right.span().end };
             left = ComponentValue::LessBinaryOperation(LessBinaryOperation {
-                left: Box::new(left),
+                left: arena_box!(self, left),
                 op,
-                right: Box::new(right),
+                right: arena_box!(self, right),
                 span,
             });
         }
@@ -520,7 +529,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     fn parse_less_parenthesized_operation(
         &mut self,
         allow_mixin_call: bool,
-    ) -> PResult<LessParenthesizedOperation<'s>> {
+    ) -> PResult<LessParenthesizedOperation<'a>> {
         let (_, Span { start, .. }) = expect!(self, LParen);
         let operation = self
             .with_state(ParserState {
@@ -529,10 +538,13 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
             })
             .parse_less_operation(allow_mixin_call)?;
         let (_, Span { end, .. }) = expect!(self, RParen);
-        Ok(LessParenthesizedOperation { operation: Box::new(operation), span: Span { start, end } })
+        Ok(LessParenthesizedOperation {
+            operation: arena_box!(self, operation),
+            span: Span { start, end },
+        })
     }
 
-    pub(super) fn parse_less_qualified_rule(&mut self) -> PResult<Statement<'s>> {
+    pub(super) fn parse_less_qualified_rule(&mut self) -> PResult<Statement<'a>> {
         debug_assert_eq!(self.syntax, Syntax::Less);
 
         let selector_list = self
@@ -570,7 +582,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
 
     pub(super) fn parse_maybe_hex_color_or_less_mixin_call(
         &mut self,
-    ) -> PResult<ComponentValue<'s>> {
+    ) -> PResult<ComponentValue<'a>> {
         debug_assert_eq!(self.syntax, Syntax::Less);
 
         let attempt = self.try_parse(|parser| {
@@ -599,7 +611,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     pub(super) fn parse_maybe_less_list(
         &mut self,
         allow_comma: bool,
-    ) -> PResult<ComponentValue<'s>> {
+    ) -> PResult<ComponentValue<'a>> {
         use util::ListSeparatorKind;
 
         let single_value = if allow_comma {
@@ -610,8 +622,8 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
             self.parse_less_operation(/* allow_mixin_call */ true)?
         };
 
-        let mut elements = vec![];
-        let mut comma_spans: Option<Vec<_>> = None;
+        let mut elements = arena_vec!(self);
+        let mut comma_spans: Option<oxc_allocator::Vec<'a, Span>> = None;
         let mut separator = ListSeparatorKind::Unknown;
         let mut end = single_value.span().end;
         loop {
@@ -638,7 +650,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                         if let Some(spans) = &mut comma_spans {
                             spans.push(span);
                         } else {
-                            comma_spans = Some(vec![span]);
+                            comma_spans = Some(arena_vec!(self; span));
                         }
                     }
                 }
@@ -684,8 +696,8 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessConditions<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessConditions<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let when_span = match bump!(input) {
             TokenWithSpan { token: Token::Ident(ident), span } if ident.raw == "when" => span,
             TokenWithSpan { span, .. } => {
@@ -696,8 +708,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessConditions<'s> {
         let first = input.parse_less_condition(true)?;
         let mut span = first.span().clone();
 
-        let mut conditions = vec![first];
-        let mut comma_spans = vec![];
+        let mut conditions = arena_vec!(input; first);
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             conditions.push(input.parse_less_condition(true)?);
@@ -711,25 +723,28 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessConditions<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessDetachedRuleset<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessDetachedRuleset<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let block = input.parse::<SimpleBlock>()?;
         let span = block.span.clone();
         Ok(LessDetachedRuleset { block, span })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessEscapedStr<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessEscapedStr<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, Span { start, .. }) = expect!(input, Tilde);
-        let str: Str = input.tokenizer.scan_string_only()?.into();
+        let str = {
+            let (str, span) = input.tokenizer.scan_string_only()?;
+            input.str(str, span)
+        };
         let span = Span { start, end: str.span().end };
         Ok(LessEscapedStr { str, span })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessExtend<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessExtend<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let mut selector = input.parse::<ComplexSelector>()?;
 
         let span = selector.span.clone();
@@ -755,24 +770,29 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessExtend<'s> {
                 })),
             ] = &children[..]
         {
-            all = Some(token_all.clone());
+            all = Some(Ident {
+                name: token_all.name,
+                raw: token_all.raw,
+                span: token_all.span.clone(),
+            });
             selector.span.end = complex_child.span().end;
-            selector.children.truncate(selector.children.len() - 2);
+            let len = selector.children.len();
+            selector.children.truncate(len - 2);
         }
 
         Ok(LessExtend { selector, all, span })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessExtendList<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessExtendList<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert_eq!(input.syntax, Syntax::Less);
 
         let first = input.parse::<LessExtend>()?;
         let mut span = first.span.clone();
 
-        let mut elements = vec![first];
-        let mut comma_spans = vec![];
+        let mut elements = arena_vec!(input; first);
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             elements.push(input.parse()?);
@@ -786,8 +806,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessExtendList<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessExtendRule<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessExtendRule<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let nesting_selector = input.parse::<NestingSelector>()?;
         if nesting_selector.suffix.is_some() {
             return Err(Error {
@@ -817,19 +837,19 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessExtendRule<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessFormatFunction {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessFormatFunction {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, span) = expect!(input, Percent);
         Ok(LessFormatFunction { span })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessImportOptions<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessImportOptions<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, Span { start, .. }) = expect!(input, LParen);
 
-        let mut names = Vec::with_capacity(1);
-        let mut comma_spans = vec![];
+        let mut names = input.vec_with_capacity(1);
+        let mut comma_spans = arena_vec!(input);
         while let Token::Ident(crate::token::Ident {
             raw: "less" | "css" | "multiple" | "once" | "inline" | "reference" | "optional",
             ..
@@ -848,8 +868,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessImportOptions<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessImportPrelude<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessImportPrelude<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let options = input.parse::<LessImportOptions>()?;
         let start = options.span.start;
 
@@ -871,13 +891,18 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessImportPrelude<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessInterpolatedStr<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessInterpolatedStr<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (first, first_span) = expect!(input, StrTemplate);
         let quote = first.raw.chars().next().unwrap();
         debug_assert!(quote == '\'' || quote == '"');
         let mut span = first_span.clone();
-        let mut elements = vec![LessInterpolatedStrElement::Static((first, first_span).into())];
+        let mut elements = arena_vec!(
+            input;
+            LessInterpolatedStrElement::Static(
+                input.interpolable_str_static_part(first, first_span)
+            )
+        );
 
         let mut is_parsing_static_part = false;
         loop {
@@ -885,7 +910,9 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessInterpolatedStr<'s> {
                 let (token, str_tpl_span) = input.tokenizer.scan_string_template(quote)?;
                 let tail = token.tail;
                 let end = str_tpl_span.end;
-                elements.push(LessInterpolatedStrElement::Static((token, str_tpl_span).into()));
+                elements.push(LessInterpolatedStrElement::Static(
+                    input.interpolable_str_static_part(token, str_tpl_span),
+                ));
                 if tail {
                     span.end = end;
                     break;
@@ -898,11 +925,11 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessInterpolatedStr<'s> {
                 let end = expect!(input, RBrace).1.end;
                 elements.push(match input.source.as_bytes().get(start) {
                     Some(b'@') => LessInterpolatedStrElement::Variable(LessVariableInterpolation {
-                        name: (name, name_span).into(),
+                        name: input.ident(name, name_span),
                         span: Span { start, end },
                     }),
                     Some(b'$') => LessInterpolatedStrElement::Property(LessPropertyInterpolation {
-                        name: (name, name_span).into(),
+                        name: input.ident(name, name_span),
                         span: Span { start, end },
                     }),
                     _ => unreachable!(),
@@ -915,8 +942,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessInterpolatedStr<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessJavaScriptSnippet<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessJavaScriptSnippet<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let tilde = eat!(input, Tilde);
         let (token, span) = expect!(input, BacktickCode);
 
@@ -932,15 +959,15 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessJavaScriptSnippet<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessListFunction {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessListFunction {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, span) = expect!(input, Tilde);
         Ok(LessListFunction { span })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessLookup<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessLookup<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert_eq!(input.syntax, Syntax::Less);
 
         let (_, Span { start, .. }) = expect!(input, LBracket);
@@ -951,8 +978,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessLookup<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessLookupName<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessLookupName<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert_eq!(input.syntax, Syntax::Less);
 
         match peek!(input).token {
@@ -964,14 +991,14 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessLookupName<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessLookups<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessLookups<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert_eq!(input.syntax, Syntax::Less);
 
         let first = input.parse::<LessLookup>()?;
         let mut span = first.span.clone();
 
-        let mut lookups = vec![first];
+        let mut lookups = arena_vec!(input; first);
         while let Token::LBracket(..) = peek!(input).token {
             lookups.push(input.parse()?);
         }
@@ -983,8 +1010,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessLookups<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinCall<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessMixinCall<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert_eq!(input.syntax, Syntax::Less);
 
         let callee = input.parse::<LessMixinCallee>()?;
@@ -992,17 +1019,19 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinCall<'s> {
         let mut end = callee.span.end;
         let args = if let Some((_, lparen_span)) = eat!(input, LParen) {
             let mut semicolon_comes_at = 0;
-            let mut args = vec![];
-            let mut comma_spans = vec![];
-            let mut semicolon_spans = vec![];
+            let mut args = arena_vec!(input);
+            let mut comma_spans = arena_vec!(input);
+            let mut semicolon_spans = arena_vec!(input);
             'args: loop {
                 match peek!(input).token {
                     Token::RParen(..) => {
                         let TokenWithSpan { span, .. } = bump!(input);
                         if semicolon_comes_at > 0 {
+                            let comma_spans = mem::replace(&mut comma_spans, arena_vec!(input));
                             wrap_less_mixin_args_into_less_list(
+                                input.allocator(),
                                 &mut args,
-                                mem::take(&mut comma_spans),
+                                comma_spans,
                                 semicolon_comes_at,
                             )
                             .map_err(|kind| Error {
@@ -1089,9 +1118,11 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinCall<'s> {
                     }
                     Token::Semicolon(..) => {
                         let TokenWithSpan { span, .. } = bump!(input);
+                        let comma_spans = mem::replace(&mut comma_spans, arena_vec!(input));
                         wrap_less_mixin_args_into_less_list(
+                            input.allocator(),
                             &mut args,
-                            mem::take(&mut comma_spans),
+                            comma_spans,
                             semicolon_comes_at,
                         )
                         .map_err(|kind| Error { kind, span: span.clone() })?;
@@ -1140,13 +1171,15 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinCall<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinCallee<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessMixinCallee<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first_name = input.parse::<LessMixinName>()?;
         let mut span = first_name.span().clone();
 
-        let mut children =
-            vec![LessMixinCalleeChild { name: first_name, combinator: None, span: span.clone() }];
+        let mut children = arena_vec!(
+            input;
+            LessMixinCalleeChild { name: first_name, combinator: None, span: span.clone() }
+        );
         loop {
             let combinator = eat!(input, GreaterThan)
                 .map(|(_, span)| Combinator { kind: CombinatorKind::Child, span });
@@ -1173,8 +1206,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinCallee<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinDefinition<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessMixinDefinition<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert_eq!(input.syntax, Syntax::Less);
 
         let name = input.parse::<LessMixinName>()?;
@@ -1182,9 +1215,9 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinDefinition<'s> {
         let (_, lparen_span) = expect!(input, LParen);
         let rparen_span;
         let mut semicolon_comes_at = 0;
-        let mut params = vec![];
-        let mut comma_spans = vec![];
-        let mut semicolon_spans = vec![];
+        let mut params = arena_vec!(input);
+        let mut comma_spans = arena_vec!(input);
+        let mut semicolon_spans = arena_vec!(input);
         'params: loop {
             match peek!(input).token {
                 Token::RParen(..) => {
@@ -1279,9 +1312,11 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinDefinition<'s> {
             match bump!(input) {
                 TokenWithSpan { token: Token::RParen(..), span } => {
                     if semicolon_comes_at > 0 {
+                        let comma_spans = mem::replace(&mut comma_spans, arena_vec!(input));
                         wrap_less_mixin_params_into_less_list(
+                            input.allocator(),
                             &mut params,
-                            mem::take(&mut comma_spans),
+                            comma_spans,
                             semicolon_comes_at,
                         )
                         .map_err(|kind| Error {
@@ -1301,9 +1336,11 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinDefinition<'s> {
                     comma_spans.push(span);
                 }
                 TokenWithSpan { token: Token::Semicolon(..), span } => {
+                    let comma_spans = mem::replace(&mut comma_spans, arena_vec!(input));
                     wrap_less_mixin_params_into_less_list(
+                        input.allocator(),
                         &mut params,
-                        mem::take(&mut comma_spans),
+                        comma_spans,
                         semicolon_comes_at,
                     )
                     .map_err(|kind| Error { kind, span: span.clone() })?;
@@ -1348,11 +1385,12 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinDefinition<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinName<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessMixinName<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match bump!(input) {
             TokenWithSpan { token: Token::Dot(..), span: dot_span } => {
-                let ident: Ident = expect_without_ws_or_comments!(input, Ident).into();
+                let (ident, ident_span) = expect_without_ws_or_comments!(input, Ident);
+                let ident = input.ident(ident, ident_span);
                 let span = Span { start: dot_span.start, end: ident.span.end };
                 Ok(LessMixinName::ClassSelector(ClassSelector {
                     name: InterpolableIdent::Literal(ident),
@@ -1368,7 +1406,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinName<'s> {
                         .recoverable_errors
                         .push(Error { kind: ErrorKind::InvalidIdSelectorName, span: span.clone() });
                 }
-                let name = if hash.escaped { util::handle_escape(raw) } else { Cow::from(raw) };
+                let name =
+                    if hash.escaped { util::handle_escape_in(raw, input.allocator()) } else { raw };
                 let name_span = Span { start: span.start + 1, end: span.end };
                 Ok(LessMixinName::IdSelector(IdSelector {
                     name: InterpolableIdent::Literal(Ident { name, raw, span: name_span }),
@@ -1392,8 +1431,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinName<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinParameterName<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessMixinParameterName<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if matches!(peek!(input).token, Token::AtKeyword(..)) {
             input.parse().map(LessMixinParameterName::Variable)
         } else {
@@ -1402,8 +1441,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessMixinParameterName<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessNamespaceValue<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessNamespaceValue<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let callee = input.parse::<LessNamespaceValueCallee>()?;
         let callee_span = callee.span();
 
@@ -1415,8 +1454,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessNamespaceValue<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessNamespaceValueCallee<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessNamespaceValueCallee<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if matches!(peek!(input).token, Token::AtKeyword(..)) {
             input.parse().map(LessNamespaceValueCallee::LessVariable)
         } else {
@@ -1425,18 +1464,22 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessNamespaceValueCallee<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessNegativeValue<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessNegativeValue<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, minus_span) = expect!(input, Minus);
         let value = match peek!(input) {
             TokenWithSpan {
                 token: Token::AtKeyword(..) | Token::At(..) | Token::DollarVar(..),
                 span,
-            } if minus_span.end == span.start => Box::new(input.parse_component_value_atom()?),
+            } if minus_span.end == span.start => {
+                let value = input.parse_component_value_atom()?;
+                arena_box!(input, value)
+            }
             TokenWithSpan { token: Token::LParen(..), span } if minus_span.end == span.start => {
-                Box::new(ComponentValue::LessParenthesizedOperation(
+                let value = ComponentValue::LessParenthesizedOperation(
                     input.parse_less_parenthesized_operation(/* allow_mixin_call */ true)?,
-                ))
+                );
+                arena_box!(input, value)
             }
             TokenWithSpan { token, span } => {
                 use crate::{
@@ -1458,15 +1501,15 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessNegativeValue<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessPercentKeyword {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessPercentKeyword {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, span) = expect!(input, Percent);
         Ok(LessPercentKeyword { span })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessPlugin<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessPlugin<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert_eq!(input.syntax, Syntax::Less);
 
         let mut start = None;
@@ -1488,8 +1531,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessPlugin<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessPluginPath<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessPluginPath<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if let Token::Str(..) = peek!(input).token {
             input.parse().map(LessPluginPath::Str)
         } else {
@@ -1498,19 +1541,19 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessPluginPath<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessPropertyInterpolation<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessPropertyInterpolation<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (dollar_lbrace_var, span) = expect!(input, DollarLBraceVar);
         Ok(LessPropertyInterpolation {
-            name: (dollar_lbrace_var.ident, Span { start: span.start + 2, end: span.end - 1 })
-                .into(),
+            name: input
+                .ident(dollar_lbrace_var.ident, Span { start: span.start + 2, end: span.end - 1 }),
             span,
         })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for Option<LessPropertyMerge> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for Option<LessPropertyMerge> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert_eq!(input.syntax, Syntax::Less);
 
         match &peek!(input).token {
@@ -1527,28 +1570,28 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for Option<LessPropertyMerge> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessPropertyVariable<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessPropertyVariable<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (dollar_var, span) = expect!(input, DollarVar);
         Ok(LessPropertyVariable {
-            name: Ident::from((dollar_var.ident, Span { start: span.start + 1, end: span.end })),
+            name: input.ident(dollar_var.ident, Span { start: span.start + 1, end: span.end }),
             span,
         })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessVariable<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessVariable<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (at_keyword, span) = expect!(input, AtKeyword);
         Ok(LessVariable {
-            name: (at_keyword.ident, Span { start: span.start + 1, end: span.end }).into(),
+            name: input.ident(at_keyword.ident, Span { start: span.start + 1, end: span.end }),
             span,
         })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessVariableCall<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessVariableCall<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let variable = input.parse::<LessVariable>()?;
         expect_without_ws_or_comments!(input, LParen);
         let (_, Span { end, .. }) = expect!(input, RParen);
@@ -1558,8 +1601,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessVariableCall<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessVariableDeclaration<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessVariableDeclaration<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert_eq!(input.syntax, Syntax::Less);
 
         let name = input.parse::<LessVariable>()?;
@@ -1580,18 +1623,19 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessVariableDeclaration<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessVariableInterpolation<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessVariableInterpolation<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (at_lbrace_var, span) = expect!(input, AtLBraceVar);
         Ok(LessVariableInterpolation {
-            name: (at_lbrace_var.ident, Span { start: span.start + 2, end: span.end - 1 }).into(),
+            name: input
+                .ident(at_lbrace_var.ident, Span { start: span.start + 2, end: span.end - 1 }),
             span,
         })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessVariableVariable<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LessVariableVariable<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, at_span) = expect!(input, At);
         let variable = input.parse::<LessVariable>()?;
         util::assert_no_ws_or_comment(&at_span, &variable.span)?;
@@ -1601,27 +1645,25 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LessVariableVariable<'s> {
     }
 }
 
-fn wrap_less_mixin_params_into_less_list(
-    params: &mut Vec<LessMixinParameter<'_>>,
-    comma_spans: Vec<Span>,
+fn wrap_less_mixin_params_into_less_list<'a>(
+    allocator: &'a oxc_allocator::Allocator,
+    params: &mut oxc_allocator::Vec<'a, LessMixinParameter<'a>>,
+    comma_spans: oxc_allocator::Vec<'a, Span>,
     index: usize,
 ) -> Result<(), ErrorKind> {
     if let [first, .., last] = &params[index..] {
         let span = Span { start: first.span().start, end: last.span().end };
-        let elements = params
-            .drain(index..)
-            .map(|param| {
-                if let LessMixinParameter::Unnamed(LessMixinUnnamedParameter { value, .. }) = param
-                {
-                    Ok(value)
-                } else {
-                    // reject code like this:
-                    // .mixin(@a: 5, @b: 6; @c: 7) {}
-                    // .mixin(@a: 5; @b: 6, @c: 7) {}
-                    Err(ErrorKind::MixedDelimiterKindInLessMixin)
-                }
-            })
-            .collect::<Result<Vec<_>, _>>()?;
+        let mut elements = oxc_allocator::Vec::with_capacity_in(params.len() - index, allocator);
+        for param in params.drain(index..) {
+            if let LessMixinParameter::Unnamed(LessMixinUnnamedParameter { value, .. }) = param {
+                elements.push(value);
+            } else {
+                // reject code like this:
+                // .mixin(@a: 5, @b: 6; @c: 7) {}
+                // .mixin(@a: 5; @b: 6, @c: 7) {}
+                return Err(ErrorKind::MixedDelimiterKindInLessMixin);
+            }
+        }
         debug_assert!(elements.len() - comma_spans.len() <= 1);
         params.push(LessMixinParameter::Unnamed(LessMixinUnnamedParameter {
             value: ComponentValue::LessList(LessList {
@@ -1635,26 +1677,25 @@ fn wrap_less_mixin_params_into_less_list(
     Ok(())
 }
 
-fn wrap_less_mixin_args_into_less_list(
-    args: &mut Vec<LessMixinArgument<'_>>,
-    comma_spans: Vec<Span>,
+fn wrap_less_mixin_args_into_less_list<'a>(
+    allocator: &'a oxc_allocator::Allocator,
+    args: &mut oxc_allocator::Vec<'a, LessMixinArgument<'a>>,
+    comma_spans: oxc_allocator::Vec<'a, Span>,
     index: usize,
 ) -> Result<(), ErrorKind> {
     if let [first, .., last] = &args[index..] {
         let span = Span { start: first.span().start, end: last.span().end };
-        let elements = args
-            .drain(index..)
-            .map(|param| {
-                if let LessMixinArgument::Value(value) = param {
-                    Ok(value)
-                } else {
-                    // reject code like this:
-                    // .mixin(@a: 5, @b: 6; @c: 7) {}
-                    // .mixin(@a: 5; @b: 6, @c: 7) {}
-                    Err(ErrorKind::MixedDelimiterKindInLessMixin)
-                }
-            })
-            .collect::<Result<Vec<_>, _>>()?;
+        let mut elements = oxc_allocator::Vec::with_capacity_in(args.len() - index, allocator);
+        for arg in args.drain(index..) {
+            if let LessMixinArgument::Value(value) = arg {
+                elements.push(value);
+            } else {
+                // reject code like this:
+                // .mixin(@a: 5, @b: 6; @c: 7) {}
+                // .mixin(@a: 5; @b: 6, @c: 7) {}
+                return Err(ErrorKind::MixedDelimiterKindInLessMixin);
+            }
+        }
         debug_assert!(elements.len() - comma_spans.len() <= 1);
         args.push(LessMixinArgument::Value(ComponentValue::LessList(LessList {
             elements,

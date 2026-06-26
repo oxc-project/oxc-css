@@ -2,6 +2,7 @@ use crate::{
     Span,
     error::{Error, ErrorKind, PResult},
 };
+use oxc_allocator::Allocator;
 use std::borrow::Cow;
 
 pub fn is_css_wide_keyword(s: &str) -> bool {
@@ -61,6 +62,14 @@ pub fn handle_escape(s: &str) -> Cow<'_, str> {
         }
     }
     Cow::from(escaped)
+}
+
+pub fn handle_escape_in<'a>(s: &'a str, allocator: &'a Allocator) -> &'a str {
+    let escaped = handle_escape(s);
+    match escaped {
+        Cow::Borrowed(value) => value,
+        Cow::Owned(value) => allocator.alloc_str(&value),
+    }
 }
 
 pub(crate) fn assert_no_ws_or_comment(left: &Span, right: &Span) -> PResult<()> {

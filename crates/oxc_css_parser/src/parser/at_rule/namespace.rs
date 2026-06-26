@@ -2,8 +2,8 @@ use super::Parser;
 use crate::{Parse, Spanned, ast::*, error::PResult, peek, tokenizer::Token};
 
 // https://www.w3.org/TR/css-namespaces-3/#syntax
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for NamespacePrelude<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for NamespacePrelude<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let prefix = match &peek!(input).token {
             Token::Ident(ident) => {
                 if ident.name().eq_ignore_ascii_case("url") {

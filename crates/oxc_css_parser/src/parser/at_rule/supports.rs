@@ -1,6 +1,6 @@
 use super::Parser;
 use crate::{
-    Parse,
+    Parse, arena_box, arena_vec,
     ast::*,
     error::{Error, ErrorKind, PResult},
     expect, peek,
@@ -9,26 +9,27 @@ use crate::{
 };
 
 // https://drafts.csswg.org/css-conditional-3/#at-supports
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SupportsCondition<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SupportsCondition<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match &peek!(input).token {
             Token::Ident(token) if token.name().eq_ignore_ascii_case("not") => {
                 let keyword = input.parse::<Ident>()?;
                 let condition = input.parse::<SupportsInParens>()?;
                 let span = Span { start: keyword.span.start, end: condition.span().end };
                 Ok(SupportsCondition {
-                    conditions: vec![SupportsConditionKind::Not(SupportsNot {
+                    conditions: arena_vec!(input; SupportsConditionKind::Not(SupportsNot {
                         keyword,
                         condition,
                         span: span.clone(),
-                    })],
+                    })),
                     span,
                 })
             }
             _ => {
                 let first = input.parse::<SupportsInParens>()?;
                 let mut span = first.span().clone();
-                let mut conditions = vec![SupportsConditionKind::SupportsInParens(first)];
+                let mut conditions =
+                    arena_vec!(input; SupportsConditionKind::SupportsInParens(first));
                 while let Token::Ident(ident) = &peek!(input).token {
                     let name = ident.name();
                     if name.eq_ignore_ascii_case("and") {
@@ -62,15 +63,15 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SupportsCondition<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SupportsInParens<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SupportsInParens<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match peek!(input) {
             TokenWithSpan { token: Token::LParen(..), .. } => input
                 .try_parse(|parser| {
                     parser.parse::<SupportsDecl>().map(|supports_decl| {
                         let span = supports_decl.span.clone();
                         SupportsInParens {
-                            kind: SupportsInParensKind::Feature(Box::new(supports_decl)),
+                            kind: SupportsInParensKind::Feature(arena_box!(parser, supports_decl)),
                             span,
                         }
                     })
@@ -110,8 +111,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SupportsInParens<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SupportsDecl<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SupportsDecl<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let start = expect!(input, LParen).1.start;
         let decl = input.parse()?;
         let end = expect!(input, RParen).1.end;

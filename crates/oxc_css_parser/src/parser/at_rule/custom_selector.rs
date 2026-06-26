@@ -1,8 +1,10 @@
 use super::Parser;
-use crate::{Parse, ast::*, error::PResult, expect, peek, pos::Span, tokenizer::Token, util};
+use crate::{
+    Parse, arena_vec, ast::*, error::PResult, expect, peek, pos::Span, tokenizer::Token, util,
+};
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CustomSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for CustomSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let prefix_arg = if matches!(peek!(input).token, Token::DollarVar(..)) {
             Some(input.parse::<CustomSelectorArg>()?)
         } else {
@@ -33,26 +35,25 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CustomSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CustomSelectorArg<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for CustomSelectorArg<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (dollar_var, dollar_var_span) = expect!(input, DollarVar);
         Ok(CustomSelectorArg {
-            name: (
+            name: input.ident(
                 dollar_var.ident,
                 Span { start: dollar_var_span.start + 1, end: dollar_var_span.end },
-            )
-                .into(),
+            ),
             span: dollar_var_span,
         })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CustomSelectorArgs<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for CustomSelectorArgs<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, Span { start, .. }) = expect!(input, LParen);
 
-        let mut args = vec![];
-        let mut comma_spans = vec![];
+        let mut args = arena_vec!(input);
+        let mut comma_spans = arena_vec!(input);
         while !matches!(peek!(input).token, Token::RParen(..)) {
             args.push(input.parse()?);
             if !matches!(peek!(input).token, Token::RParen(..)) {
@@ -66,8 +67,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CustomSelectorArgs<'s> {
 }
 
 // https://drafts.csswg.org/css-extensions/#custom-selectors
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CustomSelectorPrelude<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for CustomSelectorPrelude<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let custom_selector = input.parse::<CustomSelector>()?;
         let selector = input.parse::<SelectorList>()?;
         let span = Span { start: custom_selector.span.start, end: selector.span.end };

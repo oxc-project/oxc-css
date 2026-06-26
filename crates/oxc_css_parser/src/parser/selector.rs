@@ -1,6 +1,6 @@
 use super::Parser;
 use crate::{
-    Parse, Syntax,
+    Parse, Syntax, arena_vec,
     ast::*,
     bump, eat,
     error::{Error, ErrorKind, PResult},
@@ -9,12 +9,10 @@ use crate::{
     tokenizer::{Token, TokenWithSpan, token},
     util,
 };
-use smallvec::SmallVec;
-use std::borrow::Cow;
 
 // https://www.w3.org/TR/css-syntax-3/#the-anb-type
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for AnPlusB {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for AnPlusB {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match peek!(input) {
             TokenWithSpan { token: Token::Dimension(..), .. } => {
                 let (token::Dimension { value, unit }, span) = expect!(input, Dimension);
@@ -313,8 +311,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for AnPlusB {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for AttributeSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for AttributeSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let start = expect!(input, LBracket).1.start;
 
         let name = match peek!(input) {
@@ -474,8 +472,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for AttributeSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ClassSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for ClassSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, dot_span) = expect!(input, Dot);
         let start = dot_span.start;
         let end;
@@ -498,7 +496,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ClassSelector<'s> {
         } else if input.syntax == Syntax::Css {
             let (ident, ident_span) = expect_without_ws_or_comments!(input, Ident);
             end = ident_span.end;
-            InterpolableIdent::Literal((ident, ident_span).into())
+            InterpolableIdent::Literal(input.ident(ident, ident_span))
         } else {
             let ident = input.parse::<InterpolableIdent>()?;
             let ident_span = ident.span();
@@ -511,9 +509,9 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ClassSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ComplexSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
-        let mut children = SmallVec::with_capacity(3);
+impl<'a> Parse<'a> for ComplexSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
+        let mut children = input.vec_with_capacity(3);
 
         let (span, first, mut is_previous_combinator) = if let Token::GreaterThan(..)
         | Token::Plus(..)
@@ -567,14 +565,14 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ComplexSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CompoundSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for CompoundSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first = input.parse::<SimpleSelector>()?;
         let first_span = first.span();
         let start = first_span.start;
         let mut end = first_span.end;
 
-        let mut children = Vec::with_capacity(2);
+        let mut children = input.vec_with_capacity(2);
         children.push(first);
         loop {
             use token::*;
@@ -622,13 +620,13 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CompoundSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CompoundSelectorList<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for CompoundSelectorList<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first = input.parse::<CompoundSelector>()?;
         let mut span = first.span.clone();
 
-        let mut selectors = vec![first];
-        let mut comma_spans = vec![];
+        let mut selectors = arena_vec!(input; first);
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             selectors.push(input.parse()?);
@@ -643,8 +641,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CompoundSelectorList<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for IdSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for IdSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match bump!(input) {
             TokenWithSpan { token: Token::Hash(token), span } => {
                 let first_span = Span { start: span.start + 1, end: span.end };
@@ -656,7 +654,11 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for IdSelector<'s> {
                         .recoverable_errors
                         .push(Error { kind: ErrorKind::InvalidIdSelectorName, span: span.clone() });
                 }
-                let value = if token.escaped { util::handle_escape(raw) } else { Cow::from(raw) };
+                let value = if token.escaped {
+                    util::handle_escape_in(raw, input.allocator())
+                } else {
+                    raw
+                };
                 let first = Ident { name: value, raw: token.raw, span: first_span };
                 let name = match peek!(input) {
                     TokenWithSpan { token: Token::HashLBrace(..), span }
@@ -695,8 +697,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for IdSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LanguageRange<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LanguageRange<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match &peek!(input).token {
             Token::Str(..) | Token::StrTemplate(..) => input.parse().map(LanguageRange::Str),
             _ => input.parse().map(LanguageRange::Ident),
@@ -704,13 +706,13 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LanguageRange<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LanguageRangeList<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LanguageRangeList<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first = input.parse::<LanguageRange>()?;
         let mut span = first.span().clone();
 
-        let mut ranges = vec![first];
-        let mut comma_spans = vec![];
+        let mut ranges = arena_vec!(input; first);
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             ranges.push(input.parse()?);
@@ -724,14 +726,18 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LanguageRangeList<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for NestingSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for NestingSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, mut span) = expect!(input, Ampersand);
         let suffix = match input.syntax {
-            Syntax::Css => input.tokenizer.scan_ident_template()?.map(|token| {
-                span.end = token.1.end;
-                InterpolableIdent::Literal(token.into())
-            }),
+            Syntax::Css => {
+                if let Some((ident, ident_span)) = input.tokenizer.scan_ident_template()? {
+                    span.end = ident_span.end;
+                    Some(InterpolableIdent::Literal(input.ident(ident, ident_span)))
+                } else {
+                    None
+                }
+            }
             Syntax::Scss | Syntax::Sass => {
                 let start = span.end;
                 let elements = input.parse_sass_interpolated_ident_rest(&mut span.end)?;
@@ -762,8 +768,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for NestingSelector<'s> {
 }
 
 // https://drafts.csswg.org/selectors-4/#the-nth-child-pseudo
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for Nth<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for Nth<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let index = input.parse::<NthIndex>()?;
         let mut span = index.span().clone();
         let matcher = match &peek!(input).token {
@@ -779,8 +785,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for Nth<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for NthIndex<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for NthIndex<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match &peek!(input).token {
             Token::Ident(ident) => {
                 let name = ident.name();
@@ -805,8 +811,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for NthIndex<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for NthMatcher<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for NthMatcher<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (ident, mut span) = expect!(input, Ident);
         if !ident.name().eq_ignore_ascii_case("of") {
             return Err(Error { kind: ErrorKind::ExpectNthOf, span });
@@ -824,8 +830,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for NthMatcher<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for PseudoClassSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for PseudoClassSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, colon_span) = expect!(input, Colon);
         let name = input.parse::<InterpolableIdent>()?;
         let name_span = name.span();
@@ -915,7 +921,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for PseudoClassSelector<'s> {
                         input.parse().map(PseudoClassSelectorArgKind::CompoundSelector)?
                     }
                     InterpolableIdent::Literal(Ident { name, .. })
-                        if input.syntax == Syntax::Less && name == "extend" =>
+                        if input.syntax == Syntax::Less && *name == "extend" =>
                     {
                         input.parse().map(PseudoClassSelectorArgKind::LessExtendList)?
                     }
@@ -937,15 +943,15 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for PseudoClassSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for PseudoElementSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for PseudoElementSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, colon_colon_span) = expect!(input, ColonColon);
         let mut end;
         let name = if input.syntax == Syntax::Css {
             let (ident, ident_span) = expect!(input, Ident);
             end = ident_span.end;
             util::assert_no_ws(input.source, &colon_colon_span, &ident_span)?;
-            InterpolableIdent::Literal((ident, ident_span).into())
+            InterpolableIdent::Literal(input.ident(ident, ident_span))
         } else {
             let name = input.parse::<InterpolableIdent>()?;
             let name_span = name.span();
@@ -989,8 +995,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for PseudoElementSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for RelativeSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for RelativeSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let pos = input.tokenizer.current_offset();
         let combinator = match input.parse_combinator(pos)? {
             Some(Combinator { kind: CombinatorKind::Descendant, .. }) => None,
@@ -1005,13 +1011,13 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for RelativeSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for RelativeSelectorList<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for RelativeSelectorList<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first = input.parse::<RelativeSelector>()?;
         let mut span = first.span.clone();
 
-        let mut selectors = vec![first];
-        let mut comma_spans = vec![];
+        let mut selectors = arena_vec!(input; first);
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             selectors.push(input.parse()?);
@@ -1026,14 +1032,14 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for RelativeSelectorList<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SelectorList<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SelectorList<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first = input.parse::<ComplexSelector>()?;
         let mut span = first.span.clone();
 
-        let mut selectors = Vec::with_capacity(2);
+        let mut selectors = input.vec_with_capacity(2);
         selectors.push(first);
-        let mut comma_spans = vec![];
+        let mut comma_spans = arena_vec!(input);
 
         let is_css = input.syntax == Syntax::Css;
         while let Some((_, comma_span)) = eat!(input, Comma) {
@@ -1064,8 +1070,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SelectorList<'s> {
 }
 
 // https://www.w3.org/TR/selectors-4/#ref-for-typedef-simple-selector
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SimpleSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SimpleSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match peek!(input) {
             TokenWithSpan { token: Token::Dot(..), .. } => input.parse().map(SimpleSelector::Class),
             TokenWithSpan { token: Token::Hash(..) | Token::NumberSign(..), .. } => {
@@ -1113,10 +1119,10 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SimpleSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for TypeSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
-        enum IdentOrAsterisk<'s> {
-            Ident(InterpolableIdent<'s>),
+impl<'a> Parse<'a> for TypeSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
+        enum IdentOrAsterisk<'a> {
+            Ident(InterpolableIdent<'a>),
             Asterisk(Span),
         }
 
@@ -1207,7 +1213,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for TypeSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
+impl<'a> Parser<'a> {
     fn parse_combinator(&mut self, pos: usize) -> PResult<Option<Combinator>> {
         match peek!(self) {
             TokenWithSpan {
@@ -1266,9 +1272,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     }
 }
 
-fn expect_unsigned_int<'cmt, 's: 'cmt>(
-    input: &mut Parser<'cmt, 's>,
-) -> PResult<(token::Number<'s>, Span)> {
+fn expect_unsigned_int<'a>(input: &mut Parser<'a>) -> PResult<(token::Number<'a>, Span)> {
     let (number, span) = expect!(input, Number);
     if number.raw.chars().any(|c| !c.is_ascii_digit()) {
         Err(Error { kind: ErrorKind::ExpectUnsignedInteger, span })

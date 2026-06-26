@@ -3,6 +3,7 @@ use crate::{
     error::{Error, ErrorKind, PResult},
     pos::Span,
 };
+use oxc_allocator::{Allocator, Vec as ArenaVec};
 use std::{cmp::Ordering, iter::Peekable, str::CharIndices};
 pub(crate) use symbol::TokenSymbol;
 use token::*;
@@ -14,26 +15,27 @@ mod symbol;
 pub mod token;
 
 #[derive(Clone)]
-pub(crate) struct TokenizerState<'s> {
-    chars: Peekable<CharIndices<'s>>,
+pub(crate) struct TokenizerState<'a> {
+    chars: Peekable<CharIndices<'a>>,
     current_indent: u16,
     indents: Vec<u16>,
 }
 
-pub struct Tokenizer<'cmt, 's: 'cmt> {
-    source: &'s str,
+pub struct Tokenizer<'a> {
+    source: &'a str,
     syntax: Syntax,
     template_placeholder: Option<TemplatePlaceholder>,
-    pub(crate) comments: Option<&'cmt mut Vec<Comment<'s>>>,
-    pub(crate) state: TokenizerState<'s>,
+    comments: Option<ArenaVec<'a, Comment<'a>>>,
+    pub(crate) state: TokenizerState<'a>,
 }
 
-impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
+impl<'a> Tokenizer<'a> {
     pub fn new(
-        source: &'s str,
+        allocator: &'a Allocator,
+        source: &'a str,
         syntax: Syntax,
         template_placeholder: Option<TemplatePlaceholder>,
-        comments: Option<&'cmt mut Vec<Comment<'s>>>,
+        collect_comments: bool,
     ) -> Self {
         let mut chars = source.char_indices().peekable();
         if syntax == Syntax::Sass {
@@ -43,7 +45,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
             source,
             syntax,
             template_placeholder,
-            comments,
+            comments: collect_comments.then(|| ArenaVec::new_in(allocator)),
             state: TokenizerState {
                 chars,
                 current_indent: 0,
@@ -53,12 +55,32 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
     }
 
     #[inline]
-    pub fn bump(&mut self) -> PResult<TokenWithSpan<'s>> {
+    pub fn comments(&self) -> &[Comment<'a>] {
+        match &self.comments {
+            Some(comments) => comments,
+            None => &[],
+        }
+    }
+
+    #[inline]
+    pub(crate) fn comments_count(&self) -> usize {
+        self.comments.as_ref().map_or(0, |comments| comments.len())
+    }
+
+    #[inline]
+    pub(crate) fn truncate_comments(&mut self, len: usize) {
+        if let Some(comments) = &mut self.comments {
+            comments.truncate(len);
+        }
+    }
+
+    #[inline]
+    pub fn bump(&mut self) -> PResult<TokenWithSpan<'a>> {
         if let Some(indent) = self.skip_ws_or_comment() { Ok(indent) } else { self.next() }
     }
 
     #[inline]
-    pub fn bump_without_ws_or_comments(&mut self) -> PResult<TokenWithSpan<'s>> {
+    pub fn bump_without_ws_or_comments(&mut self) -> PResult<TokenWithSpan<'a>> {
         self.next()
     }
 
@@ -78,7 +100,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         Error { kind: ErrorKind::UnexpectedEof, span: Span { start: offset, end: offset } }
     }
 
-    fn next(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn next(&mut self) -> PResult<TokenWithSpan<'a>> {
         // detect frequent tokens here, but DO NOT add too many and don't forget to do profiling
         match self.state.chars.peek() {
             Some((_, c)) if is_start_of_ident(*c) && c != &'-' => return self.scan_ident(),
@@ -154,7 +176,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         }
     }
 
-    fn skip_ws_or_comment(&mut self) -> Option<TokenWithSpan<'s>> {
+    fn skip_ws_or_comment(&mut self) -> Option<TokenWithSpan<'a>> {
         // Sass can dedent more than one level at a time,
         // so we need to produce a dedent token for each level.
         if self.syntax == Syntax::Sass
@@ -202,7 +224,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         }
     }
 
-    fn scan_indent(&mut self) -> Option<TokenWithSpan<'s>> {
+    fn scan_indent(&mut self) -> Option<TokenWithSpan<'a>> {
         debug_assert_eq!(self.syntax, Syntax::Sass);
         let mut start = None;
         while let Some((i, c)) = self.state.chars.peek() {
@@ -311,7 +333,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         }
     }
 
-    pub(crate) fn scan_ident_sequence(&mut self) -> PResult<(Ident<'s>, Span)> {
+    pub(crate) fn scan_ident_sequence(&mut self) -> PResult<(Ident<'a>, Span)> {
         let start;
         let end;
         let mut escaped = false;
@@ -395,7 +417,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         }
     }
 
-    fn scan_number(&mut self) -> PResult<(Number<'s>, Span)> {
+    fn scan_number(&mut self) -> PResult<(Number<'a>, Span)> {
         let start;
         let mut end;
 
@@ -494,9 +516,9 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
 
     fn scan_dimension_or_percentage(
         &mut self,
-        number: Number<'s>,
+        number: Number<'a>,
         span: Span,
-    ) -> PResult<TokenWithSpan<'s>> {
+    ) -> PResult<TokenWithSpan<'a>> {
         let mut chars = self.state.chars.clone();
         match (chars.next(), chars.next()) {
             (Some((_, '-')), Some((_, c))) if is_start_of_ident(c) => {
@@ -512,9 +534,9 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
 
     fn scan_dimension(
         &mut self,
-        value: Number<'s>,
+        value: Number<'a>,
         value_span: Span,
-    ) -> PResult<TokenWithSpan<'s>> {
+    ) -> PResult<TokenWithSpan<'a>> {
         let (unit, unit_span) = self.scan_ident_sequence()?;
         Ok(TokenWithSpan {
             token: Token::Dimension(Dimension { value, unit }),
@@ -522,7 +544,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         })
     }
 
-    fn scan_percentage(&mut self, value: Number<'s>, span: Span) -> PResult<TokenWithSpan<'s>> {
+    fn scan_percentage(&mut self, value: Number<'a>, span: Span) -> PResult<TokenWithSpan<'a>> {
         self.state.chars.next();
         Ok(TokenWithSpan {
             token: Token::Percentage(Percentage { value }),
@@ -530,7 +552,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         })
     }
 
-    pub(crate) fn scan_string_only(&mut self) -> PResult<(Str<'s>, Span)> {
+    pub(crate) fn scan_string_only(&mut self) -> PResult<(Str<'a>, Span)> {
         let (start, quote) = match self.state.chars.next() {
             Some((index, c @ '\'' | c @ '"')) => (index, c),
             Some((index, _)) => {
@@ -575,7 +597,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         Ok((Str { raw, escaped }, Span { start, end }))
     }
 
-    fn scan_string_or_template(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn scan_string_or_template(&mut self) -> PResult<TokenWithSpan<'a>> {
         // '\'' or '"' is checked (but not consumed) before
         let (start, quote) = self.state.chars.next().unwrap();
 
@@ -627,7 +649,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         Ok(TokenWithSpan { token: Token::Str(Str { raw, escaped }), span: Span { start, end } })
     }
 
-    pub(crate) fn scan_string_template(&mut self, quote: char) -> PResult<(StrTemplate<'s>, Span)> {
+    pub(crate) fn scan_string_template(&mut self, quote: char) -> PResult<(StrTemplate<'a>, Span)> {
         let start = self.current_offset();
         let end;
         let mut escaped = false;
@@ -677,12 +699,12 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         }
     }
 
-    fn scan_ident(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn scan_ident(&mut self) -> PResult<TokenWithSpan<'a>> {
         self.scan_ident_sequence()
             .map(|(ident, span)| TokenWithSpan { token: Token::Ident(ident), span })
     }
 
-    pub(crate) fn scan_ident_template(&mut self) -> PResult<Option<(Ident<'s>, Span)>> {
+    pub(crate) fn scan_ident_template(&mut self) -> PResult<Option<(Ident<'a>, Span)>> {
         let start = self.current_offset();
         let mut escaped = false;
 
@@ -716,7 +738,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         }
     }
 
-    fn scan_sass_single_hyphen_as_ident(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn scan_sass_single_hyphen_as_ident(&mut self) -> PResult<TokenWithSpan<'a>> {
         debug_assert!(matches!(self.syntax, Syntax::Scss | Syntax::Sass));
         match self.state.chars.next() {
             Some((start, c)) => {
@@ -730,7 +752,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         }
     }
 
-    pub(crate) fn scan_url_raw_or_template(&mut self) -> PResult<TokenWithSpan<'s>> {
+    pub(crate) fn scan_url_raw_or_template(&mut self) -> PResult<TokenWithSpan<'a>> {
         self.skip_ws();
         let start = self.current_offset();
         let end;
@@ -786,7 +808,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         Ok(TokenWithSpan { token: Token::UrlRaw(UrlRaw { raw, escaped }), span })
     }
 
-    pub(crate) fn scan_url_template(&mut self) -> PResult<(UrlTemplate<'s>, Span)> {
+    pub(crate) fn scan_url_template(&mut self) -> PResult<(UrlTemplate<'a>, Span)> {
         let start = self.current_offset();
         let mut escaped = false;
         loop {
@@ -848,7 +870,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         }
     }
 
-    fn scan_hash(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn scan_hash(&mut self) -> PResult<TokenWithSpan<'a>> {
         let (start, c) = self.state.chars.next().unwrap();
         debug_assert_eq!(c, '#');
 
@@ -897,7 +919,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         Ok(TokenWithSpan { token: Token::Hash(Hash { escaped, raw }), span: Span { start, end } })
     }
 
-    fn scan_dollar_var(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn scan_dollar_var(&mut self) -> PResult<TokenWithSpan<'a>> {
         let (start, c) = self.state.chars.next().expect("expect char `$`");
         debug_assert_eq!(c, '$');
         let (ident, span) = self.scan_ident_sequence()?;
@@ -907,7 +929,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         })
     }
 
-    fn scan_less_lbrace_var(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn scan_less_lbrace_var(&mut self) -> PResult<TokenWithSpan<'a>> {
         let (start, first_char) = self.state.chars.next().expect("expect char `@` or `$`");
         debug_assert!(matches!(first_char, '@' | '$'));
         let (_, c) = self.state.chars.next().expect("expect char `{`");
@@ -934,7 +956,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         }
     }
 
-    fn scan_at_keyword(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn scan_at_keyword(&mut self) -> PResult<TokenWithSpan<'a>> {
         let (start, c) = self.state.chars.next().expect("expect char `@`");
         debug_assert_eq!(c, '@');
 
@@ -949,7 +971,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
     /// opening backtick is at the current position. Emits a [`Token::Placeholder`].
     /// A backtick that doesn't form a valid placeholder is invalid (backtick is
     /// not valid SCSS) and errors like any unknown token.
-    fn scan_template_placeholder(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn scan_template_placeholder(&mut self) -> PResult<TokenWithSpan<'a>> {
         let start = self.current_offset();
         if let Some((placeholder, end)) = self.match_placeholder(start) {
             // Affixes and digits are ASCII, so `end` lands on a char boundary.
@@ -968,11 +990,11 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
     /// the closing backtick and any glued suffix), or `None` when the option is
     /// unset or the shape doesn't match. An index that overflows `u32` doesn't
     /// match (so the caller errors) instead of panicking. Does not advance.
-    fn match_placeholder(&self, at: usize) -> Option<(Placeholder<'s>, usize)> {
-        // Bind `source` as `&'s str` so the suffix slice has lifetime `'s`
+    fn match_placeholder(&self, at: usize) -> Option<(Placeholder<'a>, usize)> {
+        // Bind `source` as `&'a str` so the suffix slice has lifetime `'a`
         // (independent of `&self`), letting callers mutate the tokenizer while
         // holding the returned token.
-        let source: &'s str = self.source;
+        let source: &'a str = self.source;
         let ph = self.template_placeholder?;
         // `at` is the opening backtick.
         let after_open = source[at + 1..].strip_prefix(ph.prefix)?;
@@ -1001,7 +1023,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
     /// return `None`. Used where a placeholder must be detected without first
     /// skipping whitespace (e.g. a class selector name), so callers can't rely
     /// on the main dispatch having already emitted the token.
-    pub(crate) fn scan_placeholder(&mut self) -> Option<TokenWithSpan<'s>> {
+    pub(crate) fn scan_placeholder(&mut self) -> Option<TokenWithSpan<'a>> {
         let start = self.current_offset();
         if !self.source[start..].starts_with('`') {
             return None;
@@ -1013,7 +1035,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         Some(TokenWithSpan { token: Token::Placeholder(placeholder), span: Span { start, end } })
     }
 
-    fn scan_backtick_code(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn scan_backtick_code(&mut self) -> PResult<TokenWithSpan<'a>> {
         debug_assert!(self.syntax == Syntax::Less);
 
         // '`' is checked (but not consumed) before
@@ -1041,7 +1063,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
         })
     }
 
-    fn scan_punc(&mut self) -> PResult<TokenWithSpan<'s>> {
+    fn scan_punc(&mut self) -> PResult<TokenWithSpan<'a>> {
         match self.state.chars.next() {
             Some((start, '.')) => {
                 if self.syntax != Syntax::Css
@@ -1319,7 +1341,7 @@ impl<'cmt, 's: 'cmt> Tokenizer<'cmt, 's> {
     }
 
     #[cold]
-    fn scan_cdc(&mut self, start: usize) -> PResult<TokenWithSpan<'s>> {
+    fn scan_cdc(&mut self, start: usize) -> PResult<TokenWithSpan<'a>> {
         self.state.chars.next();
         self.state.chars.next();
         self.state.chars.next();

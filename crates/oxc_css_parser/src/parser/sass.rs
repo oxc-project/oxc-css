@@ -3,7 +3,7 @@ use super::{
     state::{ParserState, SASS_CTX_ALLOW_DIV, SASS_CTX_IN_PARENS},
 };
 use crate::{
-    Parse,
+    Parse, arena_box, arena_vec,
     ast::*,
     bump,
     config::Syntax,
@@ -22,18 +22,18 @@ const PRECEDENCE_EQUALITY: u8 = 3;
 const PRECEDENCE_AND: u8 = 2;
 const PRECEDENCE_OR: u8 = 1;
 
-type SassParams<'s> = (
-    Vec<SassParameter<'s>>,
-    Option<SassArbitraryParameter<'s>>,
-    Vec<Span>, // comma spans
-    usize,     // end pos
+type SassParams<'a> = (
+    oxc_allocator::Vec<'a, SassParameter<'a>>,
+    Option<SassArbitraryParameter<'a>>,
+    oxc_allocator::Vec<'a, Span>, // comma spans
+    usize,                        // end pos
 );
 
-impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
+impl<'a> Parser<'a> {
     pub(super) fn parse_maybe_sass_list(
         &mut self,
         allow_comma: bool,
-    ) -> PResult<ComponentValue<'s>> {
+    ) -> PResult<ComponentValue<'a>> {
         use util::ListSeparatorKind;
 
         let single_value = if allow_comma {
@@ -44,8 +44,8 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
             self.parse_sass_bin_expr(/* allow_comparison */ true)?
         };
 
-        let mut elements = vec![];
-        let mut comma_spans: Option<Vec<_>> = None;
+        let mut elements = arena_vec!(self);
+        let mut comma_spans: Option<oxc_allocator::Vec<'a, Span>> = None;
         let mut separator = ListSeparatorKind::Unknown;
         let mut end = single_value.span().end;
         loop {
@@ -81,7 +81,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                         if let Some(spans) = &mut comma_spans {
                             spans.push(span);
                         } else {
-                            comma_spans = Some(vec![span]);
+                            comma_spans = Some(arena_vec!(self; span));
                         }
                     }
                 }
@@ -129,7 +129,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     pub(super) fn parse_sass_bin_expr(
         &mut self,
         allow_comparison: bool,
-    ) -> PResult<ComponentValue<'s>> {
+    ) -> PResult<ComponentValue<'a>> {
         debug_assert!(matches!(self.syntax, Syntax::Scss | Syntax::Sass));
         self.parse_sass_bin_expr_recursively(0, allow_comparison)
     }
@@ -138,7 +138,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         &mut self,
         precedence: u8,
         allow_comparison: bool,
-    ) -> PResult<ComponentValue<'s>> {
+    ) -> PResult<ComponentValue<'a>> {
         let mut left = if precedence >= PRECEDENCE_MULTIPLY {
             self.parse_sass_unary_expression()?
         } else {
@@ -282,9 +282,9 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                             .map(|value| ComponentValue::Number(Number { value, raw, span }))?
                     };
                     left = ComponentValue::SassBinaryExpression(SassBinaryExpression {
-                        left: Box::new(left),
+                        left: arena_box!(self, left),
                         op,
-                        right: Box::new(right),
+                        right: arena_box!(self, right),
                         span,
                     });
                     continue;
@@ -306,7 +306,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                     };
                     let span = Span { start: left.span().start, end: dimension_span.end };
                     let right = {
-                        (
+                        self.dimension(
                             crate::token::Dimension {
                                 value: crate::token::Number {
                                     raw: unsafe {
@@ -320,13 +320,12 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                             },
                             Span { start: dimension_span.start + 1, end: dimension_span.end },
                         )
-                            .try_into()
-                            .map(ComponentValue::Dimension)?
+                        .map(ComponentValue::Dimension)?
                     };
                     left = ComponentValue::SassBinaryExpression(SassBinaryExpression {
-                        left: Box::new(left),
+                        left: arena_box!(self, left),
                         op,
-                        right: Box::new(right),
+                        right: arena_box!(self, right),
                         span,
                     });
                     continue;
@@ -342,9 +341,9 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
 
             let span = Span { start: left.span().start, end: right.span().end };
             left = ComponentValue::SassBinaryExpression(SassBinaryExpression {
-                left: Box::new(left),
+                left: arena_box!(self, left),
                 op: operator,
-                right: Box::new(right),
+                right: arena_box!(self, right),
                 span,
             });
         }
@@ -352,8 +351,10 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         Ok(left)
     }
 
-    fn parse_sass_flags(&mut self) -> PResult<(Vec<SassFlag<'s>>, Option<usize>)> {
-        let mut flags: Vec<SassFlag<'s>> = Vec::with_capacity(1);
+    fn parse_sass_flags(
+        &mut self,
+    ) -> PResult<(oxc_allocator::Vec<'a, SassFlag<'a>>, Option<usize>)> {
+        let mut flags: oxc_allocator::Vec<'a, SassFlag<'a>> = self.vec_with_capacity(1);
         let mut end = None;
         while let Some((_, exclamation_span)) = eat!(self, Exclamation) {
             let keyword = self.parse::<Ident>()?;
@@ -361,7 +362,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
             util::assert_no_ws_or_comment(&exclamation_span, &keyword_span)?;
             end = Some(keyword_span.end);
 
-            match &*keyword.name {
+            match keyword.name {
                 "default" => {
                     if flags.iter().any(|flag| flag.keyword.name == "default") {
                         self.recoverable_errors.push(Error {
@@ -393,14 +394,16 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         Ok((flags, end))
     }
 
-    pub(super) fn parse_sass_interpolated_ident(&mut self) -> PResult<InterpolableIdent<'s>> {
+    pub(super) fn parse_sass_interpolated_ident(&mut self) -> PResult<InterpolableIdent<'a>> {
         debug_assert!(matches!(self.syntax, Syntax::Scss | Syntax::Sass));
 
         let (first, Span { start, mut end }) = match peek!(self) {
             TokenWithSpan { token: Token::Ident(..), .. } => {
                 let (ident, ident_span) = expect!(self, Ident);
                 (
-                    SassInterpolatedIdentElement::Static((ident, ident_span.clone()).into()),
+                    SassInterpolatedIdentElement::Static(
+                        self.interpolable_ident_static_part(ident, ident_span.clone()),
+                    ),
                     ident_span,
                 )
             }
@@ -443,12 +446,14 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     pub(super) fn parse_sass_interpolated_ident_rest(
         &mut self,
         end: &mut usize,
-    ) -> PResult<Vec<SassInterpolatedIdentElement<'s>>> {
-        let mut elements = vec![];
+    ) -> PResult<oxc_allocator::Vec<'a, SassInterpolatedIdentElement<'a>>> {
+        let mut elements = arena_vec!(self);
         loop {
             if let Some((token, span)) = self.tokenizer.scan_ident_template()? {
                 *end = span.end;
-                elements.push(SassInterpolatedIdentElement::Static((token, span).into()));
+                elements.push(SassInterpolatedIdentElement::Static(
+                    self.interpolable_ident_static_part(token, span),
+                ));
             } else if matches!(
                 peek!(self),
                 TokenWithSpan { token: Token::HashLBrace(..), span } if *end == span.start
@@ -464,7 +469,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
 
     fn parse_sass_interpolated_ident_expr(
         &mut self,
-    ) -> PResult<(SassInterpolatedIdentElement<'s>, Span)> {
+    ) -> PResult<(SassInterpolatedIdentElement<'a>, Span)> {
         debug_assert!(matches!(self.syntax, Syntax::Scss | Syntax::Sass));
 
         let start = expect!(self, HashLBrace).1.start;
@@ -473,11 +478,13 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         Ok((SassInterpolatedIdentElement::Expression(expr), Span { start, end }))
     }
 
-    fn parse_sass_invocation_args(&mut self) -> PResult<(Vec<ComponentValue<'s>>, Vec<Span>)> {
+    fn parse_sass_invocation_args(
+        &mut self,
+    ) -> PResult<(oxc_allocator::Vec<'a, ComponentValue<'a>>, oxc_allocator::Vec<'a, Span>)> {
         debug_assert!(matches!(self.syntax, Syntax::Scss | Syntax::Sass));
 
-        let mut values = Vec::with_capacity(4);
-        let mut comma_spans = vec![];
+        let mut values = self.vec_with_capacity(4);
+        let mut comma_spans = arena_vec!(self);
         while !matches!(peek!(self).token, Token::RParen(..) | Token::Eof(..)) {
             match peek!(self).token {
                 Token::Comma(..) => {
@@ -491,7 +498,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                     if let Some((_, span)) = eat!(self, DotDotDot) {
                         let span = Span { start: value.span().start, end: span.end };
                         values.push(ComponentValue::SassArbitraryArgument(SassArbitraryArgument {
-                            value: Box::new(value),
+                            value: arena_box!(self, value),
                             span,
                         }));
                     } else if let ComponentValue::SassVariable(sass_var) = value {
@@ -501,7 +508,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                             values.push(ComponentValue::SassKeywordArgument(SassKeywordArgument {
                                 name: sass_var,
                                 colon_span,
-                                value: Box::new(value),
+                                value: arena_box!(self, value),
                                 span,
                             }));
                         } else {
@@ -523,7 +530,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     fn parse_sass_module_config(
         &mut self,
         allow_overridable: bool,
-    ) -> PResult<Option<SassModuleConfig<'s>>> {
+    ) -> PResult<Option<SassModuleConfig<'a>>> {
         match &peek!(self).token {
             Token::Ident(ident) if ident.name().eq_ignore_ascii_case("with") => {
                 let TokenWithSpan { span: with_span, .. } = bump!(self);
@@ -531,8 +538,9 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
                 let end;
                 let (_, lparen_span) = expect!(self, LParen);
 
-                let mut items = vec![self.parse_sass_module_config_item(allow_overridable)?];
-                let mut comma_spans = vec![];
+                let mut items =
+                    arena_vec!(self; self.parse_sass_module_config_item(allow_overridable)?);
+                let mut comma_spans = arena_vec!(self);
                 if let Some((_, span)) = eat!(self, RParen) {
                     end = span.end;
                 } else {
@@ -569,7 +577,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     fn parse_sass_module_config_item(
         &mut self,
         allow_overridable: bool,
-    ) -> PResult<SassModuleConfigItem<'s>> {
+    ) -> PResult<SassModuleConfigItem<'a>> {
         let variable = self.parse::<SassVariable>()?;
         let (_, colon_span) = expect!(self, Colon);
         let value = self.parse_maybe_sass_list(/* allow_comma */ false)?;
@@ -578,7 +586,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
             self.parse_sass_flags()
                 .map(|(flags, end)| (flags, end.unwrap_or_else(|| value.span().end)))?
         } else {
-            (vec![], value.span().end)
+            (arena_vec!(self), value.span().end)
         };
 
         let span = Span { start: variable.span.start, end };
@@ -586,10 +594,10 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
     }
 
     /// This method will consume `)` token.
-    fn parse_sass_params(&mut self) -> PResult<SassParams<'s>> {
-        let mut parameters = vec![];
+    fn parse_sass_params(&mut self) -> PResult<SassParams<'a>> {
+        let mut parameters = arena_vec!(self);
         let mut arbitrary_parameter = None;
-        let mut comma_spans = vec![];
+        let mut comma_spans = arena_vec!(self);
         let end;
         loop {
             if let Some((_, span)) = eat!(self, RParen) {
@@ -659,8 +667,8 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
 
     pub(super) fn parse_sass_qualified_name(
         &mut self,
-        module: Ident<'s>,
-    ) -> PResult<SassQualifiedName<'s>> {
+        module: Ident<'a>,
+    ) -> PResult<SassQualifiedName<'a>> {
         debug_assert!(matches!(self.syntax, Syntax::Scss | Syntax::Sass));
 
         let (_, dot_span) = expect!(self, Dot);
@@ -677,7 +685,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         Ok(SassQualifiedName { module, member, span })
     }
 
-    fn parse_sass_unary_expression(&mut self) -> PResult<ComponentValue<'s>> {
+    fn parse_sass_unary_expression(&mut self) -> PResult<ComponentValue<'a>> {
         let op = match &peek!(self).token {
             Token::Plus(..) => {
                 SassUnaryOperator { kind: SassUnaryOperatorKind::Plus, span: bump!(self).span }
@@ -694,15 +702,15 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         let expr = self.parse_sass_unary_expression()?;
         let span = Span { start: op.span.start, end: expr.span().end };
         Ok(ComponentValue::SassUnaryExpression(SassUnaryExpression {
-            expr: Box::new(expr),
+            expr: arena_box!(self, expr),
             op,
             span,
         }))
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassAtRoot<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassAtRoot<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let kind = if matches!(peek!(input).token, Token::LParen(..)) {
             SassAtRootKind::Query(input.parse()?)
         } else {
@@ -714,8 +722,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassAtRoot<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassAtRootQuery<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassAtRootQuery<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let start = expect!(input, LParen).1.start;
 
         let modifier = {
@@ -731,7 +739,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassAtRootQuery<'s> {
         };
         let colon_span = expect!(input, Colon).1;
 
-        let mut rules = Vec::with_capacity(1);
+        let mut rules = input.vec_with_capacity(1);
         loop {
             match &peek!(input).token {
                 Token::Ident(..) | Token::HashLBrace(..) => {
@@ -749,8 +757,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassAtRootQuery<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassConditionalClause<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassConditionalClause<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let condition = input.parse::<ComponentValue>()?;
         let block = input.parse::<SimpleBlock>()?;
         let span = Span { start: condition.span().start, end: block.span.end };
@@ -758,8 +766,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassConditionalClause<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassContent<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassContent<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, Span { start, .. }) = expect!(input, LParen);
         let (args, comma_spans) = input.parse_sass_invocation_args()?;
         let (_, Span { end, .. }) = expect!(input, RParen);
@@ -767,15 +775,15 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassContent<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassEach<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassEach<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let first_binding = input.parse::<SassVariable>()?;
         let start = first_binding.span().start;
 
-        let mut bindings = vec![first_binding];
-        let mut comma_spans = vec![];
+        let mut bindings = arena_vec!(input; first_binding);
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             bindings.push(input.parse()?);
@@ -793,8 +801,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassEach<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassExtend<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassExtend<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let selectors = input.parse::<CompoundSelectorList>()?;
         let start = selectors.span.start;
         let mut end = selectors.span.end;
@@ -804,7 +812,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassExtend<'s> {
             if keyword.name().eq_ignore_ascii_case("optional") {
                 end = keyword_span.end;
                 let span = Span { start: exclamation_span.start, end: keyword_span.end };
-                Some(SassFlag { keyword: (keyword, keyword_span).into(), span })
+                Some(SassFlag { keyword: input.ident(keyword, keyword_span), span })
             } else {
                 input.recoverable_errors.push(Error {
                     kind: ErrorKind::ExpectSassKeyword("optional"),
@@ -820,8 +828,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassExtend<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassFor<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassFor<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let binding = input.parse::<SassVariable>()?;
@@ -843,8 +851,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassFor<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassForBoundary {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassForBoundary {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (keyword, span) = expect!(input, Ident);
         match &*keyword.name() {
             "to" => Ok(SassForBoundary { kind: SassForBoundaryKind::Exclusive, span }),
@@ -854,8 +862,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassForBoundary {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassForward<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassForward<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let path = input.parse::<InterpolableStr>()?;
@@ -879,8 +887,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassForward<'s> {
             let name = keyword.name();
             if name.eq_ignore_ascii_case("hide") {
                 let keyword_span = bump!(input).span;
-                let mut members = vec![];
-                let mut comma_spans = vec![];
+                let mut members = arena_vec!(input);
+                let mut comma_spans = arena_vec!(input);
                 loop {
                     match &peek!(input).token {
                         Token::Ident(..) => {
@@ -905,8 +913,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassForward<'s> {
                 })
             } else if name.eq_ignore_ascii_case("show") {
                 let keyword_span = bump!(input).span;
-                let mut members = vec![];
-                let mut comma_spans = vec![];
+                let mut members = arena_vec!(input);
+                let mut comma_spans = arena_vec!(input);
                 loop {
                     match &peek!(input).token {
                         Token::Ident(..) => {
@@ -945,8 +953,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassForward<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassFunction<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassFunction<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let name = input.parse::<Ident>()?;
@@ -959,16 +967,16 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassFunction<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassIfAtRule<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassIfAtRule<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let start = expect!(input, AtKeyword).1.start;
 
         let if_clause = input.parse::<SassConditionalClause>()?;
-        let mut else_if_clauses = Vec::<SassConditionalClause>::new();
+        let mut else_if_clauses: oxc_allocator::Vec<'a, SassConditionalClause<'a>> = input.vec();
         let mut else_clause: Option<SimpleBlock> = None;
-        let mut else_spans = vec![];
+        let mut else_spans = arena_vec!(input);
 
         while let Token::AtKeyword(at_keyword) = &peek!(input).token {
             match &*at_keyword.ident.name() {
@@ -1007,13 +1015,13 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassIfAtRule<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassImportPrelude<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassImportPrelude<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first = input.parse::<Str>()?;
         let mut span = first.span.clone();
 
-        let mut paths = vec![first];
-        let mut comma_spans = vec![];
+        let mut paths = arena_vec!(input; first);
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             paths.push(input.parse()?);
@@ -1027,8 +1035,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassImportPrelude<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassInclude<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassInclude<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let name = input.parse::<FunctionName>()?;
@@ -1055,8 +1063,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassInclude<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassIncludeArgs<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassIncludeArgs<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, Span { start, .. }) = expect!(input, LParen);
         let (args, comma_spans) = input.parse_sass_invocation_args()?;
         let (_, Span { end, .. }) = expect!(input, RParen);
@@ -1064,8 +1072,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassIncludeArgs<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassIncludeContentBlockParams<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassIncludeContentBlockParams<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match bump!(input) {
             TokenWithSpan { token: Token::Ident(ident), span: using_span }
                 if ident.name().eq_ignore_ascii_case("using") =>
@@ -1081,13 +1089,14 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassIncludeContentBlockParams<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassInterpolatedStr<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassInterpolatedStr<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (first, first_span) = expect!(input, StrTemplate);
         let quote = first.raw.chars().next().unwrap();
         debug_assert!(quote == '\'' || quote == '"');
         let mut span = first_span.clone();
-        let mut elements = vec![SassInterpolatedStrElement::Static((first, first_span).into())];
+        let first = input.interpolable_str_static_part(first, first_span);
+        let mut elements = arena_vec!(input; SassInterpolatedStrElement::Static(first));
 
         let mut is_parsing_static_part = false;
         loop {
@@ -1095,7 +1104,9 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassInterpolatedStr<'s> {
                 let (token, str_tpl_span) = input.tokenizer.scan_string_template(quote)?;
                 let tail = token.tail;
                 let end = str_tpl_span.end;
-                elements.push(SassInterpolatedStrElement::Static((token, str_tpl_span).into()));
+                elements.push(SassInterpolatedStrElement::Static(
+                    input.interpolable_str_static_part(token, str_tpl_span),
+                ));
                 if tail {
                     span.end = end;
                     break;
@@ -1115,8 +1126,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassInterpolatedStr<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassInterpolatedUrl<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassInterpolatedUrl<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let (first, first_span) = match input.tokenizer.scan_url_raw_or_template()? {
@@ -1129,7 +1140,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassInterpolatedUrl<'s> {
             }
         };
         let mut span = first_span.clone();
-        let mut elements = vec![SassInterpolatedUrlElement::Static((first, first_span).into())];
+        let first = input.interpolable_url_static_part(first, first_span);
+        let mut elements = arena_vec!(input; SassInterpolatedUrlElement::Static(first));
 
         let mut is_parsing_static_part = false;
         loop {
@@ -1137,7 +1149,9 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassInterpolatedUrl<'s> {
                 let (token, url_tpl_span @ Span { end, .. }) =
                     input.tokenizer.scan_url_template()?;
                 let tail = token.tail;
-                elements.push(SassInterpolatedUrlElement::Static((token, url_tpl_span).into()));
+                elements.push(SassInterpolatedUrlElement::Static(
+                    input.interpolable_url_static_part(token, url_tpl_span),
+                ));
                 if tail {
                     span.end = end;
                     break;
@@ -1157,8 +1171,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassInterpolatedUrl<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassList<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassList<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if let ComponentValue::SassList(list) =
             input.parse_maybe_sass_list(/* allow_comma */ true)?
         {
@@ -1171,12 +1185,12 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassList<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassMap<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassMap<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let start = expect!(input, LParen).1.start;
 
-        let mut items = vec![];
-        let mut comma_spans = vec![];
+        let mut items = arena_vec!(input);
+        let mut comma_spans = arena_vec!(input);
         loop {
             match peek!(input).token {
                 Token::RParen(..) => break,
@@ -1204,8 +1218,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassMap<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassMapItem<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassMapItem<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let key = input.parse_maybe_sass_list(/* allow_comma */ false)?;
         let (_, colon_span) = expect!(input, Colon);
         let value = input.parse_maybe_sass_list(/* allow_comma */ false)?;
@@ -1214,8 +1228,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassMapItem<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassMixin<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassMixin<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let name = input.parse::<Ident>()?;
@@ -1234,16 +1248,16 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassMixin<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassParameters<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassParameters<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, Span { start, .. }) = expect!(input, LParen);
         let (params, arbitrary_param, comma_spans, end) = input.parse_sass_params()?;
         Ok(SassParameters { params, arbitrary_param, comma_spans, span: Span { start, end } })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassNestingDeclaration<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassNestingDeclaration<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let block = input.parse::<SimpleBlock>()?;
         let span = block.span.clone();
 
@@ -1251,25 +1265,24 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassNestingDeclaration<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassParenthesizedExpression<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassParenthesizedExpression<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let start = expect!(input, LParen).1.start;
         eat!(input, Indent);
-        let expr = Box::new(
-            input
-                .with_state(ParserState {
-                    sass_ctx: input.state.sass_ctx | SASS_CTX_ALLOW_DIV | SASS_CTX_IN_PARENS,
-                    ..input.state.clone()
-                })
-                .parse_maybe_sass_list(/* allow_comma */ true)?,
-        );
+        let expr = input
+            .with_state(ParserState {
+                sass_ctx: input.state.sass_ctx | SASS_CTX_ALLOW_DIV | SASS_CTX_IN_PARENS,
+                ..input.state.clone()
+            })
+            .parse_maybe_sass_list(/* allow_comma */ true)?;
+        let expr = arena_box!(input, expr);
         let end = expect!(input, RParen).1.end;
         Ok(SassParenthesizedExpression { expr, span: Span { start, end } })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassPlaceholderSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassPlaceholderSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, percent_span) = expect!(input, Percent);
         let name = input.parse::<InterpolableIdent>()?;
         let name_span = name.span();
@@ -1279,8 +1292,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassPlaceholderSelector<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassUse<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassUse<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let path = input.parse::<InterpolableStr>()?;
         let mut span = path.span().clone();
 
@@ -1302,8 +1315,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassUse<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassUseNamespace<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassUseNamespace<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let as_span = match peek!(input) {
             TokenWithSpan { token: Token::Ident(ident), .. }
                 if ident.name().eq_ignore_ascii_case("as") =>
@@ -1329,7 +1342,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassUseNamespace<'s> {
                 let span = Span { start: as_span.start, end: ident_span.end };
                 Ok(SassUseNamespace {
                     as_span,
-                    kind: SassUseNamespaceKind::Named((ident, ident_span).into()),
+                    kind: SassUseNamespaceKind::Named(input.ident(ident, ident_span)),
                     span,
                 })
             }
@@ -1340,20 +1353,20 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassUseNamespace<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassVariable<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassVariable<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let (dollar_var, span) = expect!(input, DollarVar);
         Ok(SassVariable {
-            name: (dollar_var.ident, Span { start: span.start + 1, end: span.end }).into(),
+            name: input.ident(dollar_var.ident, Span { start: span.start + 1, end: span.end }),
             span,
         })
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassVariableDeclaration<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for SassVariableDeclaration<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let namespace = if let Some((ident_token, span)) = eat!(input, Ident) {
@@ -1361,7 +1374,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassVariableDeclaration<'s> {
             util::assert_no_ws_or_comment(&span, &dot_span)?;
             let TokenWithSpan { span: next_span, .. } = peek!(input);
             util::assert_no_ws_or_comment(&dot_span, next_span)?;
-            Some(Ident::from((ident_token, span)))
+            Some(input.ident(ident_token, span))
         } else {
             None
         };
@@ -1395,8 +1408,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for SassVariableDeclaration<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for UnknownSassAtRule<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for UnknownSassAtRule<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
         let (_, at_span) = expect!(input, At);

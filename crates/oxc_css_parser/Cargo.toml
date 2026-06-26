@@ -10,8 +10,8 @@ exclude = ["/tests"]
 
 [dependencies]
 oxc-css-parser-macro = { path = "../oxc_css_parser_macro", version = "0.0.1" }
+oxc_allocator = ">=0.137.0"
 serde = { version = "1.0", features = ["derive"], optional = true }
-smallvec = { version = "1.15", features = ["const_generics"] }
 
 [dev-dependencies]
 codespan-reporting = "0.13"
@@ -23,7 +23,7 @@ serde_json = "1.0"
 default = []
 codspeed = ["criterion2/codspeed"]
 config_serde = ["serde"]
-serialize = ["serde", "smallvec/serde"]
+serialize = ["serde", "oxc_allocator/serialize"]
 span_ignored_eq = []
 variant_helpers = []
 

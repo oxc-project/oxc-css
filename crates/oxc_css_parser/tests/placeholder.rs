@@ -1,4 +1,6 @@
-use oxc_css_parser::{ParserBuilder, ParserOptions, Syntax, TemplatePlaceholder, ast::*};
+use oxc_css_parser::{
+    Allocator, ParserBuilder, ParserOptions, Syntax, TemplatePlaceholder, ast::*,
+};
 
 fn opts() -> ParserOptions {
     ParserOptions {
@@ -7,11 +9,12 @@ fn opts() -> ParserOptions {
     }
 }
 
-fn parse(code: &str, options: Option<ParserOptions>) -> Stylesheet<'_> {
+fn parse(code: &'static str, options: Option<ParserOptions>) -> Stylesheet<'static> {
     // Backtick placeholders require SCSS (the builder asserts this); without the
     // option, parse as plain CSS so the backtick stays an ordinary error.
+    let allocator = Box::leak(Box::new(Allocator::default()));
     let syntax = if options.is_some() { Syntax::Scss } else { Syntax::Css };
-    let mut builder = ParserBuilder::new(code).syntax(syntax);
+    let mut builder = ParserBuilder::new(allocator, code).syntax(syntax);
     if let Some(options) = options {
         builder = builder.options(options);
     }
@@ -22,7 +25,8 @@ fn parse(code: &str, options: Option<ParserOptions>) -> Stylesheet<'_> {
 fn default_options_do_not_parse_placeholders() {
     // Without the option set, a backtick is not special (it's an ordinary syntax
     // error outside Less); the tokenizer never emits `Token::Placeholder`.
-    let builder = ParserBuilder::new("`PLACEHOLDER-0`;").syntax(Syntax::Css);
+    let allocator = Allocator::default();
+    let builder = ParserBuilder::new(&allocator, "`PLACEHOLDER-0`;").syntax(Syntax::Css);
     assert!(builder.build().parse::<Stylesheet>().is_err());
 }
 
@@ -256,7 +260,8 @@ fn media_feature_value_placeholder_glued_to_unit() {
 fn huge_index_does_not_panic() {
     // Regression: an index that overflows u32 must not panic; it fails to match
     // the placeholder shape, so the stray backtick is a value error (not a crash).
-    let builder = ParserBuilder::new("a{width:`PLACEHOLDER-9999999999`}")
+    let allocator = Allocator::default();
+    let builder = ParserBuilder::new(&allocator, "a{width:`PLACEHOLDER-9999999999`}")
         .syntax(Syntax::Scss)
         .options(opts());
     assert!(builder.build().parse::<Stylesheet>().is_err());

@@ -4,7 +4,7 @@ use codespan_reporting::{
     term,
 };
 use insta::{Settings, assert_snapshot, glob};
-use oxc_css_parser::{Parser, Syntax, ast::Stylesheet};
+use oxc_css_parser::{Allocator, Parser, Syntax, ast::Stylesheet};
 use std::fs;
 
 #[test]
@@ -20,7 +20,8 @@ fn error_snapshot() {
             "less" => Syntax::Less,
             _ => unreachable!("unknown file extension"),
         };
-        let mut parser = Parser::new(&code, syntax);
+        let allocator = Allocator::default();
+        let mut parser = Parser::new(&allocator, &code, syntax);
         let error = match parser.parse::<Stylesheet>() {
             Ok(..) => panic!(
                 "\"{}\" should contain unrecoverable syntax error, but actually parsed successfully.",

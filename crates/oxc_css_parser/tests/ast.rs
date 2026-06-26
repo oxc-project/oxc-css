@@ -4,7 +4,7 @@ use codespan_reporting::{
     term,
 };
 use insta::{Settings, assert_ron_snapshot, glob};
-use oxc_css_parser::{Parser, Syntax, ast::Stylesheet};
+use oxc_css_parser::{Allocator, Parser, Syntax, ast::Stylesheet};
 use std::fs;
 
 #[test]
@@ -18,7 +18,8 @@ fn ast_snapshot() {
             "less" => Syntax::Less,
             _ => unreachable!("unknown file extension"),
         };
-        let mut parser = Parser::new(&code, syntax);
+        let allocator = Allocator::default();
+        let mut parser = Parser::new(&allocator, &code, syntax);
         let ast = match parser.parse::<Stylesheet>() {
             Ok(ast) => {
                 let recoverable_errors = parser.recoverable_errors();

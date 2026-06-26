@@ -6,7 +6,7 @@ use codespan_reporting::{
         termcolor::{ColorChoice, StandardStream},
     },
 };
-use oxc_css_parser::{Parser, Syntax, ast::Stylesheet, error::Error};
+use oxc_css_parser::{Allocator, Parser, Syntax, ast::Stylesheet, error::Error};
 use std::{env, fs, path::Path};
 
 fn main() {
@@ -21,7 +21,8 @@ fn main() {
         _ => Syntax::Css,
     };
 
-    let mut parser = Parser::new(&code, syntax);
+    let allocator = Allocator::default();
+    let mut parser = Parser::new(&allocator, &code, syntax);
     let result = parser.parse::<Stylesheet>();
     match result {
         Ok(ast) => {

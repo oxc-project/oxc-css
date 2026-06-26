@@ -1,6 +1,6 @@
 use super::Parser;
 use crate::{
-    Parse,
+    Parse, arena_vec,
     ast::*,
     eat,
     error::{Error, ErrorKind, PResult},
@@ -12,14 +12,14 @@ use crate::{
 };
 
 // https://drafts.csswg.org/css-animations/#keyframes
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for KeyframeBlock<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for KeyframeBlock<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first_selector = input.parse::<KeyframeSelector>()?;
         let start = first_selector.span().start;
 
-        let mut selectors = Vec::with_capacity(2);
+        let mut selectors = input.vec_with_capacity(2);
         selectors.push(first_selector);
-        let mut comma_spans = vec![];
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             selectors.push(input.parse()?);
@@ -35,8 +35,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for KeyframeBlock<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for KeyframeSelector<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for KeyframeSelector<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match &peek!(input).token {
             Token::Percentage(..) => Ok(KeyframeSelector::Percentage(input.parse()?)),
             _ => {
@@ -60,14 +60,14 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for KeyframeSelector<'s> {
 }
 
 // https://drafts.csswg.org/css-animations/#keyframes
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for KeyframesName<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for KeyframesName<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match &peek!(input).token {
             Token::Ident(..) | Token::HashLBrace(..) | Token::AtLBraceVar(..) => {
                 let ident = input.parse()?;
                 match &ident {
                     InterpolableIdent::Literal(ident)
-                        if util::is_css_wide_keyword(&ident.name)
+                        if util::is_css_wide_keyword(ident.name)
                             || ident.name.eq_ignore_ascii_case("default") =>
                     {
                         input.recoverable_errors.push(Error {

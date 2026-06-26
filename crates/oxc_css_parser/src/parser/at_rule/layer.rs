@@ -1,6 +1,6 @@
 use super::Parser;
 use crate::{
-    Parse,
+    Parse, arena_vec,
     ast::*,
     bump, eat,
     error::{Error, PResult},
@@ -11,13 +11,13 @@ use crate::{
 };
 
 // https://drafts.csswg.org/css-cascade-5/#layering
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LayerNames<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LayerNames<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first = input.parse::<LayerName>()?;
         let mut span = first.span.clone();
 
-        let mut names = vec![first];
-        let mut comma_spans = vec![];
+        let mut names = arena_vec!(input; first);
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             names.push(input.parse()?);
@@ -31,13 +31,13 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LayerNames<'s> {
 }
 
 // https://drafts.csswg.org/css-cascade-5/#layer-names
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LayerName<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for LayerName<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first = input.parse::<InterpolableIdent>()?;
         let start = first.span().start;
         let mut end = first.span().end;
 
-        let mut idents = vec![first];
+        let mut idents = arena_vec!(input; first);
         while let TokenWithSpan { token: Token::Dot(..), span } = peek!(input) {
             if span.start == end {
                 let span = bump!(input).span;
@@ -51,7 +51,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for LayerName<'s> {
         }
 
         let invalid_ident = idents.iter().find(|ident| match &ident {
-            InterpolableIdent::Literal(ident) => util::is_css_wide_keyword(&ident.name),
+            InterpolableIdent::Literal(ident) => util::is_css_wide_keyword(ident.name),
             _ => false,
         });
         if let Some(invalid_ident) = invalid_ident {

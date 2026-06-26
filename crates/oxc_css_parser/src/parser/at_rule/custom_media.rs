@@ -9,8 +9,8 @@ use crate::{
 };
 
 // https://www.w3.org/TR/mediaqueries-5/#custom-mq
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CustomMedia<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for CustomMedia<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let name = input.parse_dashed_ident()?;
         let value = input.parse::<CustomMediaValue>()?;
         let span = Span { start: name.span().start, end: value.span().end };
@@ -18,8 +18,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CustomMedia<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for CustomMediaValue<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for CustomMediaValue<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match &peek!(input).token {
             Token::Ident(ident) => {
                 let name = ident.name();

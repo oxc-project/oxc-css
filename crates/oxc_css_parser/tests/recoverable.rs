@@ -4,7 +4,7 @@ use codespan_reporting::{
     term,
 };
 use insta::{Settings, assert_ron_snapshot, assert_snapshot, glob};
-use oxc_css_parser::{Parser, Syntax, ast::Stylesheet};
+use oxc_css_parser::{Allocator, Parser, Syntax, ast::Stylesheet};
 use std::fs;
 
 #[test]
@@ -20,7 +20,8 @@ fn recoverable_errors_snapshot() {
             "less" => Syntax::Less,
             _ => unreachable!("unknown file extension"),
         };
-        let mut parser = Parser::new(&code, syntax);
+        let allocator = Allocator::default();
+        let mut parser = Parser::new(&allocator, &code, syntax);
 
         let file = SimpleFile::new(file_name, &code);
         let config = term::Config::default();

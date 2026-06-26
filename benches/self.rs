@@ -1,5 +1,5 @@
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
-use oxc_css_parser::{Parser, Syntax, ast::Stylesheet};
+use oxc_css_parser::{Allocator, Parser, Syntax, ast::Stylesheet};
 use std::{fs, hint::black_box, path::Path, time::Duration};
 
 fn bench_parser(c: &mut Criterion) {
@@ -31,8 +31,9 @@ fn bench_parser(c: &mut Criterion) {
 
             group.bench_with_input(BenchmarkId::from_parameter(name), &code, |b, code| {
                 b.iter(|| {
-                    let mut parser = Parser::new(code, syntax);
-                    black_box(parser.parse::<Stylesheet>().unwrap())
+                    let allocator = Allocator::default();
+                    let mut parser = Parser::new(&allocator, code, syntax);
+                    black_box(parser.parse::<Stylesheet>().unwrap());
                 });
             });
         });

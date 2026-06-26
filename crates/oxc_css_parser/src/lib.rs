@@ -8,9 +8,10 @@
 //! then call the [`parse`](Parser::parse) method:
 //!
 //! ```rust
-//! use oxc_css_parser::{ast::Stylesheet, Parser, Syntax};
+//! use oxc_css_parser::{Allocator, Parser, Syntax, ast::Stylesheet};
 //!
-//! let mut parser = Parser::new("a {}", Syntax::Css); // syntax can also be `Scss`, `Sass` or `Less`
+//! let allocator = Allocator::default();
+//! let mut parser = Parser::new(&allocator, "a {}", Syntax::Css); // syntax can also be `Scss`, `Sass` or `Less`
 //! let result = parser.parse::<Stylesheet>();
 //! match result {
 //!     Ok(ast) => {
@@ -33,19 +34,22 @@
 //! For example, to collect comments:
 //!
 //! ```rust
-//! use oxc_css_parser::ParserBuilder;
+//! use oxc_css_parser::{Allocator, ParserBuilder, ast::Stylesheet};
 //!
-//! let mut comments = vec![];
-//! let builder = ParserBuilder::new("/* comment */ a {}").comments(&mut comments);
+//! let allocator = Allocator::default();
+//! let builder = ParserBuilder::new(&allocator, "/* comment */ a {}").comments();
 //! let mut parser = builder.build();
+//! parser.parse::<Stylesheet>().unwrap();
+//! let comments = parser.comments();
 //! ```
 //!
 //! By default, syntax is CSS when using parser builder. You can customize it:
 //!
 //! ```rust
-//! use oxc_css_parser::{ParserBuilder, Syntax};
+//! use oxc_css_parser::{Allocator, ParserBuilder, Syntax};
 //!
-//! let builder = ParserBuilder::new("a {}").syntax(Syntax::Scss);
+//! let allocator = Allocator::default();
+//! let builder = ParserBuilder::new(&allocator, "a {}").syntax(Syntax::Scss);
 //! ```
 //!
 //! ### Parser Options
@@ -58,13 +62,14 @@
 //! parser will fallback to parse as tokens if there're syntax errors.
 //!
 //! ```rust
-//! use oxc_css_parser::{ast::*, ParserBuilder, ParserOptions};
+//! use oxc_css_parser::{Allocator, ParserBuilder, ParserOptions, ast::*};
 //!
+//! let allocator = Allocator::default();
 //! let options = ParserOptions {
 //!     try_parsing_value_in_custom_property: true,
 //!     ..Default::default()
 //! };
-//! let builder = ParserBuilder::new("--foo: calc(var(--bar) + 1px)").options(options);
+//! let builder = ParserBuilder::new(&allocator, "--foo: calc(var(--bar) + 1px)").options(options);
 //! let mut parser = builder.build();
 //!
 //! let declaration = parser.parse::<Declaration>().unwrap();
@@ -80,13 +85,14 @@
 //! so they won't prevent parsing the rest of code.
 //!
 //! ```rust
-//! use oxc_css_parser::{ast::*, ParserBuilder, ParserOptions, Syntax};
+//! use oxc_css_parser::{Allocator, ParserBuilder, ParserOptions, Syntax, ast::*};
 //!
+//! let allocator = Allocator::default();
 //! let options = ParserOptions {
 //!     tolerate_semicolon_in_sass: true,
 //!     ..Default::default()
 //! };
-//! let builder = ParserBuilder::new("
+//! let builder = ParserBuilder::new(&allocator, "
 //! button
 //!   width: 12px;
 //!   height: 12px;
@@ -110,15 +116,16 @@
 //! used with [`Syntax::Scss`] (backtick is Less's inline-JS delimiter).
 //!
 //! ```rust
-//! use oxc_css_parser::{ast::*, TemplatePlaceholder, ParserBuilder, ParserOptions, Syntax};
+//! use oxc_css_parser::{Allocator, ParserBuilder, ParserOptions, Syntax, TemplatePlaceholder, ast::*};
 //!
+//! let allocator = Allocator::default();
 //! let options = ParserOptions {
 //!     template_placeholder: Some(TemplatePlaceholder {
 //!         prefix: "PLACEHOLDER-",
 //!     }),
 //!     ..Default::default()
 //! };
-//! let builder = ParserBuilder::new("a { width: `PLACEHOLDER-0`; }")
+//! let builder = ParserBuilder::new(&allocator, "a { width: `PLACEHOLDER-0`; }")
 //!     .syntax(Syntax::Scss)
 //!     .options(options);
 //! let mut parser = builder.build();
@@ -133,18 +140,20 @@
 //! All you need to do is to update the generics of the [`parse`](Parser::parse) method.
 //!
 //! ```rust
-//! use oxc_css_parser::{ast::QualifiedRule, Parser, Syntax};
+//! use oxc_css_parser::{Allocator, Parser, Syntax, ast::QualifiedRule};
 //!
-//! let mut parser = Parser::new("a {}", Syntax::Css);
+//! let allocator = Allocator::default();
+//! let mut parser = Parser::new(&allocator, "a {}", Syntax::Css);
 //! parser.parse::<QualifiedRule>();
 //! ```
 //!
 //! and
 //!
 //! ```rust
-//! use oxc_css_parser::{ast::Declaration, Parser, Syntax};
+//! use oxc_css_parser::{Allocator, Parser, Syntax, ast::Declaration};
 //!
-//! let mut parser = Parser::new("color: green", Syntax::Css);
+//! let allocator = Allocator::default();
+//! let mut parser = Parser::new(&allocator, "color: green", Syntax::Css);
 //! parser.parse::<Declaration>();
 //! ```
 //!
@@ -157,9 +166,10 @@
 //! To retrieve those errors, use [`recoverable_errors`](Parser::recoverable_errors).
 //!
 //! ```rust
-//! use oxc_css_parser::{ast::Stylesheet, Parser, Syntax};
+//! use oxc_css_parser::{Allocator, Parser, Syntax, ast::Stylesheet};
 //!
-//! let mut parser = Parser::new("@keyframes kf { invalid {} }", Syntax::Css);
+//! let allocator = Allocator::default();
+//! let mut parser = Parser::new(&allocator, "@keyframes kf { invalid {} }", Syntax::Css);
 //! let result = parser.parse::<Stylesheet>();
 //! assert!(result.is_ok());
 //! println!("{:?}", parser.recoverable_errors());
@@ -179,6 +189,7 @@
 //! Note that oxc-css-parser only supports serialization. Deserialization isn't supported.
 
 pub use config::{ParserOptions, Syntax, TemplatePlaceholder};
+pub use oxc_allocator::Allocator;
 pub use parser::{Parse, Parser, ParserBuilder};
 pub use pos::{Span, Spanned};
 pub use span_ignored_eq::SpanIgnoredEq;

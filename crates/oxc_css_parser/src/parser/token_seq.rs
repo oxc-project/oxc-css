@@ -1,10 +1,10 @@
 use super::Parser;
 use crate::{ast::*, bump, error::PResult, peek, pos::Span, tokenizer::Token, util::PairedToken};
 
-impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
-    pub(super) fn parse_tokens_in_parens(&mut self) -> PResult<TokenSeq<'s>> {
+impl<'a> Parser<'a> {
+    pub(super) fn parse_tokens_in_parens(&mut self) -> PResult<TokenSeq<'a>> {
         let start = self.tokenizer.current_offset();
-        let mut tokens = Vec::with_capacity(1);
+        let mut tokens = self.vec_with_capacity(1);
         let mut pairs = Vec::with_capacity(1);
         loop {
             match &peek!(self).token {

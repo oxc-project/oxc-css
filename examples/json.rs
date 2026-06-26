@@ -1,4 +1,4 @@
-use oxc_css_parser::{Parser, Syntax, ast::Stylesheet};
+use oxc_css_parser::{Allocator, Parser, Syntax, ast::Stylesheet};
 use std::{env, fs, path::Path};
 
 fn main() {
@@ -12,7 +12,9 @@ fn main() {
         Some("less") => Syntax::Less,
         _ => Syntax::Css,
     };
-    let ast = Parser::new(&file, syntax).parse::<Stylesheet>().unwrap();
+    let allocator = Allocator::default();
+    let mut parser = Parser::new(&allocator, &file, syntax);
+    let ast = parser.parse::<Stylesheet>().unwrap();
     let json = serde_json::to_string_pretty(&ast).unwrap();
     println!("{}", json);
 }

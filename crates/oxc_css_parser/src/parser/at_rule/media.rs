@@ -1,6 +1,6 @@
 use super::Parser;
 use crate::{
-    Parse, Syntax,
+    Parse, Syntax, arena_box, arena_vec,
     ast::*,
     bump, eat,
     error::{Error, ErrorKind, PResult},
@@ -9,8 +9,8 @@ use crate::{
     tokenizer::{Token, TokenWithSpan},
 };
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaAnd<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaAnd<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let keyword = input.parse::<Ident>()?;
         if keyword.name.eq_ignore_ascii_case("and") {
             let media_in_parens = input.parse::<MediaInParens>()?;
@@ -22,13 +22,13 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaAnd<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaConditionAfterMediaType<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaConditionAfterMediaType<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let and: Ident = match bump!(input) {
             TokenWithSpan { token: Token::Ident(ident), span }
                 if ident.name().eq_ignore_ascii_case("and") =>
             {
-                (ident, span).into()
+                input.ident(ident, span)
             }
             TokenWithSpan { span, .. } => {
                 return Err(Error { kind: ErrorKind::ExpectMediaAnd, span });
@@ -42,8 +42,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaConditionAfterMediaType<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaFeature<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaFeature<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match input.parse_media_feature_value()? {
             ComponentValue::InterpolableIdent(ident) => match &peek!(input).token {
                 Token::Colon(..) => input.parse_media_feature_plain(ident).map(MediaFeature::Plain),
@@ -74,8 +74,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaFeature<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaFeatureComparison {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaFeatureComparison {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         match bump!(input) {
             TokenWithSpan { token: Token::LessThan(..), span } => {
                 Ok(MediaFeatureComparison { kind: MediaFeatureComparisonKind::LessThan, span })
@@ -103,8 +103,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaFeatureComparison {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaInParens<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaInParens<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         // Sass allows an interpolation wherever `<media-in-parens>` is expected,
         // e.g. `@media screen and #{$query} {}`.
         if matches!(input.syntax, Syntax::Scss | Syntax::Sass)
@@ -125,8 +125,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaInParens<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaInParensKind<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaInParensKind<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if let Ok(media_condition) = input.try_parse(|parser| {
             let media_condition = parser.parse_media_condition(/* allow_or */ true)?;
             // `(#{$x}-width: 1px)`: the interpolation parses as a
@@ -142,13 +142,14 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaInParensKind<'s> {
         }) {
             Ok(MediaInParensKind::MediaCondition(media_condition))
         } else {
-            input.parse().map(Box::new).map(MediaInParensKind::MediaFeature)
+            let media_feature = input.parse()?;
+            Ok(MediaInParensKind::MediaFeature(arena_box!(input, media_feature)))
         }
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaNot<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaNot<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let keyword = input.parse::<Ident>()?;
         if keyword.name.eq_ignore_ascii_case("not") {
             let media_in_parens = input.parse::<MediaInParens>()?;
@@ -160,8 +161,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaNot<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaOr<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaOr<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let keyword = input.parse::<Ident>()?;
         if keyword.name.eq_ignore_ascii_case("or") {
             let media_in_parens = input.parse::<MediaInParens>()?;
@@ -173,8 +174,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaOr<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaQuery<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaQuery<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if let Ok(condition_only) =
             input.try_parse(|parser| parser.parse_media_condition(/* allow_or */ true))
         {
@@ -192,9 +193,10 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaQuery<'s> {
                         _ => unreachable!(),
                     })
                 }
-                Token::Dot(..) | Token::Hash(..) => input.parse().map(|less_namespace_value| {
-                    MediaQuery::LessNamespaceValue(Box::new(less_namespace_value))
-                }),
+                Token::Dot(..) | Token::Hash(..) => {
+                    let less_namespace_value = input.parse()?;
+                    Ok(MediaQuery::LessNamespaceValue(arena_box!(input, less_namespace_value)))
+                }
                 _ => input.parse_media_query_with_type_or_function(),
             }
         } else {
@@ -204,13 +206,13 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaQuery<'s> {
 }
 
 // https://www.w3.org/TR/mediaqueries-4/#mq-syntax
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaQueryList<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaQueryList<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let first = input.parse::<MediaQuery>()?;
         let mut span = first.span().clone();
 
-        let mut queries = vec![first];
-        let mut comma_spans = vec![];
+        let mut queries = arena_vec!(input; first);
+        let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
             queries.push(input.parse()?);
@@ -226,8 +228,8 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaQueryList<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaQueryWithType<'s> {
-    fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
+impl<'a> Parse<'a> for MediaQueryWithType<'a> {
+    fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let modifier = if let Token::Ident(ident) = &peek!(input).token {
             let name = ident.name();
             if name.eq_ignore_ascii_case("not") || name.eq_ignore_ascii_case("only") {
@@ -269,18 +271,21 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for MediaQueryWithType<'s> {
     }
 }
 
-impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
-    fn parse_media_condition(&mut self, allow_or: bool) -> PResult<MediaCondition<'s>> {
+impl<'a> Parser<'a> {
+    fn parse_media_condition(&mut self, allow_or: bool) -> PResult<MediaCondition<'a>> {
         match &peek!(self).token {
             Token::Ident(ident) if ident.name().eq_ignore_ascii_case("not") => {
                 let media_not = self.parse::<MediaNot>()?;
                 let span = media_not.span.clone();
-                Ok(MediaCondition { conditions: vec![MediaConditionKind::Not(media_not)], span })
+                Ok(MediaCondition {
+                    conditions: arena_vec!(self; MediaConditionKind::Not(media_not)),
+                    span,
+                })
             }
             _ => {
                 let first = self.parse::<MediaInParens>()?;
                 let mut span = first.span.clone();
-                let mut conditions = vec![MediaConditionKind::MediaInParens(first)];
+                let mut conditions = arena_vec!(self; MediaConditionKind::MediaInParens(first));
                 if let Token::Ident(ident) = &peek!(self).token {
                     let name = ident.name();
                     if name.eq_ignore_ascii_case("and") {
@@ -313,8 +318,8 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
 
     fn parse_media_feature_plain(
         &mut self,
-        ident: InterpolableIdent<'s>,
-    ) -> PResult<MediaFeaturePlain<'s>> {
+        ident: InterpolableIdent<'a>,
+    ) -> PResult<MediaFeaturePlain<'a>> {
         let (_, colon_span) = expect!(self, Colon);
         let value = self.parse_media_feature_value()?;
         let span = Span { start: ident.span().start, end: value.span().end };
@@ -323,8 +328,8 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
 
     fn parse_media_feature_range_or_range_interval(
         &mut self,
-        left: ComponentValue<'s>,
-    ) -> PResult<MediaFeature<'s>> {
+        left: ComponentValue<'a>,
+    ) -> PResult<MediaFeature<'a>> {
         let comparison = self.parse()?;
         let name_or_right = self.parse_media_feature_value()?;
         if let ComponentValue::InterpolableIdent(ident) = name_or_right {
@@ -375,7 +380,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         }
     }
 
-    fn parse_media_feature_value(&mut self) -> PResult<ComponentValue<'s>> {
+    fn parse_media_feature_value(&mut self) -> PResult<ComponentValue<'a>> {
         let value = match self.syntax {
             Syntax::Css => self.parse_component_value_atom()?,
             Syntax::Scss | Syntax::Sass => {
@@ -393,7 +398,7 @@ impl<'cmt, 's: 'cmt> Parser<'cmt, 's> {
         }
     }
 
-    fn parse_media_query_with_type_or_function(&mut self) -> PResult<MediaQuery<'s>> {
+    fn parse_media_query_with_type_or_function(&mut self) -> PResult<MediaQuery<'a>> {
         let media_query_with_type = self.parse::<MediaQueryWithType>()?;
         match (media_query_with_type, peek!(self)) {
             (
