@@ -10,7 +10,7 @@ publish = false
 oxc-css = { path = "../raffia" }
 
 [dev-dependencies]
-criterion = "0.7"
+criterion = "0.8"
 
 [[bench]]
 name = "self"
