@@ -21,7 +21,7 @@ jobs:
         with:
           fetch-depth: 2
       - run: cargo test --all-features
-      - uses: rust-lang/crates-io-auth-action@v1.0.4
+      - uses: rust-lang/crates-io-auth-action@v1.0.5
         id: cratesio-auth
       - name: Publish crates
         if: ${{ github.event_name == 'push' }}
