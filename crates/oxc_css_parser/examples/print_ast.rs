@@ -10,9 +10,9 @@ use oxc_css_parser::{Parser, Syntax, ast::Stylesheet, error::Error};
 use std::{env, fs, path::Path};
 
 fn main() {
-    let arg = env::args().skip(1).next().unwrap();
+    let arg = env::args().nth(1).unwrap();
     let path = Path::new(&arg);
-    let code = fs::read_to_string(&path).unwrap();
+    let code = fs::read_to_string(path).unwrap();
 
     let syntax = match path.extension().and_then(|ext| ext.to_str()) {
         Some("scss") => Syntax::Scss,
