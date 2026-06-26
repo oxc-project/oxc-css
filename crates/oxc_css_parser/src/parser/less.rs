@@ -319,7 +319,7 @@ impl<'a> Parser<'a> {
                 }
             )))
         } else {
-            Ok(ComponentValue::LessMixinCall(mixin_call))
+            Ok(ComponentValue::LessMixinCall(arena_box!(self, mixin_call)))
         }
     }
 

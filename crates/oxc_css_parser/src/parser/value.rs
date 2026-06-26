@@ -73,7 +73,7 @@ impl<'a> Parser<'a> {
             Token::Ident(token) => {
                 if token.name().eq_ignore_ascii_case("url") {
                     match self.try_parse(Url::parse) {
-                        Ok(url) => return Ok(ComponentValue::Url(url)),
+                        Ok(url) => return Ok(ComponentValue::Url(arena_box!(self, url))),
                         Err(Error { kind: ErrorKind::TryParseError, .. }) => {}
                         Err(error) => {
                             return if matches!(self.syntax, Syntax::Scss | Syntax::Sass) {
@@ -96,7 +96,8 @@ impl<'a> Parser<'a> {
                             InterpolableIdent::Literal(ident)
                                 if ident.name.eq_ignore_ascii_case("src") =>
                             {
-                                self.parse_src_url(ident).map(ComponentValue::Url)
+                                self.parse_src_url(ident)
+                                    .map(|url| ComponentValue::Url(arena_box!(self, url)))
                             }
                             ident => self.parse_function(ident).map(ComponentValue::Function),
                         };
@@ -123,7 +124,7 @@ impl<'a> Parser<'a> {
                                     span,
                                 }))
                             } else {
-                                Ok(ComponentValue::SassQualifiedName(name))
+                                Ok(ComponentValue::SassQualifiedName(arena_box!(self, name)))
                             };
                         }
                     }

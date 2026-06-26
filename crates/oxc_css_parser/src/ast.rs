@@ -231,7 +231,7 @@ pub enum ComponentValue<'a> {
     LessEscapedStr(LessEscapedStr<'a>),
     LessJavaScriptSnippet(LessJavaScriptSnippet<'a>),
     LessList(LessList<'a>),
-    LessMixinCall(LessMixinCall<'a>),
+    LessMixinCall(Box<'a, LessMixinCall<'a>>),
     LessNamespaceValue(Box<'a, LessNamespaceValue<'a>>),
     LessNegativeValue(LessNegativeValue<'a>),
     LessParenthesizedOperation(LessParenthesizedOperation<'a>),
@@ -248,7 +248,7 @@ pub enum ComponentValue<'a> {
     SassKeywordArgument(SassKeywordArgument<'a>),
     SassList(SassList<'a>),
     SassMap(SassMap<'a>),
-    SassQualifiedName(SassQualifiedName<'a>),
+    SassQualifiedName(Box<'a, SassQualifiedName<'a>>),
     SassNestingDeclaration(SassNestingDeclaration<'a>),
     SassParenthesizedExpression(SassParenthesizedExpression<'a>),
     SassParentSelector(NestingSelector<'a>),
@@ -256,7 +256,7 @@ pub enum ComponentValue<'a> {
     SassVariable(SassVariable<'a>),
     TokenWithSpan(TokenWithSpan<'a>),
     UnicodeRange(UnicodeRange<'a>),
-    Url(Url<'a>),
+    Url(Box<'a, Url<'a>>),
 }
 
 #[derive(Debug)]
