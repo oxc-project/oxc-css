@@ -2,10 +2,10 @@
 
 use crate::{pos::Span, tokenizer::TokenWithSpan};
 #[cfg(feature = "variant_helpers")]
-use raffia_macro::EnumAsIs;
+use oxc_css_macro::EnumAsIs;
 #[cfg(feature = "span_ignored_eq")]
-use raffia_macro::SpanIgnoredEq;
-use raffia_macro::Spanned;
+use oxc_css_macro::SpanIgnoredEq;
+use oxc_css_macro::Spanned;
 #[cfg(feature = "serialize")]
 use serde::Serialize;
 use smallvec::SmallVec;

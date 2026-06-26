@@ -1,4 +1,4 @@
-_This changelog only relates to the `raffia` crate._
+_This changelog only relates to the `oxc-css` crate._
 
 ## v0.12.3
 

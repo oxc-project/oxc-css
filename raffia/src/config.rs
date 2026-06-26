@@ -19,7 +19,7 @@ pub enum Syntax {
 /// A placeholder has the shape `` `<prefix><decimal index>` `` (e.g. with
 /// `prefix = "PLACEHOLDER-"`: `` `PLACEHOLDER-0` ``). The opening and closing
 /// backticks are fixed; only `prefix` is supplied by the downstream consumer, so
-/// raffia stays agnostic to its content and only uses it to recognize and index
+/// oxc-css stays agnostic to its content and only uses it to recognize and index
 /// the token.
 ///
 /// Backtick is not valid CSS/SCSS/Sass syntax (it is only Less's inline-JS

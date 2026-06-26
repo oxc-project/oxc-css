@@ -1,10 +1,10 @@
 [package]
-name = "raffia_macro"
+name = "oxc-css-macro"
 version = "0.2.0"
 edition = "2024"
 authors = ["Pig Fang <g-plane@hotmail.com>"]
-description = "Macros for Raffia."
-repository = "https://github.com/g-plane/raffia"
+description = "Macros for oxc-css."
+repository = "https://github.com/oxc-project/oxc-css"
 license = "MIT"
 
 [lib]

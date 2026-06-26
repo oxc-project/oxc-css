@@ -1,9 +1,9 @@
-# Raffia
+# oxc-css
 
-[![Crates.io](https://img.shields.io/crates/v/raffia?style=flat-square)](https://crates.io/crates/raffia)
-[![docs.rs](https://img.shields.io/docsrs/raffia?style=flat-square)](https://docs.rs/raffia)
+[![Crates.io](https://img.shields.io/crates/v/oxc-css?style=flat-square)](https://crates.io/crates/oxc-css)
+[![docs.rs](https://img.shields.io/docsrs/oxc-css?style=flat-square)](https://docs.rs/oxc-css)
 
-Raffia is a parser which can parse CSS, SCSS, Sass (indented syntax) and Less. However, it won't compile SCSS, Sass or Less to CSS.
+oxc-css is a parser which can parse CSS, SCSS, Sass (indented syntax) and Less. However, it won't compile SCSS, Sass or Less to CSS.
 
 ## 🧪 Playground
 
@@ -12,16 +12,16 @@ There is an online playground for inspecting AST. Visit: [https://raffia-play.ve
 ## 🍭 Example
 
 ```rust
-use raffia::{ast::Stylesheet, Parser, Syntax};
+use oxc_css::{ast::Stylesheet, Parser, Syntax};
 
 let mut parser = Parser::new("a { color: green }", Syntax::Css);
 let ast = parser.parse::<Stylesheet>().unwrap();
 println!("{:#?}", ast);
 ```
 
-You can find more examples in the [examples](https://github.com/g-plane/raffia/blob/main/raffia/examples) directory.
+You can find more examples in the [examples](https://github.com/oxc-project/oxc-css/blob/main/raffia/examples) directory.
 
-For detailed usage, check out [docs.rs](https://docs.rs/raffia).
+For detailed usage, check out [docs.rs](https://docs.rs/oxc-css).
 
 ## ⌛ Benchmark
 

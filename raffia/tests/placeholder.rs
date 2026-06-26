@@ -1,4 +1,4 @@
-use raffia::{ParserBuilder, ParserOptions, Syntax, TemplatePlaceholder, ast::*};
+use oxc_css::{ParserBuilder, ParserOptions, Syntax, TemplatePlaceholder, ast::*};
 
 fn opts() -> ParserOptions {
     ParserOptions {
@@ -28,7 +28,7 @@ fn parse(code: &str, options: Option<ParserOptions>) -> Stylesheet<'_> {
 fn default_options_do_not_parse_placeholders() {
     // Without the option set, a backtick is not special (it's an ordinary syntax
     // error outside Less); the tokenizer never emits `Token::Placeholder`.
-    let mut builder = ParserBuilder::new("`PLACEHOLDER-0`;").syntax(Syntax::Css);
+    let builder = ParserBuilder::new("`PLACEHOLDER-0`;").syntax(Syntax::Css);
     assert!(builder.build().parse::<Stylesheet>().is_err());
 }
 
@@ -166,10 +166,9 @@ fn placeholder_attribute_selector_value() {
         .expect("expected attribute selector");
     assert!(matches!(
         &attr.value,
-        Some(AttributeSelectorValue::Ident(InterpolableIdent::Placeholder(Placeholder {
-            index: 0,
-            ..
-        })))
+        Some(AttributeSelectorValue::Ident(
+            InterpolableIdent::Placeholder(Placeholder { index: 0, .. })
+        ))
     ));
 }
 

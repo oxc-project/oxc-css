@@ -6,7 +6,7 @@ use codespan_reporting::{
         termcolor::{ColorChoice, StandardStream},
     },
 };
-use raffia::{Parser, Syntax, ast::Stylesheet, error::Error};
+use oxc_css::{Parser, Syntax, ast::Stylesheet, error::Error};
 use std::{env, fs, path::Path};
 
 fn main() {

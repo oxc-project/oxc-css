@@ -1,4 +1,4 @@
-//! Raffia is a parser can parse CSS, SCSS, Sass (indented syntax) and Less.
+//! oxc-css is a parser that can parse CSS, SCSS, Sass (indented syntax) and Less.
 //!
 //! ## Basic Usage
 //!
@@ -8,7 +8,7 @@
 //! then call the [`parse`](Parser::parse) method:
 //!
 //! ```rust
-//! use raffia::{ast::Stylesheet, Parser, Syntax};
+//! use oxc_css::{ast::Stylesheet, Parser, Syntax};
 //!
 //! let mut parser = Parser::new("a {}", Syntax::Css); // syntax can also be `Scss`, `Sass` or `Less`
 //! let result = parser.parse::<Stylesheet>();
@@ -33,7 +33,7 @@
 //! For example, to collect comments:
 //!
 //! ```rust
-//! use raffia::ParserBuilder;
+//! use oxc_css::ParserBuilder;
 //!
 //! let mut comments = vec![];
 //! let builder = ParserBuilder::new("/* comment */ a {}").comments(&mut comments);
@@ -43,7 +43,7 @@
 //! By default, syntax is CSS when using parser builder. You can customize it:
 //!
 //! ```rust
-//! use raffia::{ParserBuilder, Syntax};
+//! use oxc_css::{ParserBuilder, Syntax};
 //!
 //! let builder = ParserBuilder::new("a {}").syntax(Syntax::Scss);
 //! ```
@@ -58,7 +58,7 @@
 //! parser will fallback to parse as tokens if there're syntax errors.
 //!
 //! ```rust
-//! use raffia::{ast::*, ParserBuilder, ParserOptions};
+//! use oxc_css::{ast::*, ParserBuilder, ParserOptions};
 //!
 //! let options = ParserOptions {
 //!     try_parsing_value_in_custom_property: true,
@@ -80,7 +80,7 @@
 //! so they won't prevent parsing the rest of code.
 //!
 //! ```rust
-//! use raffia::{ast::*, ParserBuilder, ParserOptions, Syntax};
+//! use oxc_css::{ast::*, ParserBuilder, ParserOptions, Syntax};
 //!
 //! let options = ParserOptions {
 //!     tolerate_semicolon_in_sass: true,
@@ -110,7 +110,7 @@
 //! used with [`Syntax::Scss`] (backtick is Less's inline-JS delimiter).
 //!
 //! ```rust
-//! use raffia::{ast::*, TemplatePlaceholder, ParserBuilder, ParserOptions, Syntax};
+//! use oxc_css::{ast::*, TemplatePlaceholder, ParserBuilder, ParserOptions, Syntax};
 //!
 //! let options = ParserOptions {
 //!     template_placeholder: Some(TemplatePlaceholder {
@@ -133,7 +133,7 @@
 //! All you need to do is to update the generics of the [`parse`](Parser::parse) method.
 //!
 //! ```rust
-//! use raffia::{ast::QualifiedRule, Parser, Syntax};
+//! use oxc_css::{ast::QualifiedRule, Parser, Syntax};
 //!
 //! let mut parser = Parser::new("a {}", Syntax::Css);
 //! parser.parse::<QualifiedRule>();
@@ -142,7 +142,7 @@
 //! and
 //!
 //! ```rust
-//! use raffia::{ast::Declaration, Parser, Syntax};
+//! use oxc_css::{ast::Declaration, Parser, Syntax};
 //!
 //! let mut parser = Parser::new("color: green", Syntax::Css);
 //! parser.parse::<Declaration>();
@@ -157,7 +157,7 @@
 //! To retrieve those errors, use [`recoverable_errors`](Parser::recoverable_errors).
 //!
 //! ```rust
-//! use raffia::{ast::Stylesheet, Parser, Syntax};
+//! use oxc_css::{ast::Stylesheet, Parser, Syntax};
 //!
 //! let mut parser = Parser::new("@keyframes kf { invalid {} }", Syntax::Css);
 //! let result = parser.parse::<Stylesheet>();
@@ -171,12 +171,12 @@
 //! You need to enable feature `serialize` manually:
 //!
 //! ```toml
-//! raffia = { version = "*", features = ["serialize"] }
+//! oxc-css = { version = "*", features = ["serialize"] }
 //! ```
 //!
 //! Then you can pass AST to Serde.
 //!
-//! Note that Raffia only supports serialization. Deserialization isn't supported.
+//! Note that oxc-css only supports serialization. Deserialization isn't supported.
 
 pub use config::{ParserOptions, Syntax, TemplatePlaceholder};
 pub use parser::{Parse, Parser, ParserBuilder};

@@ -1,5 +1,5 @@
 [package]
-name = "benchmark"
+name = "oxc-css-benchmark"
 version = "0.0.0"
 edition = "2024"
 authors = ["Pig Fang <g-plane@hotmail.com>"]
@@ -7,7 +7,7 @@ license = "MIT"
 publish = false
 
 [dependencies]
-raffia = { path = "../raffia" }
+oxc-css = { path = "../raffia" }
 
 [dev-dependencies]
 criterion = "0.7"

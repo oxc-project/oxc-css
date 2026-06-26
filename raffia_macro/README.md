@@ -1,6 +1,6 @@
-# raffia_macro
+# oxc-css-macro
 
-This crate provides proc macros for Raffia, and it should only be used internally in Raffia.
+This crate provides proc macros for oxc-css, and it should only be used internally in oxc-css.
 
 ## License
 

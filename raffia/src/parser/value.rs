@@ -726,7 +726,7 @@ impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ComponentValue<'s> {
 }
 
 impl<'cmt, 's: 'cmt> Parse<'cmt, 's> for ComponentValues<'s> {
-    /// This is for public-use only. For internal code of Raffia, **DO NOT** use.
+    /// This is for public-use only. For internal code of oxc-css, **DO NOT** use.
     fn parse(input: &mut Parser<'cmt, 's>) -> PResult<Self> {
         let first = input.parse::<ComponentValue>()?;
         let mut span = first.span().clone();

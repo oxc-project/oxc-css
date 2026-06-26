@@ -4,7 +4,7 @@ use codespan_reporting::{
     term,
 };
 use insta::{Settings, assert_snapshot, glob};
-use raffia::{Parser, Syntax, ast::Stylesheet};
+use oxc_css::{Parser, Syntax, ast::Stylesheet};
 use std::fs;
 
 #[test]
