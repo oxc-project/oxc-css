@@ -1,0 +1,14 @@
+[workspace]
+semver_check = true
+allow_dirty = true
+changelog_config = "cliff.toml"
+
+[[package]]
+name = "oxc-css"
+version_group = "group"
+changelog_include = ["oxc-css-macro"]
+
+[[package]]
+name = "oxc-css-macro"
+version_group = "group"
+changelog_update = false
