@@ -141,9 +141,20 @@ impl<'a> Parse<'a> for MediaInParensKind<'a> {
             }
         }) {
             Ok(MediaInParensKind::MediaCondition(media_condition))
-        } else {
-            let media_feature = input.parse()?;
+        } else if let Ok(media_feature) = input.try_parse(|parser| {
+            let media_feature = parser.parse::<MediaFeature>()?;
+            if matches!(&peek!(parser).token, Token::RParen(..)) {
+                Ok(media_feature)
+            } else {
+                let span = peek!(parser).span.clone();
+                Err(Error { kind: ErrorKind::ExpectMediaFeatureName, span })
+            }
+        }) {
             Ok(MediaInParensKind::MediaFeature(arena_box!(input, media_feature)))
+        } else {
+            // <general-enclosed>: MQ L4 forward-compat catch-all, evaluates false at runtime.
+            let tokens = input.parse_tokens_in_parens()?;
+            Ok(MediaInParensKind::GeneralEnclosed(tokens))
         }
     }
 }

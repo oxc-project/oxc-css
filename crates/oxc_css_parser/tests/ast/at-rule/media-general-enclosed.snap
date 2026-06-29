@@ -1,0 +1,1180 @@
+---
+source: crates/oxc_css_parser/tests/ast.rs
+---
+Stylesheet(
+  type: "Stylesheet",
+  statements: [
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "media",
+        raw: "media",
+        span: Span(
+          start: 236,
+          end: 241,
+        ),
+      ),
+      prelude: Some(MediaQueryList(
+        type: "MediaQueryList",
+        queries: [
+          MediaCondition(
+            type: "MediaCondition",
+            conditions: [
+              MediaInParens(
+                type: "MediaInParens",
+                kind: TokenSeq(
+                  type: "TokenSeq",
+                  tokens: [
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "not",
+                      )),
+                      span: Span(
+                        start: 243,
+                        end: 246,
+                      ),
+                    ),
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "all",
+                      )),
+                      span: Span(
+                        start: 247,
+                        end: 250,
+                      ),
+                    ),
+                  ],
+                  span: Span(
+                    start: 243,
+                    end: 250,
+                  ),
+                ),
+                span: Span(
+                  start: 242,
+                  end: 251,
+                ),
+              ),
+            ],
+            span: Span(
+              start: 242,
+              end: 251,
+            ),
+          ),
+        ],
+        commaSpans: [],
+        span: Span(
+          start: 242,
+          end: 251,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 252,
+          end: 254,
+        ),
+      )),
+      span: Span(
+        start: 235,
+        end: 254,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "media",
+        raw: "media",
+        span: Span(
+          start: 256,
+          end: 261,
+        ),
+      ),
+      prelude: Some(MediaQueryList(
+        type: "MediaQueryList",
+        queries: [
+          MediaCondition(
+            type: "MediaCondition",
+            conditions: [
+              MediaInParens(
+                type: "MediaInParens",
+                kind: TokenSeq(
+                  type: "TokenSeq",
+                  tokens: [
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "not",
+                      )),
+                      span: Span(
+                        start: 263,
+                        end: 266,
+                      ),
+                    ),
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "screen",
+                      )),
+                      span: Span(
+                        start: 267,
+                        end: 273,
+                      ),
+                    ),
+                  ],
+                  span: Span(
+                    start: 263,
+                    end: 273,
+                  ),
+                ),
+                span: Span(
+                  start: 262,
+                  end: 274,
+                ),
+              ),
+            ],
+            span: Span(
+              start: 262,
+              end: 274,
+            ),
+          ),
+        ],
+        commaSpans: [],
+        span: Span(
+          start: 262,
+          end: 274,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 275,
+          end: 277,
+        ),
+      )),
+      span: Span(
+        start: 255,
+        end: 277,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "media",
+        raw: "media",
+        span: Span(
+          start: 279,
+          end: 284,
+        ),
+      ),
+      prelude: Some(MediaQueryList(
+        type: "MediaQueryList",
+        queries: [
+          MediaCondition(
+            type: "MediaCondition",
+            conditions: [
+              MediaInParens(
+                type: "MediaInParens",
+                kind: TokenSeq(
+                  type: "TokenSeq",
+                  tokens: [
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "not",
+                      )),
+                      span: Span(
+                        start: 286,
+                        end: 289,
+                      ),
+                    ),
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "all",
+                      )),
+                      span: Span(
+                        start: 290,
+                        end: 293,
+                      ),
+                    ),
+                  ],
+                  span: Span(
+                    start: 286,
+                    end: 293,
+                  ),
+                ),
+                span: Span(
+                  start: 285,
+                  end: 294,
+                ),
+              ),
+              MediaAnd(
+                type: "MediaAnd",
+                keyword: Ident(
+                  type: "Ident",
+                  name: "and",
+                  raw: "and",
+                  span: Span(
+                    start: 295,
+                    end: 298,
+                  ),
+                ),
+                mediaInParens: MediaInParens(
+                  type: "MediaInParens",
+                  kind: MediaFeatureBoolean(
+                    type: "MediaFeatureBoolean",
+                    name: Ident(
+                      type: "Ident",
+                      name: "color",
+                      raw: "color",
+                      span: Span(
+                        start: 300,
+                        end: 305,
+                      ),
+                    ),
+                    span: Span(
+                      start: 300,
+                      end: 305,
+                    ),
+                  ),
+                  span: Span(
+                    start: 299,
+                    end: 306,
+                  ),
+                ),
+                span: Span(
+                  start: 295,
+                  end: 306,
+                ),
+              ),
+            ],
+            span: Span(
+              start: 285,
+              end: 306,
+            ),
+          ),
+        ],
+        commaSpans: [],
+        span: Span(
+          start: 285,
+          end: 306,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 307,
+          end: 309,
+        ),
+      )),
+      span: Span(
+        start: 278,
+        end: 309,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "media",
+        raw: "media",
+        span: Span(
+          start: 311,
+          end: 316,
+        ),
+      ),
+      prelude: Some(MediaQueryList(
+        type: "MediaQueryList",
+        queries: [
+          MediaCondition(
+            type: "MediaCondition",
+            conditions: [
+              MediaInParens(
+                type: "MediaInParens",
+                kind: TokenSeq(
+                  type: "TokenSeq",
+                  tokens: [
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "screen",
+                      )),
+                      span: Span(
+                        start: 318,
+                        end: 324,
+                      ),
+                    ),
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "and",
+                      )),
+                      span: Span(
+                        start: 325,
+                        end: 328,
+                      ),
+                    ),
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: LParen(LParen(
+                        kind: "LParen",
+                      )),
+                      span: Span(
+                        start: 329,
+                        end: 330,
+                      ),
+                    ),
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "color",
+                      )),
+                      span: Span(
+                        start: 330,
+                        end: 335,
+                      ),
+                    ),
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: RParen(RParen(
+                        kind: "RParen",
+                      )),
+                      span: Span(
+                        start: 335,
+                        end: 336,
+                      ),
+                    ),
+                  ],
+                  span: Span(
+                    start: 318,
+                    end: 336,
+                  ),
+                ),
+                span: Span(
+                  start: 317,
+                  end: 337,
+                ),
+              ),
+            ],
+            span: Span(
+              start: 317,
+              end: 337,
+            ),
+          ),
+        ],
+        commaSpans: [],
+        span: Span(
+          start: 317,
+          end: 337,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 338,
+          end: 340,
+        ),
+      )),
+      span: Span(
+        start: 310,
+        end: 340,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "media",
+        raw: "media",
+        span: Span(
+          start: 342,
+          end: 347,
+        ),
+      ),
+      prelude: Some(MediaQueryList(
+        type: "MediaQueryList",
+        queries: [
+          MediaCondition(
+            type: "MediaCondition",
+            conditions: [
+              MediaInParens(
+                type: "MediaInParens",
+                kind: MediaCondition(
+                  type: "MediaCondition",
+                  conditions: [
+                    MediaNot(
+                      type: "MediaNot",
+                      keyword: Ident(
+                        type: "Ident",
+                        name: "not",
+                        raw: "not",
+                        span: Span(
+                          start: 349,
+                          end: 352,
+                        ),
+                      ),
+                      mediaInParens: MediaInParens(
+                        type: "MediaInParens",
+                        kind: TokenSeq(
+                          type: "TokenSeq",
+                          tokens: [
+                            TokenWithSpan(
+                              type: "TokenWithSpan",
+                              token: Ident(Ident(
+                                kind: "Ident",
+                                escaped: false,
+                                raw: "screen",
+                              )),
+                              span: Span(
+                                start: 354,
+                                end: 360,
+                              ),
+                            ),
+                            TokenWithSpan(
+                              type: "TokenWithSpan",
+                              token: Ident(Ident(
+                                kind: "Ident",
+                                escaped: false,
+                                raw: "and",
+                              )),
+                              span: Span(
+                                start: 361,
+                                end: 364,
+                              ),
+                            ),
+                            TokenWithSpan(
+                              type: "TokenWithSpan",
+                              token: LParen(LParen(
+                                kind: "LParen",
+                              )),
+                              span: Span(
+                                start: 365,
+                                end: 366,
+                              ),
+                            ),
+                            TokenWithSpan(
+                              type: "TokenWithSpan",
+                              token: Ident(Ident(
+                                kind: "Ident",
+                                escaped: false,
+                                raw: "color",
+                              )),
+                              span: Span(
+                                start: 366,
+                                end: 371,
+                              ),
+                            ),
+                            TokenWithSpan(
+                              type: "TokenWithSpan",
+                              token: RParen(RParen(
+                                kind: "RParen",
+                              )),
+                              span: Span(
+                                start: 371,
+                                end: 372,
+                              ),
+                            ),
+                          ],
+                          span: Span(
+                            start: 354,
+                            end: 372,
+                          ),
+                        ),
+                        span: Span(
+                          start: 353,
+                          end: 373,
+                        ),
+                      ),
+                      span: Span(
+                        start: 349,
+                        end: 373,
+                      ),
+                    ),
+                  ],
+                  span: Span(
+                    start: 349,
+                    end: 373,
+                  ),
+                ),
+                span: Span(
+                  start: 348,
+                  end: 374,
+                ),
+              ),
+            ],
+            span: Span(
+              start: 348,
+              end: 374,
+            ),
+          ),
+        ],
+        commaSpans: [],
+        span: Span(
+          start: 348,
+          end: 374,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 375,
+          end: 377,
+        ),
+      )),
+      span: Span(
+        start: 341,
+        end: 377,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "media",
+        raw: "media",
+        span: Span(
+          start: 379,
+          end: 384,
+        ),
+      ),
+      prelude: Some(MediaQueryList(
+        type: "MediaQueryList",
+        queries: [
+          MediaCondition(
+            type: "MediaCondition",
+            conditions: [
+              MediaInParens(
+                type: "MediaInParens",
+                kind: TokenSeq(
+                  type: "TokenSeq",
+                  tokens: [
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "not",
+                      )),
+                      span: Span(
+                        start: 386,
+                        end: 389,
+                      ),
+                    ),
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "all",
+                      )),
+                      span: Span(
+                        start: 390,
+                        end: 393,
+                      ),
+                    ),
+                  ],
+                  span: Span(
+                    start: 386,
+                    end: 393,
+                  ),
+                ),
+                span: Span(
+                  start: 385,
+                  end: 394,
+                ),
+              ),
+              MediaAnd(
+                type: "MediaAnd",
+                keyword: Ident(
+                  type: "Ident",
+                  name: "and",
+                  raw: "and",
+                  span: Span(
+                    start: 395,
+                    end: 398,
+                  ),
+                ),
+                mediaInParens: MediaInParens(
+                  type: "MediaInParens",
+                  kind: MediaFeatureBoolean(
+                    type: "MediaFeatureBoolean",
+                    name: Ident(
+                      type: "Ident",
+                      name: "monochrome",
+                      raw: "monochrome",
+                      span: Span(
+                        start: 400,
+                        end: 410,
+                      ),
+                    ),
+                    span: Span(
+                      start: 400,
+                      end: 410,
+                    ),
+                  ),
+                  span: Span(
+                    start: 399,
+                    end: 411,
+                  ),
+                ),
+                span: Span(
+                  start: 395,
+                  end: 411,
+                ),
+              ),
+            ],
+            span: Span(
+              start: 385,
+              end: 411,
+            ),
+          ),
+        ],
+        commaSpans: [],
+        span: Span(
+          start: 385,
+          end: 411,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 412,
+          end: 414,
+        ),
+      )),
+      span: Span(
+        start: 378,
+        end: 414,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "media",
+        raw: "media",
+        span: Span(
+          start: 416,
+          end: 421,
+        ),
+      ),
+      prelude: Some(MediaQueryList(
+        type: "MediaQueryList",
+        queries: [
+          MediaCondition(
+            type: "MediaCondition",
+            conditions: [
+              MediaInParens(
+                type: "MediaInParens",
+                kind: MediaCondition(
+                  type: "MediaCondition",
+                  conditions: [
+                    MediaNot(
+                      type: "MediaNot",
+                      keyword: Ident(
+                        type: "Ident",
+                        name: "not",
+                        raw: "not",
+                        span: Span(
+                          start: 423,
+                          end: 426,
+                        ),
+                      ),
+                      mediaInParens: MediaInParens(
+                        type: "MediaInParens",
+                        kind: TokenSeq(
+                          type: "TokenSeq",
+                          tokens: [
+                            TokenWithSpan(
+                              type: "TokenWithSpan",
+                              token: Ident(Ident(
+                                kind: "Ident",
+                                escaped: false,
+                                raw: "screen",
+                              )),
+                              span: Span(
+                                start: 428,
+                                end: 434,
+                              ),
+                            ),
+                            TokenWithSpan(
+                              type: "TokenWithSpan",
+                              token: Ident(Ident(
+                                kind: "Ident",
+                                escaped: false,
+                                raw: "and",
+                              )),
+                              span: Span(
+                                start: 435,
+                                end: 438,
+                              ),
+                            ),
+                            TokenWithSpan(
+                              type: "TokenWithSpan",
+                              token: LParen(LParen(
+                                kind: "LParen",
+                              )),
+                              span: Span(
+                                start: 439,
+                                end: 440,
+                              ),
+                            ),
+                            TokenWithSpan(
+                              type: "TokenWithSpan",
+                              token: Ident(Ident(
+                                kind: "Ident",
+                                escaped: false,
+                                raw: "color",
+                              )),
+                              span: Span(
+                                start: 440,
+                                end: 445,
+                              ),
+                            ),
+                            TokenWithSpan(
+                              type: "TokenWithSpan",
+                              token: RParen(RParen(
+                                kind: "RParen",
+                              )),
+                              span: Span(
+                                start: 445,
+                                end: 446,
+                              ),
+                            ),
+                          ],
+                          span: Span(
+                            start: 428,
+                            end: 446,
+                          ),
+                        ),
+                        span: Span(
+                          start: 427,
+                          end: 447,
+                        ),
+                      ),
+                      span: Span(
+                        start: 423,
+                        end: 447,
+                      ),
+                    ),
+                  ],
+                  span: Span(
+                    start: 423,
+                    end: 447,
+                  ),
+                ),
+                span: Span(
+                  start: 422,
+                  end: 448,
+                ),
+              ),
+            ],
+            span: Span(
+              start: 422,
+              end: 448,
+            ),
+          ),
+          MediaQueryWithType(
+            type: "MediaQueryWithType",
+            modifier: None,
+            mediaType: Ident(
+              type: "Ident",
+              name: "print",
+              raw: "print",
+              span: Span(
+                start: 450,
+                end: 455,
+              ),
+            ),
+            condition: Some(MediaConditionAfterMediaType(
+              type: "MediaConditionAfterMediaType",
+              and: Ident(
+                type: "Ident",
+                name: "and",
+                raw: "and",
+                span: Span(
+                  start: 456,
+                  end: 459,
+                ),
+              ),
+              condition: MediaCondition(
+                type: "MediaCondition",
+                conditions: [
+                  MediaInParens(
+                    type: "MediaInParens",
+                    kind: MediaFeatureBoolean(
+                      type: "MediaFeatureBoolean",
+                      name: Ident(
+                        type: "Ident",
+                        name: "color",
+                        raw: "color",
+                        span: Span(
+                          start: 461,
+                          end: 466,
+                        ),
+                      ),
+                      span: Span(
+                        start: 461,
+                        end: 466,
+                      ),
+                    ),
+                    span: Span(
+                      start: 460,
+                      end: 467,
+                    ),
+                  ),
+                ],
+                span: Span(
+                  start: 460,
+                  end: 467,
+                ),
+              ),
+              span: Span(
+                start: 456,
+                end: 467,
+              ),
+            )),
+            span: Span(
+              start: 450,
+              end: 467,
+            ),
+          ),
+        ],
+        commaSpans: [
+          Span(
+            start: 448,
+            end: 449,
+          ),
+        ],
+        span: Span(
+          start: 422,
+          end: 467,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 468,
+          end: 470,
+        ),
+      )),
+      span: Span(
+        start: 415,
+        end: 470,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "media",
+        raw: "media",
+        span: Span(
+          start: 540,
+          end: 545,
+        ),
+      ),
+      prelude: Some(MediaQueryList(
+        type: "MediaQueryList",
+        queries: [
+          MediaCondition(
+            type: "MediaCondition",
+            conditions: [
+              MediaInParens(
+                type: "MediaInParens",
+                kind: MediaFeatureBoolean(
+                  type: "MediaFeatureBoolean",
+                  name: Ident(
+                    type: "Ident",
+                    name: "unknown-feature",
+                    raw: "unknown-feature",
+                    span: Span(
+                      start: 547,
+                      end: 562,
+                    ),
+                  ),
+                  span: Span(
+                    start: 547,
+                    end: 562,
+                  ),
+                ),
+                span: Span(
+                  start: 546,
+                  end: 563,
+                ),
+              ),
+              MediaAnd(
+                type: "MediaAnd",
+                keyword: Ident(
+                  type: "Ident",
+                  name: "and",
+                  raw: "and",
+                  span: Span(
+                    start: 564,
+                    end: 567,
+                  ),
+                ),
+                mediaInParens: MediaInParens(
+                  type: "MediaInParens",
+                  kind: MediaFeatureBoolean(
+                    type: "MediaFeatureBoolean",
+                    name: Ident(
+                      type: "Ident",
+                      name: "color",
+                      raw: "color",
+                      span: Span(
+                        start: 569,
+                        end: 574,
+                      ),
+                    ),
+                    span: Span(
+                      start: 569,
+                      end: 574,
+                    ),
+                  ),
+                  span: Span(
+                    start: 568,
+                    end: 575,
+                  ),
+                ),
+                span: Span(
+                  start: 564,
+                  end: 575,
+                ),
+              ),
+            ],
+            span: Span(
+              start: 546,
+              end: 575,
+            ),
+          ),
+        ],
+        commaSpans: [],
+        span: Span(
+          start: 546,
+          end: 575,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 576,
+          end: 578,
+        ),
+      )),
+      span: Span(
+        start: 539,
+        end: 578,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "media",
+        raw: "media",
+        span: Span(
+          start: 580,
+          end: 585,
+        ),
+      ),
+      prelude: Some(MediaQueryList(
+        type: "MediaQueryList",
+        queries: [
+          MediaCondition(
+            type: "MediaCondition",
+            conditions: [
+              MediaInParens(
+                type: "MediaInParens",
+                kind: TokenSeq(
+                  type: "TokenSeq",
+                  tokens: [
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "foo",
+                      )),
+                      span: Span(
+                        start: 587,
+                        end: 590,
+                      ),
+                    ),
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "bar",
+                      )),
+                      span: Span(
+                        start: 591,
+                        end: 594,
+                      ),
+                    ),
+                    TokenWithSpan(
+                      type: "TokenWithSpan",
+                      token: Ident(Ident(
+                        kind: "Ident",
+                        escaped: false,
+                        raw: "baz",
+                      )),
+                      span: Span(
+                        start: 595,
+                        end: 598,
+                      ),
+                    ),
+                  ],
+                  span: Span(
+                    start: 587,
+                    end: 598,
+                  ),
+                ),
+                span: Span(
+                  start: 586,
+                  end: 599,
+                ),
+              ),
+            ],
+            span: Span(
+              start: 586,
+              end: 599,
+            ),
+          ),
+        ],
+        commaSpans: [],
+        span: Span(
+          start: 586,
+          end: 599,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 600,
+          end: 602,
+        ),
+      )),
+      span: Span(
+        start: 579,
+        end: 602,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "media",
+        raw: "media",
+        span: Span(
+          start: 604,
+          end: 609,
+        ),
+      ),
+      prelude: Some(MediaQueryList(
+        type: "MediaQueryList",
+        queries: [
+          MediaCondition(
+            type: "MediaCondition",
+            conditions: [
+              MediaInParens(
+                type: "MediaInParens",
+                kind: MediaFeaturePlain(
+                  type: "MediaFeaturePlain",
+                  name: Ident(
+                    type: "Ident",
+                    name: "--custom-feature",
+                    raw: "--custom-feature",
+                    span: Span(
+                      start: 611,
+                      end: 627,
+                    ),
+                  ),
+                  colonSpan: Span(
+                    start: 627,
+                    end: 628,
+                  ),
+                  value: Number(
+                    type: "Number",
+                    value: 10.0,
+                    raw: "10",
+                    span: Span(
+                      start: 629,
+                      end: 631,
+                    ),
+                  ),
+                  span: Span(
+                    start: 611,
+                    end: 631,
+                  ),
+                ),
+                span: Span(
+                  start: 610,
+                  end: 632,
+                ),
+              ),
+            ],
+            span: Span(
+              start: 610,
+              end: 632,
+            ),
+          ),
+        ],
+        commaSpans: [],
+        span: Span(
+          start: 610,
+          end: 632,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 633,
+          end: 635,
+        ),
+      )),
+      span: Span(
+        start: 603,
+        end: 635,
+      ),
+    ),
+  ],
+  span: Span(
+    start: 0,
+    end: 636,
+  ),
+)

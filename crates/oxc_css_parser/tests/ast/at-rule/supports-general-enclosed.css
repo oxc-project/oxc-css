@@ -1,0 +1,8 @@
+/* <general-enclosed> forward-compat catch-all referenced from
+   <supports-condition>. Contents that do not match <supports-decl>,
+   <supports-condition>, or known function forms are accepted syntactically
+   (evaluated as false at runtime). */
+@supports (foo bar baz) {}
+@supports (not all) {}
+@supports (--custom-feature: 10) and (display: grid) {}
+@supports (foo bar) or (display: grid) {}

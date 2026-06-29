@@ -1352,6 +1352,7 @@ pub struct MediaInParens<'a> {
 pub enum MediaInParensKind<'a> {
     MediaCondition(MediaCondition<'a>),
     MediaFeature(Box<'a, MediaFeature<'a>>),
+    GeneralEnclosed(TokenSeq<'a>),
     SassInterpolation(SassInterpolatedIdent<'a>),
 }
 
@@ -2414,6 +2415,7 @@ pub enum SupportsInParensKind<'a> {
     Feature(Box<'a, SupportsDecl<'a>>),
     Selector(SelectorList<'a>),
     Function(Function<'a>),
+    GeneralEnclosed(TokenSeq<'a>),
 }
 
 #[derive(Debug)]

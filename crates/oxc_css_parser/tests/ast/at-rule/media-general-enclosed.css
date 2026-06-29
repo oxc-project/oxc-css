@@ -1,0 +1,16 @@
+/* MQ Level 4 <general-enclosed> forward-compat catch-all.
+   These do not match <media-condition> or <media-feature>, so they fall
+   through to <general-enclosed> and are accepted syntactically (evaluated
+   as false at runtime). */
+@media (not all) {}
+@media (not screen) {}
+@media (not all) and (color) {}
+@media (screen and (color)) {}
+@media (not (screen and (color))) {}
+@media (not all) and (monochrome) {}
+@media (not (screen and (color))), print and (color) {}
+
+/* Unknown future feature names with arbitrary token sequences. */
+@media (unknown-feature) and (color) {}
+@media (foo bar baz) {}
+@media (--custom-feature: 10) {}

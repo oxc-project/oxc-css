@@ -330,7 +330,7 @@ impl_spanned_struct!(MediaFeatureRange<'a>);
 impl_spanned_struct!(MediaFeatureRangeInterval<'a>);
 impl_spanned_struct!(MediaInParens<'a>);
 impl_spanned_enum!(MediaInParensKind<'a> {
-    tuple: [MediaCondition, MediaFeature, SassInterpolation, ],
+    tuple: [MediaCondition, MediaFeature, GeneralEnclosed, SassInterpolation, ],
     unit: [],
 });
 impl_spanned_struct!(MediaNot<'a>);
@@ -518,7 +518,7 @@ impl_spanned_enum!(SupportsConditionKind<'a> {
 impl_spanned_struct!(SupportsDecl<'a>);
 impl_spanned_struct!(SupportsInParens<'a>);
 impl_spanned_enum!(SupportsInParensKind<'a> {
-    tuple: [SupportsCondition, Feature, Selector, Function, ],
+    tuple: [SupportsCondition, Feature, Selector, Function, GeneralEnclosed, ],
     unit: [],
 });
 impl_spanned_struct!(SupportsNot<'a>);
@@ -952,7 +952,7 @@ impl_span_ignored_eq_struct!(MediaFeatureRangeInterval<'a> { left, left_comparis
 impl_span_ignored_eq_struct!(MediaInParens<'a> { kind, });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_enum!(MediaInParensKind<'a> {
-    tuple: [MediaCondition, MediaFeature, SassInterpolation, ],
+    tuple: [MediaCondition, MediaFeature, GeneralEnclosed, SassInterpolation, ],
     unit: [],
 });
 #[cfg(feature = "span_ignored_eq")]
@@ -1268,7 +1268,7 @@ impl_span_ignored_eq_struct!(SupportsDecl<'a> { decl, });
 impl_span_ignored_eq_struct!(SupportsInParens<'a> { kind, });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_enum!(SupportsInParensKind<'a> {
-    tuple: [SupportsCondition, Feature, Selector, Function, ],
+    tuple: [SupportsCondition, Feature, Selector, Function, GeneralEnclosed, ],
     unit: [],
 });
 #[cfg(feature = "span_ignored_eq")]
@@ -1668,6 +1668,7 @@ impl_enum_as_is!(MediaInParensKind<'a> {
     tuple: [
         MediaCondition(MediaCondition<'a>) => is_media_condition, as_media_condition,
         MediaFeature(Box<'a, MediaFeature<'a>>) => is_media_feature, as_media_feature,
+        GeneralEnclosed(TokenSeq<'a>) => is_general_enclosed, as_general_enclosed,
         SassInterpolation(SassInterpolatedIdent<'a>) => is_sass_interpolation, as_sass_interpolation,
     ],
     unit: [],
@@ -1895,6 +1896,7 @@ impl_enum_as_is!(SupportsInParensKind<'a> {
         Feature(Box<'a, SupportsDecl<'a>>) => is_feature, as_feature,
         Selector(SelectorList<'a>) => is_selector, as_selector,
         Function(Function<'a>) => is_function, as_function,
+        GeneralEnclosed(TokenSeq<'a>) => is_general_enclosed, as_general_enclosed,
     ],
     unit: [],
 });

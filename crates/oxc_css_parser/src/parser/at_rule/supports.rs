@@ -77,11 +77,24 @@ impl<'a> Parse<'a> for SupportsInParens<'a> {
                     })
                 })
                 .or_else(|_| {
+                    input.try_parse(|parser| {
+                        let (_, Span { start, .. }) = expect!(parser, LParen);
+                        let condition = parser.parse::<SupportsCondition>()?;
+                        let (_, Span { end, .. }) = expect!(parser, RParen);
+                        Ok(SupportsInParens {
+                            kind: SupportsInParensKind::SupportsCondition(condition),
+                            span: Span { start, end },
+                        })
+                    })
+                })
+                .or_else(|_| {
+                    // <general-enclosed>: MQ L4 catch-all (referenced from <supports-condition>),
+                    // evaluates false at runtime.
                     let (_, Span { start, .. }) = expect!(input, LParen);
-                    let condition = input.parse()?;
+                    let tokens = input.parse_tokens_in_parens()?;
                     let (_, Span { end, .. }) = expect!(input, RParen);
                     Ok(SupportsInParens {
-                        kind: SupportsInParensKind::SupportsCondition(condition),
+                        kind: SupportsInParensKind::GeneralEnclosed(tokens),
                         span: Span { start, end },
                     })
                 }),

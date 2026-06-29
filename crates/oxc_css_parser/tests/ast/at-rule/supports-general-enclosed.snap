@@ -1,0 +1,454 @@
+---
+source: crates/oxc_css_parser/tests/ast.rs
+---
+Stylesheet(
+  type: "Stylesheet",
+  statements: [
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "supports",
+        raw: "supports",
+        span: Span(
+          start: 248,
+          end: 256,
+        ),
+      ),
+      prelude: Some(SupportsCondition(
+        type: "SupportsCondition",
+        conditions: [
+          SupportsInParens(
+            type: "SupportsInParens",
+            kind: TokenSeq(
+              type: "TokenSeq",
+              tokens: [
+                TokenWithSpan(
+                  type: "TokenWithSpan",
+                  token: Ident(Ident(
+                    kind: "Ident",
+                    escaped: false,
+                    raw: "foo",
+                  )),
+                  span: Span(
+                    start: 258,
+                    end: 261,
+                  ),
+                ),
+                TokenWithSpan(
+                  type: "TokenWithSpan",
+                  token: Ident(Ident(
+                    kind: "Ident",
+                    escaped: false,
+                    raw: "bar",
+                  )),
+                  span: Span(
+                    start: 262,
+                    end: 265,
+                  ),
+                ),
+                TokenWithSpan(
+                  type: "TokenWithSpan",
+                  token: Ident(Ident(
+                    kind: "Ident",
+                    escaped: false,
+                    raw: "baz",
+                  )),
+                  span: Span(
+                    start: 266,
+                    end: 269,
+                  ),
+                ),
+              ],
+              span: Span(
+                start: 258,
+                end: 269,
+              ),
+            ),
+            span: Span(
+              start: 257,
+              end: 270,
+            ),
+          ),
+        ],
+        span: Span(
+          start: 257,
+          end: 270,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 271,
+          end: 273,
+        ),
+      )),
+      span: Span(
+        start: 247,
+        end: 273,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "supports",
+        raw: "supports",
+        span: Span(
+          start: 275,
+          end: 283,
+        ),
+      ),
+      prelude: Some(SupportsCondition(
+        type: "SupportsCondition",
+        conditions: [
+          SupportsInParens(
+            type: "SupportsInParens",
+            kind: TokenSeq(
+              type: "TokenSeq",
+              tokens: [
+                TokenWithSpan(
+                  type: "TokenWithSpan",
+                  token: Ident(Ident(
+                    kind: "Ident",
+                    escaped: false,
+                    raw: "not",
+                  )),
+                  span: Span(
+                    start: 285,
+                    end: 288,
+                  ),
+                ),
+                TokenWithSpan(
+                  type: "TokenWithSpan",
+                  token: Ident(Ident(
+                    kind: "Ident",
+                    escaped: false,
+                    raw: "all",
+                  )),
+                  span: Span(
+                    start: 289,
+                    end: 292,
+                  ),
+                ),
+              ],
+              span: Span(
+                start: 285,
+                end: 292,
+              ),
+            ),
+            span: Span(
+              start: 284,
+              end: 293,
+            ),
+          ),
+        ],
+        span: Span(
+          start: 284,
+          end: 293,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 294,
+          end: 296,
+        ),
+      )),
+      span: Span(
+        start: 274,
+        end: 296,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "supports",
+        raw: "supports",
+        span: Span(
+          start: 298,
+          end: 306,
+        ),
+      ),
+      prelude: Some(SupportsCondition(
+        type: "SupportsCondition",
+        conditions: [
+          SupportsInParens(
+            type: "SupportsInParens",
+            kind: SupportsDecl(
+              type: "SupportsDecl",
+              decl: Declaration(
+                type: "Declaration",
+                name: Ident(
+                  type: "Ident",
+                  name: "--custom-feature",
+                  raw: "--custom-feature",
+                  span: Span(
+                    start: 308,
+                    end: 324,
+                  ),
+                ),
+                nameSuffix: None,
+                colonSpan: Span(
+                  start: 324,
+                  end: 325,
+                ),
+                value: [
+                  TokenWithSpan(
+                    type: "TokenWithSpan",
+                    token: Number(Number(
+                      kind: "Number",
+                      raw: "10",
+                    )),
+                    span: Span(
+                      start: 326,
+                      end: 328,
+                    ),
+                  ),
+                ],
+                important: None,
+                lessPropertyMerge: None,
+                span: Span(
+                  start: 308,
+                  end: 328,
+                ),
+              ),
+              span: Span(
+                start: 307,
+                end: 329,
+              ),
+            ),
+            span: Span(
+              start: 307,
+              end: 329,
+            ),
+          ),
+          SupportsAnd(
+            type: "SupportsAnd",
+            keyword: Ident(
+              type: "Ident",
+              name: "and",
+              raw: "and",
+              span: Span(
+                start: 330,
+                end: 333,
+              ),
+            ),
+            condition: SupportsInParens(
+              type: "SupportsInParens",
+              kind: SupportsDecl(
+                type: "SupportsDecl",
+                decl: Declaration(
+                  type: "Declaration",
+                  name: Ident(
+                    type: "Ident",
+                    name: "display",
+                    raw: "display",
+                    span: Span(
+                      start: 335,
+                      end: 342,
+                    ),
+                  ),
+                  nameSuffix: None,
+                  colonSpan: Span(
+                    start: 342,
+                    end: 343,
+                  ),
+                  value: [
+                    Ident(
+                      type: "Ident",
+                      name: "grid",
+                      raw: "grid",
+                      span: Span(
+                        start: 344,
+                        end: 348,
+                      ),
+                    ),
+                  ],
+                  important: None,
+                  lessPropertyMerge: None,
+                  span: Span(
+                    start: 335,
+                    end: 348,
+                  ),
+                ),
+                span: Span(
+                  start: 334,
+                  end: 349,
+                ),
+              ),
+              span: Span(
+                start: 334,
+                end: 349,
+              ),
+            ),
+            span: Span(
+              start: 330,
+              end: 349,
+            ),
+          ),
+        ],
+        span: Span(
+          start: 307,
+          end: 349,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 350,
+          end: 352,
+        ),
+      )),
+      span: Span(
+        start: 297,
+        end: 352,
+      ),
+    ),
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "supports",
+        raw: "supports",
+        span: Span(
+          start: 354,
+          end: 362,
+        ),
+      ),
+      prelude: Some(SupportsCondition(
+        type: "SupportsCondition",
+        conditions: [
+          SupportsInParens(
+            type: "SupportsInParens",
+            kind: TokenSeq(
+              type: "TokenSeq",
+              tokens: [
+                TokenWithSpan(
+                  type: "TokenWithSpan",
+                  token: Ident(Ident(
+                    kind: "Ident",
+                    escaped: false,
+                    raw: "foo",
+                  )),
+                  span: Span(
+                    start: 364,
+                    end: 367,
+                  ),
+                ),
+                TokenWithSpan(
+                  type: "TokenWithSpan",
+                  token: Ident(Ident(
+                    kind: "Ident",
+                    escaped: false,
+                    raw: "bar",
+                  )),
+                  span: Span(
+                    start: 368,
+                    end: 371,
+                  ),
+                ),
+              ],
+              span: Span(
+                start: 364,
+                end: 371,
+              ),
+            ),
+            span: Span(
+              start: 363,
+              end: 372,
+            ),
+          ),
+          SupportsOr(
+            type: "SupportsOr",
+            keyword: Ident(
+              type: "Ident",
+              name: "or",
+              raw: "or",
+              span: Span(
+                start: 373,
+                end: 375,
+              ),
+            ),
+            condition: SupportsInParens(
+              type: "SupportsInParens",
+              kind: SupportsDecl(
+                type: "SupportsDecl",
+                decl: Declaration(
+                  type: "Declaration",
+                  name: Ident(
+                    type: "Ident",
+                    name: "display",
+                    raw: "display",
+                    span: Span(
+                      start: 377,
+                      end: 384,
+                    ),
+                  ),
+                  nameSuffix: None,
+                  colonSpan: Span(
+                    start: 384,
+                    end: 385,
+                  ),
+                  value: [
+                    Ident(
+                      type: "Ident",
+                      name: "grid",
+                      raw: "grid",
+                      span: Span(
+                        start: 386,
+                        end: 390,
+                      ),
+                    ),
+                  ],
+                  important: None,
+                  lessPropertyMerge: None,
+                  span: Span(
+                    start: 377,
+                    end: 390,
+                  ),
+                ),
+                span: Span(
+                  start: 376,
+                  end: 391,
+                ),
+              ),
+              span: Span(
+                start: 376,
+                end: 391,
+              ),
+            ),
+            span: Span(
+              start: 373,
+              end: 391,
+            ),
+          ),
+        ],
+        span: Span(
+          start: 363,
+          end: 391,
+        ),
+      )),
+      block: Some(SimpleBlock(
+        type: "SimpleBlock",
+        statements: [],
+        span: Span(
+          start: 392,
+          end: 394,
+        ),
+      )),
+      span: Span(
+        start: 353,
+        end: 394,
+      ),
+    ),
+  ],
+  span: Span(
+    start: 0,
+    end: 395,
+  ),
+)
