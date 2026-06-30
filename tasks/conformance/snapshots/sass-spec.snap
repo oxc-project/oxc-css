@@ -1,0 +1,1390 @@
+suite: sass-spec
+sha: a2ead9225786d49e91f5cc36755b7713596a2338
+files: 26785   success: 25401   failed: 1384
+clean: 25401  recovered: 29  hard_error: 1355  panic: 0
+
+failures:
+ERROR    spec/callable/arguments.hrx::function/trailing_comma/keyword_rest/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::function/trailing_comma/named/after_positional/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::function/trailing_comma/named/alone/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::function/trailing_comma/positional/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::function/trailing_comma/rest/after_both/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::function/trailing_comma/rest/after_named/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::function/trailing_comma/rest/after_positional/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::function/trailing_comma/rest/alone/output.css    component value is expected
+RECOVER  spec/callable/arguments.hrx::mixin/error/comma_only/input.scss    component value is expected
+ERROR    spec/callable/arguments.hrx::mixin/trailing_comma/keyword_rest/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::mixin/trailing_comma/named/after_positional/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::mixin/trailing_comma/named/alone/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::mixin/trailing_comma/positional/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::mixin/trailing_comma/rest/after_both/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::mixin/trailing_comma/rest/after_named/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::mixin/trailing_comma/rest/after_positional/output.css    component value is expected
+ERROR    spec/callable/arguments.hrx::mixin/trailing_comma/rest/alone/output.css    component value is expected
+ERROR    spec/callable/parameters.hrx::function/error/comma_only/input.scss    expect token `$var`, but found `,`
+ERROR    spec/callable/parameters.hrx::function/error/splat/before_final/input.scss    expect token `)`, but found `$var`
+ERROR    spec/callable/parameters.hrx::mixin/error/comma_only/input.scss    expect token `$var`, but found `,`
+ERROR    spec/callable/parameters.hrx::mixin/error/splat/before_final/input.scss    expect token `)`, but found `$var`
+ERROR    spec/callable/whitespace.hrx::newlines/function/after_arg/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/function/after_colon/sass/input.sass    component value is expected
+ERROR    spec/callable/whitespace.hrx::newlines/function/after_comma/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/function/after_list/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/function/after_paren/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/function/before_colon/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/function/before_list/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/function/before_list_arg/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/function/before_paren/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/function/space_after_colon/sass/input.sass    expect token `,`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/function_invocation/after_colon/sass/input.sass    component value is expected
+ERROR    spec/callable/whitespace.hrx::newlines/mixin/after_arg/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/mixin/after_colon/sass/input.sass    component value is expected
+ERROR    spec/callable/whitespace.hrx::newlines/mixin/after_comma/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/mixin/after_list/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/mixin/after_paren/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/mixin/before_colon/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/mixin/before_list/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/mixin/before_list_arg/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/callable/whitespace.hrx::newlines/mixin/before_paren/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/core_functions/global/map.hrx::merge/output.css    component value is expected
+ERROR    spec/core_functions/global/map.hrx::remove/output.css    component value is expected
+ERROR    spec/core_functions/global/meta.hrx::inspect/output.css    component value is expected
+ERROR    spec/core_functions/global/meta.hrx::keywords/output.css    component value is expected
+ERROR    spec/core_functions/global/selector.hrx::parse/output.css    component value is expected
+ERROR    spec/core_functions/global/selector.hrx::simple_selectors/output.css    component value is expected
+ERROR    spec/core_functions/global/selector.hrx::unify/output.css    component value is expected
+ERROR    spec/core_functions/list/join/empty.hrx::both/comma/first/output.css    component value is expected
+ERROR    spec/core_functions/list/join/empty.hrx::both/comma/last/output.css    component value is expected
+ERROR    spec/core_functions/list/join/empty.hrx::both/slash/first/output.css    component value is expected
+ERROR    spec/core_functions/list/join/empty.hrx::both/slash/last/output.css    component value is expected
+ERROR    spec/core_functions/list/join/empty.hrx::both/space/first/output.css    component value is expected
+ERROR    spec/core_functions/list/join/empty.hrx::both/space/last/output.css    component value is expected
+ERROR    spec/core_functions/list/join/empty.hrx::both/undecided/output.css    component value is expected
+ERROR    spec/core_functions/list/join/empty.hrx::map/first/undecided/output.css    component value is expected
+ERROR    spec/core_functions/list/join/empty.hrx::map/second/undecided/output.css    component value is expected
+ERROR    spec/core_functions/list/join/multi.hrx::map/second/space/output.css    component value is expected
+ERROR    spec/core_functions/list/zip.hrx::map/empty/output.css    component value is expected
+ERROR    spec/core_functions/list/zip.hrx::map/non_empty/output.css    component value is expected
+ERROR    spec/core_functions/list/zip.hrx::no_lists/output.css    component value is expected
+ERROR    spec/core_functions/list/zip.hrx::one_list/empty/output.css    component value is expected
+ERROR    spec/core_functions/list/zip.hrx::two_lists/first_empty/output.css    component value is expected
+ERROR    spec/core_functions/list/zip.hrx::two_lists/second_empty/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::deep/different_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::deep/empty/first/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::deep/empty/second/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::deep/multiple_layers/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::deep/overlapping_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::deep/same_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::named/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::shallow/different_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::shallow/empty/both/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::shallow/empty/first/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::shallow/empty/second/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::shallow/overlapping_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_merge.hrx::shallow/same_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_remove.hrx::found/nested/first/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_remove.hrx::found/nested/last/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_remove.hrx::found/nested/middle/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_remove.hrx::found/nested/single/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_remove.hrx::found/top_level/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_remove.hrx::not_found/empty/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_remove.hrx::not_found/extra_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_remove.hrx::not_found/nested/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_remove.hrx::not_found/not_a_map/output.css    component value is expected
+ERROR    spec/core_functions/map/deep_remove.hrx::not_found/top_level/output.css    component value is expected
+ERROR    spec/core_functions/map/get.hrx::nested/found/partial_path/output.css    component value is expected
+ERROR    spec/core_functions/map/keys.hrx::empty/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::different_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::empty/both/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::empty/first/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::empty/second/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::named/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::nested/different_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::nested/empty/both/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::nested/empty/first/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::nested/empty/second/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::nested/intermediate_value_is_not_a_map/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::nested/leaf_value_is_not_a_map/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::nested/multiple_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::nested/overlapping_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::nested/same_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::overlapping_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/merge.hrx::same_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::found/first/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::found/last/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::found/middle/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::found/multiple/all/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::found/multiple/some/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::found/single/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::named/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::not_found/empty/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::not_found/multiple/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::not_found/no_keys/output.css    component value is expected
+ERROR    spec/core_functions/map/remove.hrx::not_found/non_empty/output.css    component value is expected
+ERROR    spec/core_functions/map/set.hrx::empty/output.css    component value is expected
+ERROR    spec/core_functions/map/set.hrx::named/output.css    component value is expected
+ERROR    spec/core_functions/map/set.hrx::nested/empty/output.css    component value is expected
+ERROR    spec/core_functions/map/set.hrx::nested/long/output.css    component value is expected
+ERROR    spec/core_functions/map/set.hrx::nested/new_key/output.css    component value is expected
+ERROR    spec/core_functions/map/set.hrx::nested/update_existing_key/output.css    component value is expected
+ERROR    spec/core_functions/map/set.hrx::nested/value_is_not_a_map/output.css    component value is expected
+ERROR    spec/core_functions/map/set.hrx::new_key/output.css    component value is expected
+ERROR    spec/core_functions/map/set.hrx::update_existing_key/output.css    component value is expected
+ERROR    spec/core_functions/map/values.hrx::empty/output.css    component value is expected
+ERROR    spec/core_functions/math/max.hrx::global/modulo/input.scss    component value is expected
+ERROR    spec/core_functions/math/min.hrx::global/modulo/input.scss    component value is expected
+ERROR    spec/core_functions/meta/apply.hrx::args/passes/rest/named/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/empty.hrx::output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::bracketed/in_comma/unbracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::comma/in_comma/bracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::comma/in_comma/unbracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::comma/in_slash/bracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::comma/in_slash/unbracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::comma/in_space/bracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::comma/in_space/unbracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::empty/in_comma/bracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::empty/in_comma/unbracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::empty/in_slash/bracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::empty/in_slash/unbracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::empty/in_space/bracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::empty/in_space/unbracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::space/in_space/bracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/nested.hrx::space/in_space/unbracketed/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/single.hrx::comma/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/list/single.hrx::slash/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/map.hrx::list/key/comma/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/map.hrx::list/key/space/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/map.hrx::list/value/comma/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/map.hrx::list/value/space/output.css    component value is expected
+ERROR    spec/core_functions/meta/inspect/map.hrx::number/output.css    component value is expected
+ERROR    spec/core_functions/meta/keywords.hrx::dash_insensitive/output.css    component value is expected
+ERROR    spec/core_functions/meta/keywords.hrx::empty/no_args/output.css    component value is expected
+ERROR    spec/core_functions/meta/keywords.hrx::empty/positional/output.css    component value is expected
+ERROR    spec/core_functions/meta/keywords.hrx::forwarded/call/output.css    component value is expected
+ERROR    spec/core_functions/meta/keywords.hrx::forwarded/content/output.css    component value is expected
+ERROR    spec/core_functions/meta/keywords.hrx::forwarded/function/output.css    component value is expected
+ERROR    spec/core_functions/meta/keywords.hrx::forwarded/mixin/output.css    component value is expected
+ERROR    spec/core_functions/meta/keywords.hrx::multi_arg/output.css    component value is expected
+ERROR    spec/core_functions/meta/keywords.hrx::named/output.css    component value is expected
+ERROR    spec/core_functions/meta/keywords.hrx::one_arg/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_functions.hrx::core_module/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_functions.hrx::empty/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_mixins.hrx::empty/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::as/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::core_module/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::dash_sensitive/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::empty/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::multiple/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::named/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::through_forward/as/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::through_forward/bare/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::through_forward/hide/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::through_forward/show/output.css    component value is expected
+ERROR    spec/core_functions/meta/module_variables.hrx::through_import/output.css    component value is expected
+ERROR    spec/core_functions/newlines.hrx::after_comma/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/core_functions/newlines.hrx::after_paren/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/core_functions/newlines.hrx::after_value/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/core_functions/newlines.hrx::before_comma/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/core_functions/newlines.hrx::before_paren/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/core_functions/selector/append.hrx::classes/double/output.css    component value is expected
+ERROR    spec/core_functions/selector/append.hrx::classes/single/output.css    component value is expected
+ERROR    spec/core_functions/selector/append.hrx::combinator/final_trailing/output.css    component value is expected
+ERROR    spec/core_functions/selector/append.hrx::combinator/initial_leading/output.css    component value is expected
+ERROR    spec/core_functions/selector/append.hrx::combinator/multiple/final_trailing/output.css    component value is expected
+ERROR    spec/core_functions/selector/append.hrx::combinator/multiple/initial_leading/output.css    component value is expected
+ERROR    spec/core_functions/selector/append.hrx::combinator/multiple/middle/output.css    component value is expected
+ERROR    spec/core_functions/selector/append.hrx::many_args/output.css    component value is expected
+ERROR    spec/core_functions/selector/append.hrx::one_arg/output.css    component value is expected
+ERROR    spec/core_functions/selector/append.hrx::suffix/multiple/output.css    component value is expected
+ERROR    spec/core_functions/selector/append.hrx::suffix/single/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/combinator_only.hrx::extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/combinator_only.hrx::selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::leading_combinator/both/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::leading_combinator/extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::leading_combinator/selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::multiple_combinators/leading/extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::multiple_combinators/leading/selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::multiple_combinators/middle/extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::multiple_combinators/middle/selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::multiple_combinators/trailing/extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::multiple_combinators/trailing/selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::parent/with_grandparent/complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::parent/with_grandparent/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::parent/with_grandparent/simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::parent/without_grandparent/complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::parent/without_grandparent/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::parent/without_grandparent/simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::trailing_combinator/both/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::trailing_combinator/extender/child/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::trailing_combinator/extender/next_sibling/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::trailing_combinator/extender/sibling/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/with_unification.hrx::trailing_combinator/selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::leading_combinator/both/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::leading_combinator/extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::leading_combinator/selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::multiple_combinators/leading/extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::multiple_combinators/leading/selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::multiple_combinators/middle/extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::multiple_combinators/middle/selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::multiple_combinators/trailing/extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::multiple_combinators/trailing/selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::parent/with_grandparent/complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::parent/with_grandparent/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::parent/with_grandparent/simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::parent/without_grandparent/complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::parent/without_grandparent/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::parent/without_grandparent/simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::trailing_combinator/both/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::trailing_combinator/extender/child/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::trailing_combinator/extender/next_sibling/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::trailing_combinator/extender/sibling/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/complex/without_unification.hrx::trailing_combinator/selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/format.hrx::input/multiple_extendees/compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/format.hrx::input/multiple_extendees/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/format.hrx::input/multiple_extendees/list_of_compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/format.hrx::input/non_string/extendee/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/list.hrx::all_match/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/list.hrx::different_matches/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/list.hrx::one_matches/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/named.hrx::output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/element/alone/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/element/with_class/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/id/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/next_sibling/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/parent/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/pseudo_element/class_syntax/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/pseudo_element/unknown/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/universal/default_and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/universal/default_and_namespace/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/universal/empty_and_default/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/universal/empty_and_namespace/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/universal/namespace_and_default/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/universal/namespace_and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::conflict/universal/namespace_and_namespace/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::unification/identical_to_extendee/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::unification/identical_to_selector/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::unification/specificity_modification/where/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::unification/subselector_of_target/is/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::unification/subselector_of_target/matches/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/no_op.hrx::unification/subselector_of_target/where/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/attribute.hrx::equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/attribute.hrx::unequal/name/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/attribute.hrx::unequal/operator/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/attribute.hrx::unequal/value/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/class.hrx::equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/class.hrx::unequal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/placeholder.hrx::equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/placeholder.hrx::unequal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/arg.hrx::class/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/arg.hrx::class/unequal/argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/arg.hrx::class/unequal/has_argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/arg.hrx::class/unequal/name/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/arg.hrx::element/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/arg.hrx::element/unequal/argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/arg.hrx::element/unequal/has_argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/arg.hrx::element/unequal/name/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/no_arg.hrx::class/and_element/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/no_arg.hrx::class/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/no_arg.hrx::class/unequal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/no_arg.hrx::element/and_class/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/no_arg.hrx::element/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/no_arg.hrx::element/unequal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/any.hrx::any_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/any.hrx::list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/any.hrx::simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/current.hrx::current_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/current.hrx::list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/current.hrx::simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/is.hrx::is_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/is.hrx::list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/is.hrx::simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/matches.hrx::list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/matches.hrx::matches_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/matches.hrx::simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::component/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::is/in_compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::is/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::is/list_of_complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::list_in_not/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::matches/in_compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::matches/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::matches/list_of_complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::not_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::where/in_compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::where/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/not.hrx::where/list_of_complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/nth_child.hrx::different_arg_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/nth_child.hrx::list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/nth_child.hrx::same_arg_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/nth_child.hrx::simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/nth_last_child.hrx::different_arg_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/nth_last_child.hrx::list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/nth_last_child.hrx::same_arg_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/nth_last_child.hrx::simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/prefixed.hrx::different_prefix_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/prefixed.hrx::list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/prefixed.hrx::same_prefix_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/prefixed.hrx::simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/where.hrx::is_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/where.hrx::list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/idempotent/where.hrx::simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::prefixed/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::prefixed/unequal/argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::prefixed/unequal/has_argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::prefixed/unequal/name/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::prefixed/unequal/prefix/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/element/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/element/unequal/argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/element/unequal/has_argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/element/unequal/name/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/is/class/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/is/class/unequal/argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/is/class/unequal/has_argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/is/class/unequal/name/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/matches/class/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/matches/class/unequal/argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/matches/class/unequal/has_argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/matches/class/unequal/name/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/where/class/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/where/class/unequal/argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/where/class/unequal/has_argument/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/match.hrx::unprefixed/where/class/unequal/name/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::has/has_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::has/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::has/simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::host/host_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::host/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::host/simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::host_context/host_context_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::host_context/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::host_context/simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::slotted/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::slotted/simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/pseudo/selector/non_idempotent.hrx::slotted/slotted_in_extender/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/empty/and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/empty/and_explicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/empty/and_implicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/empty/and_universal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/explicit/and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/explicit/and_explicit/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/explicit/and_explicit/unequal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/explicit/and_implicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/explicit/and_universal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/universal/and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/universal/and_explicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/universal/and_implicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/type.hrx::namespace/universal/and_universal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::and_class/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::and_type/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/empty/and_class/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/empty/and_type/empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/empty/and_type/explicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/empty/and_type/implicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/empty/and_universal/empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/empty/and_universal/explicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/empty/and_universal/implicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/empty/and_universal/universal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/explicit/and_class/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/explicit/and_type/empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/explicit/and_type/explicit/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/explicit/and_type/explicit/unequal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/explicit/and_type/implicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/explicit/and_universal/empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/explicit/and_universal/explicit/equal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/explicit/and_universal/explicit/unequal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/explicit/and_universal/implicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/explicit/and_universal/universal/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/universal/and_class/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/universal/and_type/empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/universal/and_type/explicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/universal/and_type/implicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/universal/and_universal/empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/universal/and_universal/explicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/universal/and_universal/implicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/extend/simple/universal.hrx::namespace/universal/and_universal/universal/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::leading/final/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::leading/initial/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::multiple/leading/final/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::multiple/leading/initial/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::multiple/middle/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::multiple/trailing/final/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::multiple/trailing/initial/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::only/after/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::only/before/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::only/between/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::trailing/final/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/combinator.hrx::trailing/initial/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/list.hrx::list/parent/complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/list.hrx::list/parent/compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/list.hrx::list/parent/in_one_complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/list.hrx::list/parent/multiple/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/list.hrx::list/parent/selector_pseudo/is/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/list.hrx::list/parent/selector_pseudo/matches/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/list.hrx::list/parent/selector_pseudo/where/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::alone/first/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::complex/complex_parent/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::complex/simple_parent/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::in_one_complex/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::multiple/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::selector_pseudo/complex_parent/is/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::selector_pseudo/complex_parent/matches/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::selector_pseudo/complex_parent/where/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::selector_pseudo/simple_parent/is/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::selector_pseudo/simple_parent/matches/output.css    component value is expected
+ERROR    spec/core_functions/selector/nest/parent.hrx::selector_pseudo/simple_parent/where/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::complex/adjacent_sibling/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::complex/bogus/leading/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::complex/bogus/multiple/middle/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::complex/bogus/multiple/trailing/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::complex/bogus/only/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::complex/bogus/trailing/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::complex/child/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::complex/sibling/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/attribute/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/class/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/placeholder/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/pseudo/class/arg/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/pseudo/class/combined_arg/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/pseudo/class/no_arg/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/pseudo/class/selector_arg/is/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/pseudo/class/selector_arg/matches/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/pseudo/class/selector_arg/where/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/pseudo/element/arg/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/pseudo/element/no_arg/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/pseudo/element/selector_arg/output.css    component value is expected
+ERROR    spec/core_functions/selector/parse/selector.hrx::simple/universal/output.css    component value is expected
+ERROR    spec/core_functions/selector/replace.hrx::compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/replace.hrx::format/input/multiple_extendees/compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/replace.hrx::format/input/multiple_extendees/list/output.css    component value is expected
+ERROR    spec/core_functions/selector/replace.hrx::format/input/multiple_extendees/list_of_compound/output.css    component value is expected
+ERROR    spec/core_functions/selector/replace.hrx::format/input/non_string/extendee/output.css    component value is expected
+ERROR    spec/core_functions/selector/replace.hrx::named/output.css    component value is expected
+ERROR    spec/core_functions/selector/replace.hrx::selector_pseudo/is/output.css    component value is expected
+ERROR    spec/core_functions/selector/replace.hrx::selector_pseudo/matches/output.css    component value is expected
+ERROR    spec/core_functions/selector/replace.hrx::selector_pseudo/not/output.css    component value is expected
+ERROR    spec/core_functions/selector/replace.hrx::selector_pseudo/where/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/chooses_superselector.hrx::parent/selector1/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/chooses_superselector.hrx::parent/selector2/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/chooses_superselector.hrx::whole_selector/selector1/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/chooses_superselector.hrx::whole_selector/selector2/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/child.hrx::and_child/distinct/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/child.hrx::and_child/overlap/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/child.hrx::and_child/superselector/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/child.hrx::and_descendant/distinct/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/child.hrx::and_descendant/identical/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/child.hrx::and_descendant/overlap/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/child.hrx::and_descendant/superselector/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/child.hrx::and_next_sibling/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/child.hrx::and_sibling/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/initial.hrx::only_one/selector1/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/initial.hrx::only_one/selector2/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/initial.hrx::same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/multiple.hrx::isolated/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/next_sibling.hrx::and_child/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/next_sibling.hrx::and_descendant/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/next_sibling.hrx::and_next_sibling/distinct/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/next_sibling.hrx::and_next_sibling/overlap/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/next_sibling.hrx::and_next_sibling/superselector/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/next_sibling.hrx::and_sibling/conflict/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/next_sibling.hrx::and_sibling/distinct/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/next_sibling.hrx::and_sibling/identical/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/next_sibling.hrx::and_sibling/overlap/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/next_sibling.hrx::and_sibling/superselector/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_child/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_descendant/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_next_sibling/conflict/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_next_sibling/distinct/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_next_sibling/identical/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_next_sibling/overlap/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_next_sibling/superselector/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_sibling/conflict/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_sibling/distinct/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_sibling/identical/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_sibling/overlap/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/combinators/sibling.hrx::and_sibling/superselector/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/distinct.hrx::three_level/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/distinct.hrx::two_level/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/identical.hrx::three_level/inner/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/identical.hrx::three_level/outer/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/identical.hrx::two_level/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/lcs.hrx::non_contiguous/different_positions/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/lcs.hrx::non_contiguous/same_positions/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/lcs.hrx::three_versus_two/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/lcs.hrx::two_versus_one/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/overlap.hrx::class/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/overlap.hrx::id/forced_unification/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/overlap.hrx::id/no_unification/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/overlap.hrx::pseudo_element/forced_unification/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/overlap.hrx::pseudo_element/no_unification/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/rootish.hrx::host/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/rootish.hrx::host_context/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/rootish.hrx::mixed/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/rootish.hrx::root/in_both/can_unify/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/rootish.hrx::root/in_both/superselector/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/rootish.hrx::root/in_one/selector1/three_layer/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/rootish.hrx::root/in_one/selector1/two_layer/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/rootish.hrx::root/in_one/selector2/three_layer/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/rootish.hrx::root/in_one/selector2/two_layer/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/rootish.hrx::scope/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/superselector.hrx::three_level/inner/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/superselector.hrx::three_level/outer/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/complex/superselector.hrx::two_level/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::full_overlap/class/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::full_overlap/pseudo_class/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::full_overlap/pseudo_element/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::full_overlap/pseudo_selector_and_class/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::no_overlap/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/do_not_cross_pseudo_element/pseudo_class_and_element/into_pseudo_element/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/do_not_cross_pseudo_element/pseudo_class_and_element/into_same_pseudo_element_and_different_pseudo_class/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/do_not_cross_pseudo_element/pseudo_class_and_element/into_simple/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/do_not_cross_pseudo_element/pseudo_element/into_pseudo_class_and_element/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/do_not_cross_pseudo_element/simple/into_pseudo_class_and_element/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/element_at_start/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/preserved_by_default/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/pseudo_class_at_end/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/pseudo_element_after_pseudo_class/class_first/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/pseudo_element_after_pseudo_class/element_first/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::order/pseudo_element_at_end/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/compound.hrx::partial_overlap/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/format.hrx::input/non_string/selector1/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/format.hrx::input/non_string/selector2/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/format.hrx::input/two_lists/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/format.hrx::output/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/class.hrx::different/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/class.hrx::same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/placeholder.hrx::different/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/placeholder.hrx::same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::arg/class/different/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::arg/class/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::arg/element/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host/arg/preserved/left/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host/arg/preserved/right/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host/argless/compound/selector_pseudos/left/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host/argless/compound/selector_pseudos/right/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host/argless/host/arg/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host/argless/host/argless/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host/argless/host_context/left/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host/argless/host_context/right/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host/argless/selector_pseudo/left/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host/argless/selector_pseudo/right/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host_context/preserved/left/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::host_context/preserved/right/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::no_arg/class/different/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::no_arg/class/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::no_arg/different_syntax_same_semantics/after/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::no_arg/different_syntax_same_semantics/before/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::no_arg/different_syntax_same_semantics/first_letter/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::no_arg/different_syntax_same_semantics/first_line/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::no_arg/element/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::selector_arg/is/different/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::selector_arg/is/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::selector_arg/matches/different/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::selector_arg/matches/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::selector_arg/where/different/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/pseudo.hrx::selector_arg/where/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_type.hrx::any/and_any/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_type.hrx::any/and_empty/same_type/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_type.hrx::any/and_explicit/same_type/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_type.hrx::empty/and_any/same_type/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_type.hrx::empty/and_empty/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_type.hrx::explicit/and_any/same_type/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_type.hrx::explicit/and_explicit/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_universal.hrx::any/and_any/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_universal.hrx::any/and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_universal.hrx::any/and_explicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_universal.hrx::empty/and_any/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_universal.hrx::empty/and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_universal.hrx::explicit/and_any/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/type/and_universal.hrx::explicit/and_explicit/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_type/any/and_any/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_type/any/and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_type/any/and_explicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_type/empty/and_any/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_type/empty/and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_type/explicit/and_any/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_type/explicit/and_explicit/same/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_universal/any/and_any/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_universal/any/and_default/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_universal/any/and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_universal/any/and_explicit/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_universal/default/and_any/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_universal/default/and_default/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_universal/empty/and_any/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_universal/empty/and_empty/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_universal/explicit/and_any/output.css    component value is expected
+ERROR    spec/core_functions/selector/unify/simple/universal.hrx::and_universal/explicit/and_explicit/output.css    component value is expected
+ERROR    spec/core_functions/string/unquote.hrx::meaningful_css_characters/output.css    expect token `}`, but found `<eof>`
+ERROR    spec/css/charset.hrx::error/whitespace/sass/input.sass    expect token `<string>`, but found `<indent>`
+ERROR    spec/css/comment.hrx::error/loud/sass/content_after_close/multi_line/input.sass    CSS rule is expected
+ERROR    spec/css/comment.hrx::error/loud/unterminated/scss/input.scss    expect token `}`, but found `<eof>`
+ERROR    spec/css/custom_properties/error.hrx::brackets/curly/input.scss    expect token `<eof>`, but found `}`
+ERROR    spec/css/custom_properties/error.hrx::brackets/curly_in_square/input.scss    expect token `;`, but found `]`
+ERROR    spec/css/custom_properties/error.hrx::brackets/paren/input.scss    expect token `;`, but found `)`
+ERROR    spec/css/custom_properties/error.hrx::brackets/paren_in_curly/input.scss    expect token `<eof>`, but found `}`
+ERROR    spec/css/custom_properties/error.hrx::brackets/square/input.scss    expect token `;`, but found `]`
+ERROR    spec/css/custom_properties/error.hrx::brackets/square_in_paren/input.scss    expect token `;`, but found `)`
+ERROR    spec/css/custom_properties/value_interpolation.hrx::sass/linebreak_interpolation/input.sass    CSS rule is expected
+ERROR    spec/css/function.hrx::error/interpolated/result/characters/input.scss    expect one of `<ident>` or `#{`, but found `&`
+ERROR    spec/css/function.hrx::error/result/interpolated/characters/input.scss    expect one of `<ident>` or `#{`, but found `&`
+ERROR    spec/css/function.hrx::error/result/style_rule/characters/input.scss    expect one of `<ident>` or `#{`, but found `&`
+ERROR    spec/css/function.hrx::lowercase/interpolation/input.scss    expect token `(`, but found `#{`
+ERROR    spec/css/function.hrx::lowercase/parameter/input.scss    expect token `$var`, but found `<ident>`
+ERROR    spec/css/function.hrx::lowercase/result/characters/input.scss    expect one of `<ident>` or `#{`, but found `&`
+ERROR    spec/css/function.hrx::lowercase/result/characters/output.css    component value is expected
+ERROR    spec/css/function.hrx::lowercase/result/sass_script/output.css    component value is expected
+ERROR    spec/css/function.hrx::lowercase/returns/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/function.hrx::result/uppercase/characters/input.scss    expect one of `<ident>` or `#{`, but found `&`
+ERROR    spec/css/function.hrx::result/uppercase/characters/output.css    component value is expected
+ERROR    spec/css/function.hrx::result/uppercase/sass_script/output.css    component value is expected
+ERROR    spec/css/function.hrx::uppercase/result/characters/input.scss    expect one of `<ident>` or `#{`, but found `&`
+ERROR    spec/css/function.hrx::uppercase/result/characters/output.css    component value is expected
+ERROR    spec/css/function.hrx::uppercase/result/nesting/output.css    component value is expected
+ERROR    spec/css/function.hrx::uppercase/result/sass_script/output.css    component value is expected
+ERROR    spec/css/functions/special/comment.hrx::element/after_open_paren/loud/input.scss    ID selector is expected
+ERROR    spec/css/functions/special/comment.hrx::element/after_open_paren/loud/output.css    ID selector is expected
+ERROR    spec/css/functions/special/comment.hrx::element/after_open_paren/silent/input.scss    ID selector is expected
+ERROR    spec/css/functions/special/comment.hrx::element/after_open_paren/silent/output.css    ID selector is expected
+ERROR    spec/css/functions/special/comment.hrx::element/before_close_paren/loud/input.scss    ID selector is expected
+ERROR    spec/css/functions/special/comment.hrx::element/before_close_paren/loud/output.css    ID selector is expected
+ERROR    spec/css/functions/special/comment.hrx::element/before_close_paren/silent/input.scss    ID selector is expected
+ERROR    spec/css/functions/special/comment.hrx::element/before_close_paren/silent/output.css    ID selector is expected
+ERROR    spec/css/functions/special/error.hrx::whitespace/sass/before_paren/middle/input.sass    CSS rule is expected
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::calc/punctuation/input.scss    unknown token
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::calc/punctuation/output.css    unknown token
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::element/punctuation/input.scss    unknown token
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::element/punctuation/output.css    unknown token
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::expression/punctuation/input.scss    unknown token
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::expression/punctuation/output.css    unknown token
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/interpolation/input.scss    component value is expected
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/interpolation/output.css    component value is expected
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/number/input.scss    component value is expected
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/number/output.css    component value is expected
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/punctuation/input.scss    component value is expected
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/punctuation/output.css    component value is expected
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/script_like/input.scss    component value is expected
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/script_like/output.css    component value is expected
+ERROR    spec/css/functions/special/prefixed/lowercase.hrx::url/punctuation/input.scss    expect token `)`, but found `<eof>`
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::calc/punctuation/input.scss    unknown token
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::calc/punctuation/output.css    unknown token
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::element/punctuation/input.scss    unknown token
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::element/punctuation/output.css    unknown token
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::expression/punctuation/input.scss    unknown token
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::expression/punctuation/output.css    unknown token
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/interpolation/input.scss    component value is expected
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/interpolation/output.css    component value is expected
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/number/input.scss    component value is expected
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/number/output.css    component value is expected
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/punctuation/input.scss    component value is expected
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/punctuation/output.css    component value is expected
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/script_like/input.scss    component value is expected
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/script_like/output.css    component value is expected
+ERROR    spec/css/functions/special/prefixed/uppercase.hrx::url/punctuation/input.scss    expect token `)`, but found `<eof>`
+ERROR    spec/css/functions/special/unprefixed.hrx::lowercase/type/punctuation/input.scss    unknown token
+ERROR    spec/css/functions/special/unprefixed.hrx::lowercase/type/punctuation/output.css    unknown token
+ERROR    spec/css/functions/special/unprefixed.hrx::uppercase/type/punctuation/input.scss    unknown token
+ERROR    spec/css/functions/special/unprefixed.hrx::uppercase/type/punctuation/output.css    unknown token
+ERROR    spec/css/important.hrx::error/syntax/eof_after_bang/input.scss    expect token `<ident>`, but found `<eof>`
+ERROR    spec/css/important.hrx::error/syntax/sass/multiline/after_prop/input.sass    CSS rule is expected
+ERROR    spec/css/important.hrx::syntax/sass/multiline/after_bang/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/css/keyframes.hrx::name/variable_like/input.scss    string is expected
+ERROR    spec/css/keyframes.hrx::name/variable_like/output.css    string is expected
+ERROR    spec/css/media/logic/error.hrx::and_after/or/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/media/logic/error.hrx::and_after/type_and_not/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/media/logic/error.hrx::nothing_after/and/after_interpolation/input.scss    expect token `{`, but found `#{`
+ERROR    spec/css/media/logic/error.hrx::nothing_after/and/after_paren/input.scss    expect token `{`, but found `(`
+ERROR    spec/css/media/logic/error.hrx::nothing_after/and/after_type/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/media/logic/error.hrx::nothing_after/and_not/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/media/logic/error.hrx::nothing_after/not/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/media/logic/error.hrx::nothing_after/or/input.scss    expect token `{`, but found `(`
+ERROR    spec/css/media/logic/error.hrx::or_after/and/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/media/logic/error.hrx::or_after/type/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/media/logic/error.hrx::or_after/type_and_not/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/media/logic/error.hrx::or_after/type_then_and/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/media/whitespace.hrx::error/logic_sequence/after_operator/sass/input.sass    CSS rule is expected
+ERROR    spec/css/media/whitespace.hrx::error/logic_sequence/before_operator/sass/input.sass    CSS rule is expected
+ERROR    spec/css/moz_document/functions/interpolated.hrx::input.scss    expect token `)`, but found `<eof>`
+ERROR    spec/css/moz_document/functions/static.hrx::input.scss    expect token `)`, but found `<eof>`
+ERROR    spec/css/moz_document/multi_function.hrx::input.scss    expect token `)`, but found `<eof>`
+ERROR    spec/css/moz_document/whitespace.hrx::error/before_arg/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/css/percent.hrx::declaration/after/input.scss    component value is expected
+ERROR    spec/css/percent.hrx::declaration/after/output.css    component value is expected
+ERROR    spec/css/percent.hrx::declaration/alone/input.scss    component value is expected
+ERROR    spec/css/percent.hrx::declaration/alone/output.css    component value is expected
+ERROR    spec/css/percent.hrx::declaration/before/input.scss    component value is expected
+ERROR    spec/css/percent.hrx::declaration/before/output.css    component value is expected
+ERROR    spec/css/percent.hrx::error/indented/after/input.sass    component value is expected
+ERROR    spec/css/percent.hrx::indented/after/input.sass    component value is expected
+ERROR    spec/css/plain/custom_properties.hrx::arbitrary_tokens/output.css    unknown token
+ERROR    spec/css/plain/custom_properties.hrx::arbitrary_tokens/plain.css    unknown token
+ERROR    spec/css/plain/error/expression/calculation.hrx::interpolation/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/calculation.hrx::line_noise/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/calculation.hrx::namespaced_function/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/calculation.hrx::variable/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/if.hrx::interp/paren/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/if.hrx::sass/paren/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/interpolation.hrx::calc/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/interpolation.hrx::identifier/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/interpolation.hrx::standalone/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/list.hrx::empty/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/list.hrx::empty_comma/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/map.hrx::plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/operation.hrx::addition/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/operation.hrx::equals/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/operation.hrx::greater_than/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/operation.hrx::greater_than_or_equal/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/operation.hrx::less_than/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/operation.hrx::less_than_or_equal/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/operation.hrx::modulo/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/operation.hrx::multiplication/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/operation.hrx::not_equals/plain.css    expect token `<ident>`, but found `=`
+ERROR    spec/css/plain/error/expression/operation.hrx::subtraction/plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/parent_selector.hrx::plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/parentheses.hrx::plain.css    component value is expected
+ERROR    spec/css/plain/error/expression/variable.hrx::declaration/plain.css    CSS rule is expected
+ERROR    spec/css/plain/error/expression/variable.hrx::use/plain.css    component value is expected
+ERROR    spec/css/plain/error/media.hrx::logic/and_after/or/plain.css    expect token `{`, but found `<ident>`
+ERROR    spec/css/plain/error/media.hrx::logic/and_after/type_and_not/plain.css    expect token `{`, but found `<ident>`
+ERROR    spec/css/plain/error/media.hrx::logic/nothing_after/and/after_paren/plain.css    expect token `{`, but found `(`
+ERROR    spec/css/plain/error/media.hrx::logic/nothing_after/and/after_type/plain.css    expect token `{`, but found `<ident>`
+ERROR    spec/css/plain/error/media.hrx::logic/nothing_after/and_not/plain.css    expect token `{`, but found `<ident>`
+ERROR    spec/css/plain/error/media.hrx::logic/nothing_after/not/plain.css    expect token `{`, but found `<ident>`
+ERROR    spec/css/plain/error/media.hrx::logic/nothing_after/or/plain.css    expect token `{`, but found `(`
+ERROR    spec/css/plain/error/media.hrx::logic/or_after/and/plain.css    expect token `{`, but found `<ident>`
+ERROR    spec/css/plain/error/media.hrx::logic/or_after/type/plain.css    expect token `{`, but found `<ident>`
+ERROR    spec/css/plain/error/media.hrx::logic/or_after/type_and_not/plain.css    expect token `{`, but found `<ident>`
+ERROR    spec/css/plain/error/media.hrx::logic/or_after/type_then_and/plain.css    expect token `{`, but found `<ident>`
+ERROR    spec/css/plain/error/statement/at_rule.hrx::import/multi/plain.css    expect token `<ident>`, but found `,`
+ERROR    spec/css/plain/error/statement/at_rule.hrx::interpolation/plain.css    expect token `:`, but found `}`
+ERROR    spec/css/plain/error/statement/silent_comment.hrx::plain.css    CSS rule is expected
+ERROR    spec/css/plain/error/statement/style_rule.hrx::interpolation/declaration/plain.css    expect token `:`, but found `#`
+ERROR    spec/css/plain/error/statement/style_rule.hrx::interpolation/selector/plain.css    expect token `<ident>`, but found `{`
+ERROR    spec/css/plain/error/statement/style_rule.hrx::nested_property/no_value/plain.css    component value is expected
+ERROR    spec/css/plain/error/statement/style_rule.hrx::nested_property/value/plain.css    component value is expected
+ERROR    spec/css/plain/error/statement/style_rule.hrx::placeholder_selector/plain.css    CSS rule is expected
+ERROR    spec/css/plain/function.hrx::lowercase/result/characters/output.css    component value is expected
+ERROR    spec/css/plain/function.hrx::lowercase/result/characters/plain.css    component value is expected
+ERROR    spec/css/plain/function.hrx::lowercase/result/sass_script/output.css    component value is expected
+ERROR    spec/css/plain/function.hrx::lowercase/result/sass_script/plain.css    component value is expected
+ERROR    spec/css/plain/function.hrx::result/uppercase/characters/output.css    component value is expected
+ERROR    spec/css/plain/function.hrx::result/uppercase/characters/plain.css    component value is expected
+ERROR    spec/css/plain/function.hrx::result/uppercase/sass_script/output.css    component value is expected
+ERROR    spec/css/plain/function.hrx::result/uppercase/sass_script/plain.css    component value is expected
+ERROR    spec/css/plain/function.hrx::uppercase/result/characters/output.css    component value is expected
+ERROR    spec/css/plain/function.hrx::uppercase/result/characters/plain.css    component value is expected
+ERROR    spec/css/plain/function.hrx::uppercase/result/sass_script/output.css    component value is expected
+ERROR    spec/css/plain/function.hrx::uppercase/result/sass_script/plain.css    component value is expected
+ERROR    spec/css/plain/hacks.hrx::output.css    unexpected whitespace
+ERROR    spec/css/plain/hacks.hrx::plain.css    unexpected whitespace
+ERROR    spec/css/plain/import/conditions.hrx::error/wrong_order/media_before_supports/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::error/wrong_order/media_before_unknown_function/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::error/wrong_order/media_before_unknown_ident/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::error/wrong_order/url_after_comma/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/many/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/many/output.css    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_function_then/media/input.scss    expect token `;`, but found `(`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_function_then/media/output.css    expect token `;`, but found `(`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_function_then/supports/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_function_then/supports/output.css    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_function_then/unknown_function/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_function_then/unknown_function/output.css    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_function_then/unknown_ident/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_function_then/unknown_ident/output.css    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_ident_then/media/input.scss    expect token `;`, but found `(`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_ident_then/media/output.css    expect token `;`, but found `(`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_ident_then/supports/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_ident_then/supports/output.css    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_ident_then/unknown_function/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_ident_then/unknown_function/output.css    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_ident_then/unknown_ident/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::multiple/unknown_ident_then/unknown_ident/output.css    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::supports/declaration/followed_by_import_arg/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::unknown/function/argument/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/conditions.hrx::unknown/function/argument/output.css    expect token `;`, but found `&`
+ERROR    spec/css/plain/import/conditions.hrx::unknown/function/followed_by_import_arg/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/whitespace.hrx::error/after_identifier/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/css/plain/import/whitespace.hrx::error/after_import/sass/input.sass    expect token `<string>`, but found `<linebreak>`
+ERROR    spec/css/plain/import/whitespace.hrx::error/after_import_indented/sass/input.sass    expect token `<string>`, but found `<indent>`
+ERROR    spec/css/plain/import/whitespace.hrx::error/media/before/sass/input.sass    expect token `<string>`, but found `<ident>`
+ERROR    spec/css/plain/import/whitespace.hrx::error/supports/declaration/followed_by_import_arg/after_comma/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
+ERROR    spec/css/plain/import/whitespace.hrx::supports/calc/sass/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/css/plain/import/whitespace.hrx::supports/condition_and/after_and/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
+ERROR    spec/css/plain/import/whitespace.hrx::supports/condition_function/after_paren/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
+ERROR    spec/css/plain/import/whitespace.hrx::supports/condition_function/before_end_paren/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
+ERROR    spec/css/plain/import/whitespace.hrx::supports/declaration/prop/after_open/scss/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/plain/import/whitespace.hrx::supports/declaration/prop/space_after_open/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
+ERROR    spec/css/plain/import/whitespace.hrx::supports/declaration/prop/space_after_open/scss/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/css/propset.hrx::error/value_after_propset/input.scss    expect token `:`, but found `}`
+ERROR    spec/css/selector/attribute.hrx::error/modifier/digit/input.scss    expect token `]`, but found `<number>`
+ERROR    spec/css/selector/attribute.hrx::error/modifier/no_operator/input.scss    attribute selector matcher is expected
+ERROR    spec/css/selector/attribute.hrx::sass/whitespace/after_lbracket/input.sass    WqName is expected
+ERROR    spec/css/selector/attribute.hrx::sass/whitespace/after_lbracket_indented/input.sass    WqName is expected
+ERROR    spec/css/selector/attribute.hrx::sass/whitespace/after_operator/input.sass    attribute selector value is expected
+ERROR    spec/css/selector/attribute.hrx::sass/whitespace/after_val/input.sass    attribute selector matcher is expected
+ERROR    spec/css/selector/attribute.hrx::sass/whitespace/before_operator/input.sass    attribute selector matcher is expected
+ERROR    spec/css/selector/combinator/is.hrx::leading/multiple/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/leading.hrx::multiple/no_whitespace/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/leading.hrx::multiple/whitespace/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/middle.hrx::multiple/no_whitespace/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/middle.hrx::multiple/whitespace/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/selector_pseudo.hrx::leading/multiple/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/selector_pseudo.hrx::middle/multiple/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/selector_pseudo.hrx::trailing/multiple/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/selector_pseudo.hrx::trailing/single/child/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/selector_pseudo.hrx::trailing/single/next_sibling/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/selector_pseudo.hrx::trailing/single/sibling/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/trailing.hrx::multiple/no_whitespace/input.scss    simple selector is expected
+ERROR    spec/css/selector/combinator/trailing.hrx::multiple/whitespace/input.scss    simple selector is expected
+ERROR    spec/css/selector/pseudoselector.hrx::error/with_attribute_mismatched/sass/input.scss    expect token `{`, but found `]`
+RECOVER  spec/css/selector/pseudoselector.hrx::whitespace/sass/after_param/input.sass    declaration at top level is disallowed
+RECOVER  spec/css/selector/pseudoselector.hrx::whitespace/sass/before_param/input.sass    declaration at top level is disallowed
+ERROR    spec/css/selector/reference_combinator.hrx::input.scss    expect token `{`, but found `/`
+ERROR    spec/css/selector/slotted.hrx::output.css    expect token `)`, but found `,`
+ERROR    spec/css/style_rule.hrx::sass/declaration/semicolon/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/css/style_rule.hrx::sass/multiple/cr/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/css/style_rule.hrx::sass/multiple/ff/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/css/style_rule.hrx::sass/nested/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/css/style_rule.hrx::sass/preceding_whitespace/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/css/style_rule.hrx::sass/trailing_comment/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/css/style_rule.hrx::sass/trailing_inline_comment/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/css/style_rule.hrx::sass/trailing_loud_comment/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/css/style_rule.hrx::sass/trailing_whitespace/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/css/supports/error.hrx::syntax/anything/colon/input.scss    unknown token
+ERROR    spec/css/supports/error.hrx::syntax/declaration/multiple/input.scss    expect token `{`, but found `(`
+ERROR    spec/css/supports/error.hrx::syntax/declaration/parens/input.scss    expect token `:`, but found `}`
+ERROR    spec/css/supports/error.hrx::syntax/ident/interpolated_after/input.scss    expect token `(`, but found `#{`
+ERROR    spec/css/supports/error.hrx::syntax/ident/interpolated_before/input.scss    expect token `'('`, but found `#{`
+ERROR    spec/css/supports/error.hrx::syntax/ident/plain/input.scss    expect token `(`, but found `{`
+ERROR    spec/css/supports/error.hrx::syntax/ident_after_not/input.scss    expect token `(`, but found `{`
+ERROR    spec/css/supports/error.hrx::syntax/none/input.scss    expect token `'('`, but found `{`
+ERROR    spec/css/supports/error.hrx::syntax/operator/and_after_not/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/css/supports/error.hrx::syntax/operator/lonely_not/input.scss    expect token `'('`, but found `{`
+ERROR    spec/css/supports/error.hrx::syntax/operator/trailing_and/input.scss    expect token `'('`, but found `{`
+ERROR    spec/css/supports/error.hrx::syntax/operator/trailing_or/input.scss    expect token `'('`, but found `{`
+ERROR    spec/css/supports/error.hrx::syntax/raw_declaration/input.scss    expect token `(`, but found `:`
+ERROR    spec/css/supports/syntax/function.hrx::interpolated_name/full/input.scss    expect token `'('`, but found `#{`
+ERROR    spec/css/supports/syntax/function.hrx::interpolated_name/partial/input.scss    expect token `(`, but found `#{`
+ERROR    spec/css/supports/syntax/function.hrx::symbols/input.scss    expect token `<ident>`, but found `&`
+ERROR    spec/css/supports/syntax/function.hrx::symbols/output.css    expect token `{`, but found `&`
+ERROR    spec/css/supports/syntax/lone_interpolation.hrx::top_level/after_operator/input.scss    expect token `'('`, but found `#{`
+ERROR    spec/css/supports/syntax/lone_interpolation.hrx::top_level/alone/input.scss    expect token `'('`, but found `#{`
+ERROR    spec/css/supports/syntax/lone_interpolation.hrx::top_level/before_operator/input.scss    expect token `'('`, but found `#{`
+ERROR    spec/css/supports/whitespace.hrx::error/before_query/sass/input.sass    expect token `'('`, but found `<indent>`
+ERROR    spec/css/supports/whitespace.hrx::error/interpolation/no_paren/after_operator/input.sass    expect token `'('`, but found `#{`
+ERROR    spec/css/supports/whitespace.hrx::error/interpolation/no_paren/after_second/input.sass    expect token `'('`, but found `#{`
+ERROR    spec/css/supports/whitespace.hrx::error/interpolation/no_paren/before_operator/input.sass    expect token `'('`, but found `#{`
+ERROR    spec/css/supports/whitespace.hrx::error/multi_conditions/after_and/sass/input.sass    expect token `'('`, but found `<indent>`
+ERROR    spec/css/supports/whitespace.hrx::error/multi_conditions/before_and/sass/input.sass    CSS rule is expected
+ERROR    spec/css/supports/whitespace.hrx::error/negation/after_not/sass/input.sass    expect token `'('`, but found `<indent>`
+ERROR    spec/css/unicode_range/error.hrx::ident_minus_space_ident/input.scss    invalid unicode range
+ERROR    spec/css/unicode_range/error.hrx::minus_ident_minus/input.scss    invalid unicode range
+ERROR    spec/css/unicode_range/error.hrx::minus_number_minus_ident/input.scss    invalid unicode range
+ERROR    spec/css/unicode_range/error.hrx::no_digits/input.scss    expect token `?`, but found `}`
+ERROR    spec/css/unicode_range/error.hrx::nothing_after_minus/input.scss    invalid unicode range
+ERROR    spec/css/unicode_range/error.hrx::too_many/after_minus/decimal_digits/input.scss    invalid unicode range
+ERROR    spec/css/unicode_range/error.hrx::too_many/after_minus/hex_digits/input.scss    invalid unicode range
+ERROR    spec/css/unicode_range/error.hrx::too_many/decimal_digits/input.scss    invalid unicode range
+ERROR    spec/css/unicode_range/error.hrx::too_many/hex_digits/input.scss    invalid unicode range
+ERROR    spec/css/unicode_range/error.hrx::too_many/question_marks/after_decimal/input.scss    invalid unicode range
+ERROR    spec/css/unicode_range/error.hrx::too_many/question_marks/after_question_mark/input.scss    invalid unicode range
+RECOVER  spec/css/unicode_range/question_mark.hrx::input.scss    unicode range end value exceeds max allowed code point
+RECOVER  spec/css/unicode_range/question_mark.hrx::output.css    unicode range end value exceeds max allowed code point
+RECOVER  spec/css/unicode_range/range.hrx::input.scss    unicode range start value can't greater than end value
+RECOVER  spec/css/unicode_range/range.hrx::output.css    unicode range start value can't greater than end value
+RECOVER  spec/css/unicode_range/simple.hrx::input.scss    unicode range end value exceeds max allowed code point
+RECOVER  spec/css/unicode_range/simple.hrx::output.css    unicode range end value exceeds max allowed code point
+ERROR    spec/css/unknown_directive/error.hrx::interpolation/space_after_at/input.scss    unexpected whitespace or comments
+ERROR    spec/css/unknown_directive/error.hrx::space_after_at/input.scss    unexpected whitespace or comments
+ERROR    spec/css/unknown_directive/name_interpolation.hrx::input.scss    CSS rule is expected
+ERROR    spec/css/unknown_directive/plain.hrx::input.scss    component value is expected
+ERROR    spec/css/unknown_directive/plain.hrx::output.css    component value is expected
+ERROR    spec/css/unknown_directive/semicolon.hrx::top_level/sass/input.sass    expect token `<linebreak>`, but found `;`
+RECOVER  spec/directives/at_root/keyframes.hrx::all/input.scss    unknown keyframe selector
+ERROR    spec/directives/at_root/sass.hrx::empty/no_query/input.sass    simple selector is expected
+ERROR    spec/directives/at_root/whitespace.hrx::after_colon/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/directives/at_root/whitespace.hrx::after_open_paren/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/at_root/whitespace.hrx::before_close_paren/sass/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/directives/at_root/whitespace.hrx::before_colon/sass/input.sass    expect token `:`, but found `<indent>`
+ERROR    spec/directives/at_root/whitespace.hrx::error/before_query/sass/input.sass    CSS rule is expected
+ERROR    spec/directives/debug.hrx::sass/multiline-after/input.sass    component value is expected
+ERROR    spec/directives/debug.hrx::sass/semicolon/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/directives/each.hrx::sass/destructured/multiline/after_comma/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/each.hrx::sass/destructured/multiline/after_first/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/each.hrx::sass/destructured/multiline/after_second/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/each.hrx::sass/destructured/multiline/before_third/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/each.hrx::sass/multiline/after_each/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/each.hrx::sass/multiline/after_in/input.sass    component value is expected
+ERROR    spec/directives/each.hrx::sass/multiline/after_variable/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/error.hrx::sass/multiline_after/input.sass    component value is expected
+ERROR    spec/directives/error.hrx::sass/semicolon/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/directives/error.hrx::sass/semicolon_comment/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/directives/extend/bogus.hrx::multi/leading/input.scss    simple selector is expected
+ERROR    spec/directives/extend/bogus.hrx::multi/middle/input.scss    simple selector is expected
+ERROR    spec/directives/extend/bogus.hrx::multi/trailing/input.scss    simple selector is expected
+ERROR    spec/directives/extend/error.hrx::complex/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/directives/extend/error.hrx::no_selector/input.scss    simple selector is expected
+ERROR    spec/directives/extend/whitespace.hrx::after_arg/sass/input.sass    simple selector is expected
+ERROR    spec/directives/extend/whitespace.hrx::before_arg/sass/input.sass    simple selector is expected
+ERROR    spec/directives/extend/whitespace.hrx::error/after_arg_indented/sass/input.sass    simple selector is expected
+ERROR    spec/directives/extend/whitespace.hrx::error/before_optional/sass/input.sass    CSS rule is expected
+ERROR    spec/directives/extend/whitespace.hrx::multiple_selectors/comma/sass/input.sass    simple selector is expected
+ERROR    spec/directives/for/comment.hrx::after_from/silent/sass/input.sass    component value is expected
+ERROR    spec/directives/for/comment.hrx::after_through/silent/sass/input.sass    component value is expected
+ERROR    spec/directives/for/comment.hrx::before_from/silent/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/for/comment.hrx::before_through/silent/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/for/comment.hrx::before_var/silent/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/for/whitespace.hrx::after_from/sass/input.sass    component value is expected
+ERROR    spec/directives/for/whitespace.hrx::after_through/sass/input.sass    component value is expected
+ERROR    spec/directives/for/whitespace.hrx::after_to/sass/input.sass    component value is expected
+ERROR    spec/directives/for/whitespace.hrx::before_from/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/for/whitespace.hrx::before_through/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/for/whitespace.hrx::before_to/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/for/whitespace.hrx::before_var/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/forward/error/syntax.hrx::after/indented/mixin/input.sass    CSS rule is expected
+ERROR    spec/directives/forward/error/syntax.hrx::as/asterisk/input.scss    expect token `<ident>`, but found `*`
+ERROR    spec/directives/forward/error/syntax.hrx::as/invalid/input.scss    expect token `<ident>`, but found `<number>`
+ERROR    spec/directives/forward/error/syntax.hrx::as/no_star/input.scss    expect token `*`, but found `;`
+ERROR    spec/directives/forward/error/syntax.hrx::as/nothing/input.scss    expect token `<ident>`, but found `;`
+ERROR    spec/directives/forward/error/syntax.hrx::empty/input.scss    string is expected
+ERROR    spec/directives/forward/error/syntax.hrx::hide/and_show/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/directives/forward/error/syntax.hrx::hide/empty_variable/input.scss    unknown token
+ERROR    spec/directives/forward/error/syntax.hrx::hide/invalid/input.scss    expect token `$var`, but found `<number>`
+ERROR    spec/directives/forward/error/syntax.hrx::hide/nothing/input.scss    expect token `$var`, but found `;`
+ERROR    spec/directives/forward/error/syntax.hrx::hide/trailing_comma/input.scss    expect token `$var`, but found `;`
+ERROR    spec/directives/forward/error/syntax.hrx::show/and_hide/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/directives/forward/error/syntax.hrx::show/empty_variable/input.scss    unknown token
+ERROR    spec/directives/forward/error/syntax.hrx::show/invalid/input.scss    expect token `$var`, but found `<number>`
+ERROR    spec/directives/forward/error/syntax.hrx::show/nothing/input.scss    expect token `$var`, but found `;`
+ERROR    spec/directives/forward/error/syntax.hrx::show/trailing_comma/input.scss    expect token `$var`, but found `;`
+ERROR    spec/directives/forward/error/syntax.hrx::url/unquoted/input.scss    string is expected
+ERROR    spec/directives/forward/error/syntax.hrx::with/before_as/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/directives/forward/error/syntax.hrx::with/before_hide/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/directives/forward/error/syntax.hrx::with/before_show/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/directives/forward/error/syntax.hrx::with/empty/input.scss    expect token `$var`, but found `)`
+ERROR    spec/directives/forward/error/syntax.hrx::with/extra_comma/input.scss    expect token `$var`, but found `,`
+ERROR    spec/directives/forward/error/syntax.hrx::with/missing_keyword/input.scss    expect token `$var`, but found `<ident>`
+ERROR    spec/directives/forward/error/syntax.hrx::with/missing_value/input.scss    expect token `:`, but found `)`
+ERROR    spec/directives/forward/error/syntax.hrx::with/namespace_variable/input.scss    expect token `$var`, but found `<ident>`
+ERROR    spec/directives/forward/error/syntax.hrx::with/no_arguments/input.scss    expect token `(`, but found `;`
+ERROR    spec/directives/forward/error/syntax.hrx::with/space_after_dollar/input.scss    unknown token
+ERROR    spec/directives/forward/member/newlines.hrx::error/hide/between/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/directives/forward/member/newlines.hrx::error/show/whitespace_between/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/directives/forward/member/newlines.hrx::hide/after/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/forward/member/newlines.hrx::show/after/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::after_colon/sass/input.sass    component value is expected
+ERROR    spec/directives/forward/whitespace.hrx::after_default/sass/input.sass    expect token `,`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::after_keyword/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::after_paren/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::after_variable_comma/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::before_close_paren/sass/input.sass    expect token `,`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::before_colon/sass/input.sass    expect token `:`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::before_default/sass/input.sass    expect token `,`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::before_url/sass/input.sass    string is expected
+ERROR    spec/directives/forward/whitespace.hrx::error/before_keyword/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::hide/after_hide/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::show/after_a/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::show/after_comma/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/forward/whitespace.hrx::show/after_show/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/function/whitespace.hrx::after_name/sass/input.sass    expect token `(`, but found `<indent>`
+ERROR    spec/directives/function/whitespace.hrx::before_name/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/function/whitespace.hrx::nested_at_rule/sass/input.sass    component value is expected
+ERROR    spec/directives/if/error/syntax.hrx::else/partial_if/input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/directives/if/sass.hrx::if_statement_unwrapped_multiline/input.sass    component value is expected
+ERROR    spec/directives/if/sass.hrx::if_statement_wrapped_multiline/input.sass    component value is expected
+ERROR    spec/directives/if/whitespace.hrx::condition/after_and/sass/input.sass    component value is expected
+ERROR    spec/directives/if/whitespace.hrx::else_if/before_condition/sass/input.sass    Sass `@else` at-rule is disallowed here
+ERROR    spec/directives/if/whitespace.hrx::else_if/before_if/sass/input.sass    Sass `@else` at-rule is disallowed here
+ERROR    spec/directives/if/whitespace.hrx::error/top_level_else/sass/input.sass    Sass `@else` at-rule is disallowed here
+ERROR    spec/directives/if/whitespace.hrx::error/top_level_else_if/sass/input.sass    Sass `@else` at-rule is disallowed here
+ERROR    spec/directives/if/whitespace.hrx::if/before_condition/sass/input.sass    component value is expected
+ERROR    spec/directives/import/css.hrx::sass/semicolon/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/directives/import/css.hrx::unquoted/input.sass    expect token `<string>`, but found `<ident>`
+RECOVER  spec/directives/import/error/top_level_declaration.hrx::root/_upstream.scss    declaration at top level is disallowed
+ERROR    spec/directives/import/whitespace.hrx::error/before_comma/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/directives/import/whitespace.hrx::error/before_url/sass/input.sass    expect token `<string>`, but found `<indent>`
+ERROR    spec/directives/import/whitespace.hrx::error/modifier/args/before/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/directives/mixin/sass.hrx::content/semicolon/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/directives/mixin/whitespace.hrx::error/include/before_using/sass/input.sass    CSS rule is expected
+ERROR    spec/directives/mixin/whitespace.hrx::include/after_using/sass/input.sass    expect token `(`, but found `<indent>`
+ERROR    spec/directives/mixin/whitespace.hrx::include/before_name/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/mixin/whitespace.hrx::mixin/before_name/sass/input.sass    expect token `<ident>`, but found `<indent>`
+ERROR    spec/directives/mixin/whitespace.hrx::mixin/equals/before_name/sass/input.sass    CSS rule is expected
+ERROR    spec/directives/return.hrx::before_value/sass/input.sass    component value is expected
+ERROR    spec/directives/return.hrx::sass/semicolon/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/directives/use/css/import.hrx::nested_import_into_use/output.css    component value is expected
+ERROR    spec/directives/use/error/syntax/after.hrx::indented/mixin/input.sass    CSS rule is expected
+ERROR    spec/directives/use/error/syntax/as_invalid.hrx::input.scss    `*` or ident for Sass namespace is expected
+ERROR    spec/directives/use/error/syntax/as_nothing.hrx::input.scss    `*` or ident for Sass namespace is expected
+ERROR    spec/directives/use/error/syntax/empty.hrx::input.scss    string is expected
+ERROR    spec/directives/use/error/syntax/member.hrx::function/definition/input.scss    expect token `(`, but found `.`
+ERROR    spec/directives/use/error/syntax/member.hrx::function/no_member/input.scss    expect token `<ident>`, but found `(`
+ERROR    spec/directives/use/error/syntax/member.hrx::function/no_namespace/input.scss    component value is expected
+ERROR    spec/directives/use/error/syntax/member.hrx::identifier_only/input.scss    expect token `(`, but found `}`
+ERROR    spec/directives/use/error/syntax/member.hrx::mixin/definition/input.scss    expect token `{`, but found `.`
+ERROR    spec/directives/use/error/syntax/member.hrx::mixin/no_member/input.scss    expect token `<ident>`, but found `}`
+ERROR    spec/directives/use/error/syntax/member.hrx::mixin/no_namespace/input.scss    expect token `<ident>`, but found `.`
+RECOVER  spec/directives/use/error/syntax/member.hrx::variable/global/input.scss    Sass flag `!global` is disallowed
+ERROR    spec/directives/use/error/syntax/member.hrx::variable/no_member/input.scss    unknown token
+ERROR    spec/directives/use/error/syntax/member.hrx::variable/no_namespace/input.scss    unknown token
+ERROR    spec/directives/use/error/syntax/url.hrx::unquoted/input.scss    string is expected
+ERROR    spec/directives/use/error/syntax/with.hrx::before_as/input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/directives/use/error/syntax/with.hrx::default/input.scss    expect token `,`, but found `!`
+ERROR    spec/directives/use/error/syntax/with.hrx::empty/input.scss    expect token `$var`, but found `)`
+ERROR    spec/directives/use/error/syntax/with.hrx::extra_comma/input.scss    expect token `$var`, but found `,`
+ERROR    spec/directives/use/error/syntax/with.hrx::missing_keyword/input.scss    expect token `$var`, but found `<ident>`
+ERROR    spec/directives/use/error/syntax/with.hrx::missing_value/input.scss    expect token `:`, but found `)`
+ERROR    spec/directives/use/error/syntax/with.hrx::namespace_variable/input.scss    expect token `$var`, but found `<ident>`
+ERROR    spec/directives/use/error/syntax/with.hrx::no_arguments/input.scss    expect token `(`, but found `;`
+ERROR    spec/directives/use/error/syntax/with.hrx::space_after_dollar/input.scss    unknown token
+ERROR    spec/directives/use/error/syntax/within.hrx::function/input.scss    expect token `(`, but found `{`
+ERROR    spec/directives/use/whitespace.hrx::after_colon/sass/input.sass    component value is expected
+ERROR    spec/directives/use/whitespace.hrx::after_keyword/sass/input.sass    `*` or ident for Sass namespace is expected
+ERROR    spec/directives/use/whitespace.hrx::after_paren/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/use/whitespace.hrx::after_variable_comma/sass/input.sass    expect token `$var`, but found `<indent>`
+ERROR    spec/directives/use/whitespace.hrx::after_with/sass/input.sass    expect token `(`, but found `<indent>`
+ERROR    spec/directives/use/whitespace.hrx::before_close_paren/sass/input.sass    expect token `,`, but found `<indent>`
+ERROR    spec/directives/use/whitespace.hrx::before_colon/sass/input.sass    expect token `:`, but found `<indent>`
+ERROR    spec/directives/use/whitespace.hrx::before_url/sass/input.sass    string is expected
+ERROR    spec/directives/use/whitespace.hrx::before_variable_comma/sass/input.sass    expect token `,`, but found `<indent>`
+ERROR    spec/directives/use/whitespace.hrx::error/before_keyword/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/directives/warn.hrx::sass/multiline/input.sass    component value is expected
+ERROR    spec/directives/warn.hrx::sass/semicolon/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/directives/while.hrx::whitespace/before_var/sass/input.sass    component value is expected
+ERROR    spec/expressions/comments.hrx::silent/sass/indented/identifier/input.sass    CSS rule is expected
+ERROR    spec/expressions/comments.hrx::silent/sass/indented/interpolation/input.sass    CSS rule is expected
+ERROR    spec/expressions/if/css.hrx::alone/argument/input.scss    expect token `<ident>`, but found `@`
+ERROR    spec/expressions/if/css.hrx::alone/argument/output.css    unknown token
+ERROR    spec/expressions/if/css.hrx::and/2/and_paren/output.css    component value is expected
+ERROR    spec/expressions/if/css.hrx::and/2/paren_and/output.css    component value is expected
+ERROR    spec/expressions/if/css.hrx::not/paren/output.css    component value is expected
+ERROR    spec/expressions/if/css.hrx::or/2/or_paren/output.css    component value is expected
+ERROR    spec/expressions/if/css.hrx::or/2/paren_or/output.css    component value is expected
+ERROR    spec/expressions/if/css.hrx::paren/and/output.css    component value is expected
+ERROR    spec/expressions/if/css.hrx::paren/clause/output.css    component value is expected
+ERROR    spec/expressions/if/css.hrx::paren/not/output.css    component value is expected
+ERROR    spec/expressions/if/css.hrx::paren/or/output.css    component value is expected
+ERROR    spec/expressions/if/error/and.hrx::empty/input.scss    component value is expected
+ERROR    spec/expressions/if/error/or.hrx::empty/input.scss    component value is expected
+ERROR    spec/expressions/if/syntax.hrx::newline/and/after/input.sass    component value is expected
+ERROR    spec/expressions/if/syntax.hrx::newline/or/after/input.sass    component value is expected
+ERROR    spec/expressions/if/syntax.hrx::newline/parens/after_open/input.sass    component value is expected
+ERROR    spec/expressions/if/syntax.hrx::newline/parens/after_open/output.css    component value is expected
+ERROR    spec/expressions/if/syntax.hrx::newline/parens/before_close/input.sass    component value is expected
+ERROR    spec/expressions/if/syntax.hrx::newline/parens/before_close/output.css    component value is expected
+ERROR    spec/expressions/if/syntax.hrx::whitespace/parens/after_open/output.css    component value is expected
+ERROR    spec/expressions/if/syntax.hrx::whitespace/parens/before_close/output.css    component value is expected
+ERROR    spec/expressions/syntax.hrx::error/single_dot/input.scss    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1093/argument/function.hrx::input.scss    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1093/argument/mixin.hrx::input.scss    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1093/assignment.hrx::input.scss    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1093/parameter/mixin.hrx::input.scss    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1093/property.hrx::input.scss    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1102.hrx::input.scss    expect token `;`, but found `)`
+ERROR    spec/libsass-closed-issues/issue_1102.hrx::output.css    expect token `;`, but found `)`
+ERROR    spec/libsass-closed-issues/issue_1169/error/simple.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1169/functioncall.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1169/interpolated.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1169/simple.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1178.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1188.hrx::input.scss    unexpected whitespace
+ERROR    spec/libsass-closed-issues/issue_1188.hrx::output.css    unexpected whitespace
+ERROR    spec/libsass-closed-issues/issue_1218.hrx::input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/libsass-closed-issues/issue_1233.hrx::input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/libsass-closed-issues/issue_1233.hrx::output.css    expect token `{`, but found `<ident>`
+ERROR    spec/libsass-closed-issues/issue_1283.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1303.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1304.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1355.hrx::input.scss    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1370.hrx::output.css    invalid URL
+ERROR    spec/libsass-closed-issues/issue_1399.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_143.hrx::output.css    invalid URL
+ERROR    spec/libsass-closed-issues/issue_1434.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1438.hrx::output.css    invalid URL
+ERROR    spec/libsass-closed-issues/issue_1484.hrx::input.scss    expect token `}`, but found `<eof>`
+ERROR    spec/libsass-closed-issues/issue_1488.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1537.hrx::input.scss    expect token `)`, but found `:`
+ERROR    spec/libsass-closed-issues/issue_1583.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1596.hrx::input.scss    expect token `)`, but found `<eof>`
+ERROR    spec/libsass-closed-issues/issue_1596.hrx::output.css    expect token `{`, but found `;`
+ERROR    spec/libsass-closed-issues/issue_1604.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1658.hrx::input.scss    Sass `@else` at-rule is disallowed here
+ERROR    spec/libsass-closed-issues/issue_1720.hrx::input.scss    expect token `}`, but found `<eof>`
+ERROR    spec/libsass-closed-issues/issue_1757/each.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1757/for.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1796.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_1926.hrx::input.sass    CSS rule is expected
+ERROR    spec/libsass-closed-issues/issue_2000.hrx::output.css    component value is expected
+RECOVER  spec/libsass-closed-issues/issue_2023/id-selector-id.hrx::input.scss    invalid ID selector name
+RECOVER  spec/libsass-closed-issues/issue_2023/id-selector-nr.hrx::input.scss    invalid ID selector name
+RECOVER  spec/libsass-closed-issues/issue_2023/pseudo-selector-id.hrx::input.scss    invalid ID selector name
+RECOVER  spec/libsass-closed-issues/issue_2023/pseudo-selector-nr.hrx::input.scss    invalid ID selector name
+ERROR    spec/libsass-closed-issues/issue_2031/extended-not.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_2081.hrx::input.scss    expect token `}`, but found `;`
+ERROR    spec/libsass-closed-issues/issue_2120.hrx::input.scss    expect token `<string>`, but found `<ident>`
+ERROR    spec/libsass-closed-issues/issue_2140.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_2143.hrx::input.scss    component value is expected
+ERROR    spec/libsass-closed-issues/issue_221255.hrx::input.scss    CSS rule is expected
+ERROR    spec/libsass-closed-issues/issue_2291.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_2307.hrx::input.scss    CSS rule is expected
+ERROR    spec/libsass-closed-issues/issue_231.hrx::output.css    invalid URL
+ERROR    spec/libsass-closed-issues/issue_2330.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_2333.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_2365.hrx::input.scss    CSS rule is expected
+ERROR    spec/libsass-closed-issues/issue_2371.hrx::input.scss    expect token `{`, but found `<eof>`
+ERROR    spec/libsass-closed-issues/issue_2509.hrx::input.scss    attribute selector matcher is expected
+ERROR    spec/libsass-closed-issues/issue_344.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_346.hrx::input.scss    expect token `{`, but found `#{`
+ERROR    spec/libsass-closed-issues/issue_548.hrx::output.css    component value is expected
+ERROR    spec/libsass-closed-issues/issue_701.hrx::output.css    component value is expected
+RECOVER  spec/libsass-closed-issues/issue_759.hrx::input.scss    duplicated Sass flag `!default`
+ERROR    spec/libsass-todo-issues/issue_1096.hrx::input.scss    expect token `<string>`, but found `<ident>`
+RECOVER  spec/libsass-todo-issues/issue_1732/invalid/ruleset.hrx::input.scss    declaration at top level is disallowed
+ERROR    spec/libsass-todo-issues/issue_1763.hrx::input.scss    expect token `;`, but found `(`
+ERROR    spec/libsass-todo-issues/issue_2016.hrx::input.scss    expect token `;`, but found `)`
+ERROR    spec/libsass-todo-issues/issue_2023/class-selector-id.hrx::input.scss    CSS rule is expected
+ERROR    spec/libsass-todo-issues/issue_2023/class-selector-nr.hrx::input.scss    CSS rule is expected
+ERROR    spec/libsass-todo-issues/issue_2023/type-selector-id.hrx::input.scss    CSS rule is expected
+ERROR    spec/libsass-todo-issues/issue_2023/type-selector-nr.hrx::input.scss    CSS rule is expected
+ERROR    spec/libsass-todo-issues/issue_221260.hrx::input.scss    component value is expected
+ERROR    spec/libsass-todo-issues/issue_221262.hrx::input.scss    CSS rule is expected
+ERROR    spec/libsass-todo-issues/issue_221262.hrx::output.css    CSS rule is expected
+ERROR    spec/libsass-todo-issues/issue_221264.hrx::input.scss    expect token `)`, but found `<eof>`
+ERROR    spec/libsass-todo-issues/issue_221292.hrx::input.scss    CSS rule is expected
+ERROR    spec/libsass-todo-issues/issue_221292.hrx::output.css    CSS rule is expected
+RECOVER  spec/libsass-todo-issues/issue_2295/error/basic.hrx::include.scss    declaration at top level is disallowed
+ERROR    spec/libsass-todo-issues/issue_238764.hrx::input.scss    simple selector is expected
+ERROR    spec/libsass/bourbon.hrx::lib/addons/_clearfix.scss    expect one of `<ident>` or `#{`, but found `<number>`
+ERROR    spec/libsass/bourbon.hrx::lib/css3/_inline-block.scss    unexpected whitespace
+ERROR    spec/libsass/import.hrx::input.scss    expect token `<string>`, but found `<ident>`
+ERROR    spec/libsass/keyframes.hrx::input.scss    expect token `{`, but found `:`
+ERROR    spec/libsass/keyframes.hrx::output.css    expect token `{`, but found `:`
+ERROR    spec/libsass/selector-functions/simple-selector.hrx::output.css    component value is expected
+ERROR    spec/libsass/selectors/access.hrx::output.css    component value is expected
+ERROR    spec/libsass/selectors/function-argument.hrx::output.css    component value is expected
+ERROR    spec/libsass/selectors/interpolation.hrx::output.css    component value is expected
+ERROR    spec/libsass/selectors/mixin-argument.hrx::output.css    component value is expected
+ERROR    spec/libsass/selectors/variables/multiple/bare.hrx::output.css    component value is expected
+ERROR    spec/libsass/selectors/variables/multiple/interpolated.hrx::output.css    component value is expected
+ERROR    spec/libsass/selectors/variables/nested/bare.hrx::output.css    component value is expected
+ERROR    spec/libsass/selectors/variables/nested/interpolated.hrx::output.css    component value is expected
+ERROR    spec/libsass/selectors/variables/single/bare.hrx::output.css    component value is expected
+ERROR    spec/libsass/selectors/variables/single/interpolated.hrx::output.css    component value is expected
+ERROR    spec/libsass/unary-ops.hrx::output.css    component value is expected
+ERROR    spec/non_conformant/basic/36_extra_commas_in_selectors.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/basic/37_url_expressions.hrx::output.css    invalid URL
+ERROR    spec/non_conformant/basic/50_wrapped_pseudo_selectors.hrx::input.scss    expect token `)`, but found `<ident>`
+ERROR    spec/non_conformant/basic/50_wrapped_pseudo_selectors.hrx::output.css    expect token `)`, but found `<ident>`
+ERROR    spec/non_conformant/errors/fn-varargs/at-start.hrx::input.scss    expect token `)`, but found `$var`
+ERROR    spec/non_conformant/errors/fn-varargs/multiple.hrx::input.scss    expect token `)`, but found `$var`
+ERROR    spec/non_conformant/errors/fn-varargs/with-default.hrx::input.scss    expect token `)`, but found `:`
+ERROR    spec/non_conformant/errors/import/file/simple.hrx::input.scss    expect token `<string>`, but found `<ident>`
+ERROR    spec/non_conformant/errors/import/miss/simple.hrx::input.scss    expect token `<string>`, but found `<ident>`
+ERROR    spec/non_conformant/errors/import/url/simple.hrx::input.scss    expect token `<string>`, but found `<ident>`
+ERROR    spec/non_conformant/errors/interpolation/error-1.hrx::input.scss    CSS rule is expected
+RECOVER  spec/non_conformant/errors/invalid-parent/return-in-mixin.hrx::input.scss    `@return` is disallowed outside function
+RECOVER  spec/non_conformant/errors/invalid-parent/return-in-root.hrx::input.scss    `@return` is disallowed outside function
+RECOVER  spec/non_conformant/errors/invalid-parent/return-in-ruleset.hrx::input.scss    `@return` is disallowed outside function
+ERROR    spec/non_conformant/errors/unicode/report/after.hrx::input.scss    expect token `:`, but found `<eof>`
+ERROR    spec/non_conformant/errors/unicode/report/before.hrx::input.scss    expect token `}`, but found `<eof>`
+ERROR    spec/non_conformant/extend-tests/069_test_attribute_unification.hrx::input.scss    expect token `{`, but found `%`
+ERROR    spec/non_conformant/extend-tests/129_test_nested_extender_with_hacky_selector.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/extend-tests/130_test_nested_extender_with_hacky_selector.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/extend-tests/133_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/extend-tests/134_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/extend-tests/135_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/extend-tests/136_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/extend-tests/137_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/extend-tests/138_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/extend-tests/139_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/extend-tests/189_test_placeholder_descendant_selector.hrx::input.scss    expect token `{`, but found `%`
+ERROR    spec/non_conformant/extend-tests/190_test_semi_placeholder_selector.hrx::input.scss    expect token `{`, but found `%`
+ERROR    spec/non_conformant/extend-tests/217_test_parent_and_sibling_extend.hrx::input.scss    expect token `{`, but found `%`
+ERROR    spec/non_conformant/extend-tests/219_test_nested_double_extend_optimization.hrx::input.scss    expect token `{`, but found `%`
+ERROR    spec/non_conformant/extend-tests/233_test_extend_cross_branch_redundancy_elimination.hrx::input.scss    expect token `{`, but found `%`
+ERROR    spec/non_conformant/extend-tests/234_test_extend_cross_branch_redundancy_elimination.hrx::input.scss    expect token `{`, but found `%`
+ERROR    spec/non_conformant/extend-tests/selector_list.hrx::input.scss    expect token `;`, but found `#{`
+ERROR    spec/non_conformant/misc/trailing_comma_in_selector.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/mixin/content/arguments/error/syntax.hrx::arglist/invalid/input.scss    component value is expected
+ERROR    spec/non_conformant/mixin/content/arguments/error/syntax.hrx::arglist/missing/input.scss    expect token `(`, but found `{`
+ERROR    spec/non_conformant/mixin/content/arguments/error/syntax.hrx::arglist/missing_parens/input.scss    expect token `(`, but found `$var`
+ERROR    spec/non_conformant/mixin/content/arguments/error/syntax.hrx::missing_using/input.scss    expect token `;`, but found `(`
+ERROR    spec/non_conformant/mixin/content/arguments/receiving.hrx::output.css    component value is expected
+ERROR    spec/non_conformant/operations/division.hrx::slash/with_string/slash_minus_string/output.css    component value is expected
+ERROR    spec/non_conformant/operations/division.hrx::slash/with_string/slash_plus_string/output.css    component value is expected
+ERROR    spec/non_conformant/parser/and_and.hrx::output.css    component value is expected
+ERROR    spec/non_conformant/parser/arglists/can-end-with-comma/error-call-3.hrx::input.scss    expect token `)`, but found `<eof>`
+ERROR    spec/non_conformant/parser/arglists/can-end-with-comma/error-function-1.hrx::input.scss    expect token `$var`, but found `,`
+ERROR    spec/non_conformant/parser/arglists/can-end-with-comma/error-function-2.hrx::input.scss    expect token `$var`, but found `,`
+ERROR    spec/non_conformant/parser/arglists/can-end-with-comma/error-function-3.hrx::input.scss    expect token `$var`, but found `{`
+RECOVER  spec/non_conformant/parser/arglists/can-end-with-comma/error-include-1.hrx::input.scss    component value is expected
+RECOVER  spec/non_conformant/parser/arglists/can-end-with-comma/error-include-2.hrx::input.scss    component value is expected
+ERROR    spec/non_conformant/parser/arglists/can-end-with-comma/error-include-3.hrx::input.scss    component value is expected
+ERROR    spec/non_conformant/parser/arglists/can-end-with-comma/error-mixin-1.hrx::input.scss    expect token `$var`, but found `,`
+ERROR    spec/non_conformant/parser/arglists/can-end-with-comma/error-mixin-2.hrx::input.scss    expect token `$var`, but found `,`
+ERROR    spec/non_conformant/parser/arglists/can-end-with-comma/error-mixin-3.hrx::input.scss    expect token `$var`, but found `{`
+ERROR    spec/non_conformant/parser/interpolate/15_escapes_double_quoted_numbers/01_inline.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/15_escapes_double_quoted_numbers/02_variable.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/15_escapes_double_quoted_numbers/03_inline_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/15_escapes_double_quoted_numbers/04_variable_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/16_escapes_single_quoted_numbers/01_inline.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/16_escapes_single_quoted_numbers/02_variable.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/16_escapes_single_quoted_numbers/03_inline_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/16_escapes_single_quoted_numbers/04_variable_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/18_escapes_double_quoted_lowercase/01_inline.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/18_escapes_double_quoted_lowercase/02_variable.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/18_escapes_double_quoted_lowercase/03_inline_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/18_escapes_double_quoted_lowercase/04_variable_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/19_escapes_single_quoted_lowercase/01_inline.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/19_escapes_single_quoted_lowercase/02_variable.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/19_escapes_single_quoted_lowercase/03_inline_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/19_escapes_single_quoted_lowercase/04_variable_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/21_escapes_double_quoted_uppercase/01_inline.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/21_escapes_double_quoted_uppercase/02_variable.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/21_escapes_double_quoted_uppercase/03_inline_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/21_escapes_double_quoted_uppercase/04_variable_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/22_escapes_single_quoted_uppercase/01_inline.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/22_escapes_single_quoted_uppercase/02_variable.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/22_escapes_single_quoted_uppercase/03_inline_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/22_escapes_single_quoted_uppercase/04_variable_double.hrx::output.css    unknown token
+ERROR    spec/non_conformant/parser/interpolate/27_escaped_double_quotes/01_inline.hrx::output.css    unterminated string
+ERROR    spec/non_conformant/parser/interpolate/27_escaped_double_quotes/02_variable.hrx::output.css    unterminated string
+ERROR    spec/non_conformant/parser/interpolate/27_escaped_double_quotes/03_inline_double.hrx::output.css    unterminated string
+ERROR    spec/non_conformant/parser/interpolate/27_escaped_double_quotes/04_variable_double.hrx::output.css    unterminated string
+ERROR    spec/non_conformant/parser/interpolate/28_escaped_single_quotes/01_inline.hrx::output.css    unterminated string
+ERROR    spec/non_conformant/parser/interpolate/28_escaped_single_quotes/02_variable.hrx::output.css    unterminated string
+ERROR    spec/non_conformant/parser/interpolate/28_escaped_single_quotes/03_inline_double.hrx::output.css    unterminated string
+ERROR    spec/non_conformant/parser/interpolate/28_escaped_single_quotes/04_variable_double.hrx::output.css    unterminated string
+ERROR    spec/non_conformant/parser/malformed_expressions/at-debug/incomplete-expression.hrx::input.scss    expect token `)`, but found `;`
+ERROR    spec/non_conformant/parser/malformed_expressions/at-debug/no-argument.hrx::input.scss    component value is expected
+ERROR    spec/non_conformant/parser/malformed_expressions/at-error/incomplete-expression.hrx::input.scss    expect token `)`, but found `;`
+ERROR    spec/non_conformant/parser/malformed_expressions/at-error/no-argument.hrx::input.scss    component value is expected
+ERROR    spec/non_conformant/parser/malformed_expressions/at-warn/incomplete-expression.hrx::input.scss    expect token `)`, but found `;`
+ERROR    spec/non_conformant/parser/malformed_expressions/at-warn/no-argument.hrx::input.scss    component value is expected
+ERROR    spec/non_conformant/parser/operations/subtract/numbers/pairs.hrx::output.css    component value is expected
+ERROR    spec/non_conformant/parser/operations/subtract/strings/pairs.hrx::output.css    component value is expected
+ERROR    spec/non_conformant/sass/import/unquoted.hrx::input.sass    expect token `<string>`, but found `<ident>`
+RECOVER  spec/non_conformant/sass/indentation.hrx::error/inconsistent/input.sass    declaration at top level is disallowed
+ERROR    spec/non_conformant/sass/indentation.hrx::unusual_newlines/cr/input.sass    unexpected whitespace
+ERROR    spec/non_conformant/sass/indentation.hrx::unusual_newlines/ff/input.sass    unexpected whitespace
+ERROR    spec/non_conformant/sass/mixins.hrx::input.sass    CSS rule is expected
+ERROR    spec/non_conformant/sass/pseudo.hrx::input.sass    CSS rule is expected
+ERROR    spec/non_conformant/sass/selectors.hrx::input.sass    CSS rule is expected
+ERROR    spec/non_conformant/sass_4_0/interpolation/function_name.hrx::output.css    component value is expected
+ERROR    spec/non_conformant/scss-tests/044_test_trailing_comma_in_selector.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/scss/cons-up.hrx::output.css    component value is expected
+ERROR    spec/non_conformant/scss/css_selector_hacks.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/scss/css_unary_ops.hrx::output.css    component value is expected
+ERROR    spec/non_conformant/scss/important-in-arglist.hrx::input.scss    expect token `;`, but found `<ident>`
+ERROR    spec/non_conformant/scss/important-in-arglist.hrx::output.css    expect token `;`, but found `<ident>`
+ERROR    spec/non_conformant/scss/media/interpolated.hrx::input.scss    expect token `{`, but found `<ident>`
+ERROR    spec/non_conformant/scss/null.hrx::output.css    component value is expected
+ERROR    spec/non_conformant/scss/weird-selectors.hrx::input.scss    simple selector is expected
+ERROR    spec/non_conformant/scss/while_without_condition.hrx::input.scss    component value is expected
+ERROR    spec/operators/modulo.hrx::error/syntax/whitespace/newline/after_percent/input.sass    CSS rule is expected
+ERROR    spec/operators/newlines.hrx::binary/after/input.sass    component value is expected
+ERROR    spec/operators/newlines.hrx::error/binary/before_indent/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/operators/newlines.hrx::error/unary/before/input.sass    component value is expected
+ERROR    spec/operators/newlines.hrx::error/unary/before_indent/input.sass    component value is expected
+ERROR    spec/operators/newlines.hrx::unary/after/input.sass    component value is expected
+ERROR    spec/parser/indentation.hrx::error/mixed_syntax/block/input.sass    CSS rule is expected
+ERROR    spec/parser/indentation.hrx::error/semicolon_multiple_same_line/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/parser/indentation.hrx::multiline_indent_level/more/input.sass    WqName is expected
+ERROR    spec/parser/indentation.hrx::multiline_indent_level/none/input.sass    WqName is expected
+ERROR    spec/parser/indentation.hrx::multiline_indent_level/same/input.sass    WqName is expected
+ERROR    spec/parser/interpolation.hrx::error/partial_bracket/sass/input.sass    attribute selector matcher is expected
+ERROR    spec/parser/interpolation.hrx::error/partial_bracket/scss/input.scss    attribute selector matcher is expected
+ERROR    spec/parser/interpolation.hrx::error/selector/unmatched_close_bracket/input.sass    CSS rule is expected
+ERROR    spec/parser/interpolation.hrx::error/selector/unmatched_close_paren/input.sass    CSS rule is expected
+ERROR    spec/parser/interpolation.hrx::whitespace/after_open/input.sass    dedentation or end of file is expected
+ERROR    spec/parser/interpolation.hrx::whitespace/after_val/input.sass    expect token `}`, but found `<indent>`
+ERROR    spec/parser/interpolation.hrx::whitespace/between_vals/input.sass    expect token `}`, but found `<indent>`
+ERROR    spec/parser/selector.hrx::error/empty_placeholder/input.scss    expect one of `<ident>` or `#{`, but found `{`
+ERROR    spec/parser/selector.hrx::error/newline/before_comma/input.sass    CSS rule is expected
+RECOVER  spec/parser/selector.hrx::newline/after_comma_indented/input.sass    declaration at top level is disallowed
+ERROR    spec/values/calculation/abs.hrx::error/sass_script_and_variable/input.scss    component value is expected
+ERROR    spec/values/calculation/abs.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/abs.hrx::sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/acos.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/acos.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/asin.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/asin.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/atan.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/atan2.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/atan2.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/calc-size.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/calc/error/syntax.hrx::dollar/input.scss    unknown token
+ERROR    spec/values/calculation/calc/error/syntax.hrx::double_operator/input.scss    component value is expected
+ERROR    spec/values/calculation/calc/error/syntax.hrx::hash/input.scss    component value is expected
+ERROR    spec/values/calculation/calc/error/syntax.hrx::interpolation/line_noise/input.scss    component value is expected
+ERROR    spec/values/calculation/calc/error/syntax.hrx::leading_operator/input.scss    component value is expected
+ERROR    spec/values/calculation/calc/error/syntax.hrx::trailing_operator/input.scss    component value is expected
+ERROR    spec/values/calculation/calc/error/syntax.hrx::unknown_operator/input.scss    component value is expected
+ERROR    spec/values/calculation/calc/no_operator.hrx::function/max/input.scss    component value is expected
+ERROR    spec/values/calculation/calc/no_operator.hrx::function/min/input.scss    component value is expected
+ERROR    spec/values/calculation/calc/operator.hrx::precedence/interpolation/calculation/asterisk/output.css    component value is expected
+ERROR    spec/values/calculation/calc/operator.hrx::precedence/interpolation/calculation/slash/output.css    component value is expected
+ERROR    spec/values/calculation/clamp.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/clamp.hrx::error/syntax/rest/input.scss    component value is expected
+ERROR    spec/values/calculation/cos.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/cos.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/exp.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/exp.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/hypot.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/hypot.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/log.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/log.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/max.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/min.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/mod.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/mod.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/pow.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/pow.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/rem.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/rem.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/round/error.hrx::one_argument/sass_script/variable_named_argument/input.scss    component value is expected
+ERROR    spec/values/calculation/round/error.hrx::one_argument/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/round/error.hrx::two_argument/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/round/one_argument.hrx::calc_unsafe_in_binary_operator/input.scss    component value is expected
+ERROR    spec/values/calculation/round/one_argument.hrx::sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/sign.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/sign.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/sin.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/sin.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/sqrt.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/sqrt.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/tan.hrx::error/sass_script/input.scss    component value is expected
+ERROR    spec/values/calculation/tan.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/lists/brackets.hrx::whitespace/empty/sass/input.sass    component value is expected
+ERROR    spec/values/lists/brackets.hrx::whitespace/multiple/after_lbracket/sass/input.sass    CSS rule is expected
+ERROR    spec/values/lists/brackets.hrx::whitespace/multiple/after_val/sass/input.sass    CSS rule is expected
+ERROR    spec/values/lists/brackets.hrx::whitespace/multiple/before_rbracket/sass/input.sass    CSS rule is expected
+ERROR    spec/values/lists/brackets.hrx::whitespace/single/after_lbracket/sass/input.sass    CSS rule is expected
+ERROR    spec/values/lists/brackets.hrx::whitespace/single/after_val/sass/input.sass    CSS rule is expected
+ERROR    spec/values/lists/sass.hrx::error/no_parens/trailing_comma/input.sass    expect token `:`, but found `,`
+ERROR    spec/values/lists/sass.hrx::paren/no_indent/input.sass    component value is expected
+ERROR    spec/values/lists/sass.hrx::paren/value_aligned/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/values/maps/invalid-key.hrx::input.scss    expect token `;`, but found `...`
+ERROR    spec/values/maps/sass.hrx::whitespace/after_first_colon/input.sass    expect token `)`, but found `:`
+ERROR    spec/values/maps/sass.hrx::whitespace/after_first_key/input.sass    expect token `)`, but found `<indent>`
+ERROR    spec/values/maps/sass.hrx::whitespace/after_second_colon/input.sass    expect token `)`, but found `:`
+ERROR    spec/values/maps/sass.hrx::whitespace/after_second_key/input.sass    expect token `)`, but found `:`
+ERROR    spec/values/maps/sass.hrx::whitespace/between_values/input.sass    expect token `)`, but found `:`
+ERROR    spec/values/numbers/error.hrx::trailing_dot/minus/input.scss    component value is expected
+ERROR    spec/values/numbers/error.hrx::trailing_dot/plus/input.scss    component value is expected
+ERROR    spec/values/strings.hrx::new-line/sass/raw/input.sass    unterminated string
+ERROR    spec/values/strings.hrx::new-line/scss/cr/input.scss    unterminated string
+ERROR    spec/values/strings.hrx::new-line/scss/ff/input.scss    expect token `}`, but found `<eof>`
+ERROR    spec/values/strings.hrx::new-line/scss/raw/input.scss    unterminated string
+RECOVER  spec/variables/double_flag.hrx::default/input.scss    duplicated Sass flag `!default`
+RECOVER  spec/variables/double_flag.hrx::global/input.scss    duplicated Sass flag `!global`
+ERROR    spec/variables/semicolon.hrx::sass/input.sass    expect token `<linebreak>`, but found `;`
+ERROR    spec/variables/whitespace.hrx::after_colon/sass/input.sass    component value is expected
+ERROR    spec/variables/whitespace.hrx::before_colon/sass/input.sass    expect token `:`, but found `<indent>`
+RECOVER  spec/variables/whitespace.hrx::between_double_default/scss/input.scss    duplicated Sass flag `!default`
+ERROR    spec/variables/whitespace.hrx::error/before_default/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/variables/whitespace.hrx::error/before_global/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
+ERROR    spec/variables/whitespace.hrx::error/between_double_default/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
