@@ -1,0 +1,26 @@
+# oxc-css-parser tasks. Run `just` (or `just --list`) to see all recipes.
+
+# List available recipes
+_default:
+    @just --list
+
+# Run the test suite (mirrors CI)
+test:
+    cargo test --all-features
+
+# Format the codebase
+fmt:
+    cargo fmt
+
+# Clone the conformance suites (pinned SHAs) and parse them with oxc-css-parser.
+# Optionally restrict to named suites, e.g. `just conformance sass-spec less.js`.
+conformance *suites:
+    cargo run -p conformance --release -- {{ suites }}
+
+# Clone/update the conformance suites without parsing them.
+conformance-clone *suites:
+    cargo run -p conformance --release -- --clone {{ suites }}
+
+# Remove all cloned conformance repos.
+conformance-clean:
+    cargo run -p conformance --release -- --clean
