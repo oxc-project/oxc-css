@@ -116,6 +116,8 @@ pub struct AttributeSelectorModifier<'a> {
 pub enum AttributeSelectorValue<'a> {
     Ident(InterpolableIdent<'a>),
     Str(InterpolableStr<'a>),
+    Number(Number<'a>),
+    Dimension(Dimension<'a>),
     Percentage(Percentage<'a>),
     LessEscapedStr(LessEscapedStr<'a>),
 }

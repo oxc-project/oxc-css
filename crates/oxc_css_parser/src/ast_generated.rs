@@ -103,7 +103,7 @@ impl_spanned_struct!(AttributeSelector<'a>);
 impl_spanned_struct!(AttributeSelectorMatcher);
 impl_spanned_struct!(AttributeSelectorModifier<'a>);
 impl_spanned_enum!(AttributeSelectorValue<'a> {
-    tuple: [Ident, Str, Percentage, LessEscapedStr, ],
+    tuple: [Ident, Str, Number, Dimension, Percentage, LessEscapedStr, ],
     unit: [],
 });
 impl_spanned_struct!(BracketBlock<'a>);
@@ -574,7 +574,7 @@ impl_span_ignored_eq_enum!(AttributeSelectorMatcherKind {
 impl_span_ignored_eq_struct!(AttributeSelectorModifier<'a> { ident, });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_enum!(AttributeSelectorValue<'a> {
-    tuple: [Ident, Str, Percentage, LessEscapedStr, ],
+    tuple: [Ident, Str, Number, Dimension, Percentage, LessEscapedStr, ],
     unit: [],
 });
 #[cfg(feature = "span_ignored_eq")]
@@ -1368,6 +1368,8 @@ impl_enum_as_is!(AttributeSelectorValue<'a> {
     tuple: [
         Ident(InterpolableIdent<'a>) => is_ident, as_ident,
         Str(InterpolableStr<'a>) => is_str, as_str,
+        Number(Number<'a>) => is_number, as_number,
+        Dimension(Dimension<'a>) => is_dimension, as_dimension,
         Percentage(Percentage<'a>) => is_percentage, as_percentage,
         LessEscapedStr(LessEscapedStr<'a>) => is_less_escaped_str, as_less_escaped_str,
     ],

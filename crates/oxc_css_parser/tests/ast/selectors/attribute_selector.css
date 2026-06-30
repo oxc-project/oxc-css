@@ -52,3 +52,11 @@ a[href='te"s"t'] {}
 [* |b] {}
 [*| b] {}
 [* | b] {}
+
+[size=1] {}
+[size=10] {}
+[tabindex=-1] {}
+[size=1px] {}
+[size=2.5] {}
+[size=1 i] {}
+select[size=1] {}

@@ -428,6 +428,15 @@ impl<'a> Parse<'a> for AttributeSelector<'a> {
                 TokenWithSpan { token: Token::Str(..) | Token::StrTemplate(..), .. } => {
                     Some(AttributeSelectorValue::Str(input.parse()?))
                 }
+                // Unquoted numeric values such as `[size=1]` or `[size=1px]` are
+                // technically non-conforming (Selectors wants an ident or string), but
+                // browsers accept them and they appear in real CSS (incl. UA stylesheets).
+                TokenWithSpan { token: Token::Number(..), .. } => {
+                    Some(AttributeSelectorValue::Number(input.parse()?))
+                }
+                TokenWithSpan { token: Token::Dimension(..), .. } => {
+                    Some(AttributeSelectorValue::Dimension(input.parse()?))
+                }
                 TokenWithSpan { token: Token::Percentage(..), .. }
                     if input.syntax == Syntax::Less =>
                 {
