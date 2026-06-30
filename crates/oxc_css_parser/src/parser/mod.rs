@@ -85,12 +85,12 @@ impl<'a> Parser<'a> {
 
     #[inline]
     pub(crate) fn vec<T>(&self) -> ArenaVec<'a, T> {
-        ArenaVec::new_in(self.allocator)
+        ArenaVec::new_in(&self.allocator)
     }
 
     #[inline]
     pub(crate) fn vec_with_capacity<T>(&self, capacity: usize) -> ArenaVec<'a, T> {
-        ArenaVec::with_capacity_in(capacity, self.allocator)
+        ArenaVec::with_capacity_in(capacity, &self.allocator)
     }
 
     #[inline]

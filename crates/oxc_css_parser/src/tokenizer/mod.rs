@@ -45,7 +45,7 @@ impl<'a> Tokenizer<'a> {
             source,
             syntax,
             template_placeholder,
-            comments: collect_comments.then(|| ArenaVec::new_in(allocator)),
+            comments: collect_comments.then(|| ArenaVec::new_in(&allocator)),
             state: TokenizerState {
                 chars,
                 current_indent: 0,

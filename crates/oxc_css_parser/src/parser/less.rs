@@ -1653,7 +1653,7 @@ fn wrap_less_mixin_params_into_less_list<'a>(
 ) -> Result<(), ErrorKind> {
     if let [first, .., last] = &params[index..] {
         let span = Span { start: first.span().start, end: last.span().end };
-        let mut elements = oxc_allocator::Vec::with_capacity_in(params.len() - index, allocator);
+        let mut elements = oxc_allocator::Vec::with_capacity_in(params.len() - index, &allocator);
         for param in params.drain(index..) {
             if let LessMixinParameter::Unnamed(LessMixinUnnamedParameter { value, .. }) = param {
                 elements.push(value);
@@ -1685,7 +1685,7 @@ fn wrap_less_mixin_args_into_less_list<'a>(
 ) -> Result<(), ErrorKind> {
     if let [first, .., last] = &args[index..] {
         let span = Span { start: first.span().start, end: last.span().end };
-        let mut elements = oxc_allocator::Vec::with_capacity_in(args.len() - index, allocator);
+        let mut elements = oxc_allocator::Vec::with_capacity_in(args.len() - index, &allocator);
         for arg in args.drain(index..) {
             if let LessMixinArgument::Value(value) = arg {
                 elements.push(value);
