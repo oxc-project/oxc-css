@@ -1,3 +1,4 @@
 target/
 bench_data/
 wasm/pkg
+tasks/conformance/repos/
