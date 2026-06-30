@@ -174,6 +174,11 @@ impl<'a> Parser<'a> {
             Token::DollarVar(..) if matches!(self.syntax, Syntax::Scss | Syntax::Sass) => {
                 self.parse().map(ComponentValue::SassVariable)
             }
+            Token::DollarVar(..)
+                if self.syntax == Syntax::Css && self.options.allow_postcss_simple_vars =>
+            {
+                self.parse().map(ComponentValue::PostcssSimpleVar)
+            }
             Token::LParen(..) if matches!(self.syntax, Syntax::Scss | Syntax::Sass) => {
                 match self.try_parse(SassParenthesizedExpression::parse) {
                     Ok(expr) => Ok(ComponentValue::SassParenthesizedExpression(expr)),

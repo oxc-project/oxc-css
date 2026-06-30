@@ -218,7 +218,9 @@ impl<'a> Parse<'a> for Stylesheet<'a> {
 }
 
 impl<'a> Parser<'a> {
-    fn parse_declaration_value(&mut self) -> PResult<oxc_allocator::Vec<'a, ComponentValue<'a>>> {
+    pub(super) fn parse_declaration_value(
+        &mut self,
+    ) -> PResult<oxc_allocator::Vec<'a, ComponentValue<'a>>> {
         let mut values = self.vec_with_capacity(3);
         loop {
             match &peek!(self).token {
@@ -487,6 +489,14 @@ impl<'a> Parser<'a> {
                 Token::DollarVar(..) if matches!(self.syntax, Syntax::Scss | Syntax::Sass) => {
                     statements
                         .push(Statement::SassVariableDeclaration(arena_box!(self, self.parse()?)));
+                }
+                Token::DollarVar(..)
+                    if self.syntax == Syntax::Css && self.options.allow_postcss_simple_vars =>
+                {
+                    statements.push(Statement::PostcssSimpleVarDeclaration(arena_box!(
+                        self,
+                        self.parse()?
+                    )));
                 }
                 Token::GreaterThan(..) | Token::Plus(..) | Token::Tilde(..) | Token::BarBar(..) => {
                     if self.syntax == Syntax::Less {

@@ -125,7 +125,7 @@ impl_spanned_enum!(ComplexSelectorChild<'a> {
     unit: [],
 });
 impl_spanned_enum!(ComponentValue<'a> {
-    tuple: [BracketBlock, Calc, Delimiter, Dimension, Function, HexColor, IdSelector, ImportantAnnotation, InterpolableIdent, InterpolableStr, LayerName, LessBinaryOperation, LessCondition, LessDetachedRuleset, LessEscapedStr, LessJavaScriptSnippet, LessList, LessMixinCall, LessNamespaceValue, LessNegativeValue, LessParenthesizedOperation, LessPercentKeyword, LessPropertyVariable, LessVariable, LessVariableVariable, Number, Percentage, Placeholder, Ratio, SassArbitraryArgument, SassBinaryExpression, SassKeywordArgument, SassList, SassMap, SassQualifiedName, SassNestingDeclaration, SassParenthesizedExpression, SassParentSelector, SassUnaryExpression, SassVariable, TokenWithSpan, UnicodeRange, Url, ],
+    tuple: [BracketBlock, Calc, Delimiter, Dimension, Function, HexColor, IdSelector, ImportantAnnotation, InterpolableIdent, InterpolableStr, LayerName, LessBinaryOperation, LessCondition, LessDetachedRuleset, LessEscapedStr, LessJavaScriptSnippet, LessList, LessMixinCall, LessNamespaceValue, LessNegativeValue, LessParenthesizedOperation, LessPercentKeyword, LessPropertyVariable, LessVariable, LessVariableVariable, Number, Percentage, Placeholder, PostcssSimpleVar, Ratio, SassArbitraryArgument, SassBinaryExpression, SassKeywordArgument, SassList, SassMap, SassQualifiedName, SassNestingDeclaration, SassParenthesizedExpression, SassParentSelector, SassUnaryExpression, SassVariable, TokenWithSpan, UnicodeRange, Url, ],
     unit: [],
 });
 impl_spanned_struct!(ComponentValues<'a>);
@@ -321,7 +321,7 @@ impl_spanned_enum!(MediaFeature<'a> {
 });
 impl_spanned_struct!(MediaFeatureComparison);
 impl_spanned_enum!(MediaFeatureName<'a> {
-    tuple: [Ident, SassVariable, ],
+    tuple: [Ident, PostcssSimpleVar, SassVariable, ],
     unit: [],
 });
 impl_spanned_struct!(MediaFeatureBoolean<'a>);
@@ -363,6 +363,8 @@ impl_spanned_struct!(Number<'a>);
 impl_spanned_struct!(PageSelector<'a>);
 impl_spanned_struct!(PageSelectorList<'a>);
 impl_spanned_struct!(Percentage<'a>);
+impl_spanned_struct!(PostcssSimpleVar<'a>);
+impl_spanned_struct!(PostcssSimpleVarDeclaration<'a>);
 impl_spanned_struct!(PseudoClassSelector<'a>);
 impl_spanned_struct!(PseudoClassSelectorArg<'a>);
 impl_spanned_enum!(PseudoClassSelectorArgKind<'a> {
@@ -487,7 +489,7 @@ impl_spanned_enum!(SimpleSelector<'a> {
     unit: [],
 });
 impl_spanned_enum!(Statement<'a> {
-    tuple: [AtRule, Declaration, KeyframeBlock, LessConditionalQualifiedRule, LessExtendRule, LessFunctionCall, LessMixinCall, LessMixinDefinition, LessVariableCall, LessVariableDeclaration, Placeholder, QualifiedRule, SassIfAtRule, SassVariableDeclaration, UnknownSassAtRule, ],
+    tuple: [AtRule, Declaration, KeyframeBlock, LessConditionalQualifiedRule, LessExtendRule, LessFunctionCall, LessMixinCall, LessMixinDefinition, LessVariableCall, LessVariableDeclaration, Placeholder, PostcssSimpleVarDeclaration, QualifiedRule, SassIfAtRule, SassVariableDeclaration, UnknownSassAtRule, ],
     unit: [],
 });
 impl_spanned_struct!(Str<'a>);
@@ -609,7 +611,7 @@ impl_span_ignored_eq_enum!(ComplexSelectorChild<'a> {
 });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_enum!(ComponentValue<'a> {
-    tuple: [BracketBlock, Calc, Delimiter, Dimension, Function, HexColor, IdSelector, ImportantAnnotation, InterpolableIdent, InterpolableStr, LayerName, LessBinaryOperation, LessCondition, LessDetachedRuleset, LessEscapedStr, LessJavaScriptSnippet, LessList, LessMixinCall, LessNamespaceValue, LessNegativeValue, LessParenthesizedOperation, LessPercentKeyword, LessPropertyVariable, LessVariable, LessVariableVariable, Number, Percentage, Placeholder, Ratio, SassArbitraryArgument, SassBinaryExpression, SassKeywordArgument, SassList, SassMap, SassQualifiedName, SassNestingDeclaration, SassParenthesizedExpression, SassParentSelector, SassUnaryExpression, SassVariable, TokenWithSpan, UnicodeRange, Url, ],
+    tuple: [BracketBlock, Calc, Delimiter, Dimension, Function, HexColor, IdSelector, ImportantAnnotation, InterpolableIdent, InterpolableStr, LayerName, LessBinaryOperation, LessCondition, LessDetachedRuleset, LessEscapedStr, LessJavaScriptSnippet, LessList, LessMixinCall, LessNamespaceValue, LessNegativeValue, LessParenthesizedOperation, LessPercentKeyword, LessPropertyVariable, LessVariable, LessVariableVariable, Number, Percentage, Placeholder, PostcssSimpleVar, Ratio, SassArbitraryArgument, SassBinaryExpression, SassKeywordArgument, SassList, SassMap, SassQualifiedName, SassNestingDeclaration, SassParenthesizedExpression, SassParentSelector, SassUnaryExpression, SassVariable, TokenWithSpan, UnicodeRange, Url, ],
     unit: [],
 });
 #[cfg(feature = "span_ignored_eq")]
@@ -937,7 +939,7 @@ impl_span_ignored_eq_enum!(MediaFeatureComparisonKind {
 });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_enum!(MediaFeatureName<'a> {
-    tuple: [Ident, SassVariable, ],
+    tuple: [Ident, PostcssSimpleVar, SassVariable, ],
     unit: [],
 });
 #[cfg(feature = "span_ignored_eq")]
@@ -1003,6 +1005,10 @@ impl_span_ignored_eq_struct!(PageSelector<'a> { name, pseudo, });
 impl_span_ignored_eq_struct!(PageSelectorList<'a> { selectors, comma_spans, });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_struct!(Percentage<'a> { value, });
+#[cfg(feature = "span_ignored_eq")]
+impl_span_ignored_eq_struct!(PostcssSimpleVar<'a> { name, });
+#[cfg(feature = "span_ignored_eq")]
+impl_span_ignored_eq_struct!(PostcssSimpleVarDeclaration<'a> { name, colon_span, value, });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_struct!(PseudoClassSelector<'a> { name, arg, });
 #[cfg(feature = "span_ignored_eq")]
@@ -1221,7 +1227,7 @@ impl_span_ignored_eq_enum!(SimpleSelector<'a> {
 });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_enum!(Statement<'a> {
-    tuple: [AtRule, Declaration, KeyframeBlock, LessConditionalQualifiedRule, LessExtendRule, LessFunctionCall, LessMixinCall, LessMixinDefinition, LessVariableCall, LessVariableDeclaration, Placeholder, QualifiedRule, SassIfAtRule, SassVariableDeclaration, UnknownSassAtRule, ],
+    tuple: [AtRule, Declaration, KeyframeBlock, LessConditionalQualifiedRule, LessExtendRule, LessFunctionCall, LessMixinCall, LessMixinDefinition, LessVariableCall, LessVariableDeclaration, Placeholder, PostcssSimpleVarDeclaration, QualifiedRule, SassIfAtRule, SassVariableDeclaration, UnknownSassAtRule, ],
     unit: [],
 });
 #[cfg(feature = "span_ignored_eq")]
@@ -1414,6 +1420,7 @@ impl_enum_as_is!(ComponentValue<'a> {
         Number(Number<'a>) => is_number, as_number,
         Percentage(Percentage<'a>) => is_percentage, as_percentage,
         Placeholder(Placeholder<'a>) => is_placeholder, as_placeholder,
+        PostcssSimpleVar(PostcssSimpleVar<'a>) => is_postcss_simple_var, as_postcss_simple_var,
         Ratio(Ratio<'a>) => is_ratio, as_ratio,
         SassArbitraryArgument(SassArbitraryArgument<'a>) => is_sass_arbitrary_argument, as_sass_arbitrary_argument,
         SassBinaryExpression(SassBinaryExpression<'a>) => is_sass_binary_expression, as_sass_binary_expression,
@@ -1659,6 +1666,7 @@ impl_enum_as_is!(MediaFeature<'a> {
 impl_enum_as_is!(MediaFeatureName<'a> {
     tuple: [
         Ident(InterpolableIdent<'a>) => is_ident, as_ident,
+        PostcssSimpleVar(PostcssSimpleVar<'a>) => is_postcss_simple_var, as_postcss_simple_var,
         SassVariable(SassVariable<'a>) => is_sass_variable, as_sass_variable,
     ],
     unit: [],
@@ -1846,6 +1854,7 @@ impl_enum_as_is!(Statement<'a> {
         LessVariableCall(LessVariableCall<'a>) => is_less_variable_call, as_less_variable_call,
         LessVariableDeclaration(LessVariableDeclaration<'a>) => is_less_variable_declaration, as_less_variable_declaration,
         Placeholder(Placeholder<'a>) => is_placeholder, as_placeholder,
+        PostcssSimpleVarDeclaration(PostcssSimpleVarDeclaration<'a>) => is_postcss_simple_var_declaration, as_postcss_simple_var_declaration,
         QualifiedRule(QualifiedRule<'a>) => is_qualified_rule, as_qualified_rule,
         SassIfAtRule(SassIfAtRule<'a>) => is_sass_if_at_rule, as_sass_if_at_rule,
         SassVariableDeclaration(SassVariableDeclaration<'a>) => is_sass_variable_declaration, as_sass_variable_declaration,

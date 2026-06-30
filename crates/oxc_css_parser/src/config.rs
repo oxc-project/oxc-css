@@ -47,6 +47,22 @@ pub struct ParserOptions {
     /// as recoverable errors, instead of raising a syntax error.
     pub tolerate_semicolon_in_sass: bool,
 
+    /// If enabled, [`Syntax::Css`] accepts the `$variable` syntax handled by the
+    /// [`postcss-simple-vars`](https://github.com/postcss/postcss-simple-vars) plugin:
+    /// `$var: value;` declarations, `$var` references in property values,
+    /// and `$var` references inside `@media` (and similar) at-rule preludes.
+    ///
+    /// The resulting AST uses dedicated [`PostcssSimpleVar`](crate::ast::PostcssSimpleVar)
+    /// and [`PostcssSimpleVarDeclaration`](crate::ast::PostcssSimpleVarDeclaration)
+    /// nodes, separate from SCSS's [`SassVariable`](crate::ast::SassVariable) family.
+    ///
+    /// NOTE: Interpolation (`$(var)`), selector references (`.$prefix`),
+    /// and comment substitutions (`<<$(var)>>`) are not yet covered.
+    ///
+    /// Ignored for [`Syntax::Scss`], [`Syntax::Sass`], and [`Syntax::Less`]
+    /// (those dialects already accept `$variable` natively).
+    pub allow_postcss_simple_vars: bool,
+
     /// If set, a backtick-delimited token of the shape `` `<prefix><decimal index>` ``
     /// (see [`TemplatePlaceholder`]) is tokenized as an atomic
     /// [`Token::Placeholder`](crate::token::Token) carrying the parsed index.

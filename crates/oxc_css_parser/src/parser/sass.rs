@@ -1410,11 +1410,8 @@ impl<'a> Parse<'a> for SassVariable<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         debug_assert!(matches!(input.syntax, Syntax::Scss | Syntax::Sass));
 
-        let (dollar_var, span) = expect!(input, DollarVar);
-        Ok(SassVariable {
-            name: input.ident(dollar_var.ident, Span { start: span.start + 1, end: span.end }),
-            span,
-        })
+        let (name, span) = input.parse_dollar_var_ident()?;
+        Ok(SassVariable { name, span })
     }
 }
 

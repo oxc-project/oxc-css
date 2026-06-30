@@ -69,6 +69,13 @@ impl<'a> Parse<'a> for MediaFeature<'a> {
                     span,
                 }))
             }
+            ComponentValue::PostcssSimpleVar(variable) => {
+                let span = variable.span.clone();
+                Ok(MediaFeature::Boolean(MediaFeatureBoolean {
+                    name: MediaFeatureName::PostcssSimpleVar(variable),
+                    span,
+                }))
+            }
             value => input.parse_media_feature_range_or_range_interval(value),
         }
     }

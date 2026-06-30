@@ -242,6 +242,7 @@ pub enum ComponentValue<'a> {
     Number(Number<'a>),
     Percentage(Percentage<'a>),
     Placeholder(Placeholder<'a>),
+    PostcssSimpleVar(PostcssSimpleVar<'a>),
     Ratio(Ratio<'a>),
     SassArbitraryArgument(SassArbitraryArgument<'a>),
     SassBinaryExpression(SassBinaryExpression<'a>),
@@ -1295,6 +1296,7 @@ pub enum MediaFeatureComparisonKind {
 #[cfg_attr(feature = "serialize", serde(untagged))]
 pub enum MediaFeatureName<'a> {
     Ident(InterpolableIdent<'a>),
+    PostcssSimpleVar(PostcssSimpleVar<'a>),
     SassVariable(SassVariable<'a>),
 }
 
@@ -1511,6 +1513,24 @@ pub struct PageSelectorList<'a> {
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 pub struct Percentage<'a> {
     pub value: Number<'a>,
+    pub span: Span,
+}
+
+#[derive(Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize))]
+#[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
+pub struct PostcssSimpleVar<'a> {
+    pub name: Ident<'a>,
+    pub span: Span,
+}
+
+#[derive(Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize))]
+#[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
+pub struct PostcssSimpleVarDeclaration<'a> {
+    pub name: PostcssSimpleVar<'a>,
+    pub colon_span: Span,
+    pub value: Vec<'a, ComponentValue<'a>>,
     pub span: Span,
 }
 
@@ -2272,6 +2292,7 @@ pub enum Statement<'a> {
     LessVariableCall(LessVariableCall<'a>),
     LessVariableDeclaration(Box<'a, LessVariableDeclaration<'a>>),
     Placeholder(Placeholder<'a>),
+    PostcssSimpleVarDeclaration(Box<'a, PostcssSimpleVarDeclaration<'a>>),
     QualifiedRule(QualifiedRule<'a>),
     SassIfAtRule(Box<'a, SassIfAtRule<'a>>),
     SassVariableDeclaration(Box<'a, SassVariableDeclaration<'a>>),
