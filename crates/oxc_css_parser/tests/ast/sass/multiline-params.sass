@@ -1,0 +1,28 @@
+@function after-paren(
+  $b, $c)
+  @return $b
+
+@function after-comma($b,
+  $c)
+  @return $c
+
+@function after-arg($b
+  , $c)
+  @return $b
+
+@function after-colon($a, $b:
+    1px)
+  @return $b
+
+@function space-after-colon($a, $b: 1px
+    solid)
+  @return $b
+
+@function before-list($a
+  ...)
+  @return $a
+
+@mixin multiline($a,
+  $b)
+  x: $a
+  y: $b

@@ -19,6 +19,10 @@ pub(crate) struct TokenizerState<'a> {
     chars: Peekable<CharIndices<'a>>,
     current_indent: u16,
     indents: Vec<u16>,
+    /// Depth of `(...)` nesting. In the indented syntax, newlines inside a group
+    /// are insignificant (multi-line param/arg lists), so indentation tracking is
+    /// suspended while this is non-zero.
+    paren_depth: u32,
 }
 
 pub struct Tokenizer<'a> {
@@ -50,6 +54,7 @@ impl<'a> Tokenizer<'a> {
                 chars,
                 current_indent: 0,
                 indents: if syntax == Syntax::Sass { vec![0] } else { vec![] },
+                paren_depth: 0,
             },
         }
     }
@@ -192,9 +197,13 @@ impl<'a> Tokenizer<'a> {
     }
 
     fn skip_ws_or_comment(&mut self) -> Option<TokenWithSpan<'a>> {
+        // Indentation is significant only in the indented syntax, and not inside a
+        // `(...)` group — there newlines are ignored (multi-line param/arg lists),
+        // just like in SCSS.
+        let indent_sensitive = self.syntax == Syntax::Sass && self.state.paren_depth == 0;
         // Sass can dedent more than one level at a time,
         // so we need to produce a dedent token for each level.
-        if self.syntax == Syntax::Sass
+        if indent_sensitive
             && self.state.indents.last().is_some_and(|last| *last > self.state.current_indent)
             && let Some((i, _)) = self.state.chars.peek()
         {
@@ -208,7 +217,7 @@ impl<'a> Tokenizer<'a> {
         loop {
             match self.state.chars.peek() {
                 Some((_, c)) if c.is_ascii_whitespace() => {
-                    if self.syntax == Syntax::Sass {
+                    if indent_sensitive {
                         indent = self.scan_indent();
                     } else {
                         self.skip_ws();
@@ -1131,14 +1140,20 @@ impl<'a> Tokenizer<'a> {
                 token: Token::RBrace(RBrace {}),
                 span: Span { start, end: start + 1 },
             }),
-            Some((start, '(')) => Ok(TokenWithSpan {
-                token: Token::LParen(LParen {}),
-                span: Span { start, end: start + 1 },
-            }),
-            Some((start, ')')) => Ok(TokenWithSpan {
-                token: Token::RParen(RParen {}),
-                span: Span { start, end: start + 1 },
-            }),
+            Some((start, '(')) => {
+                self.state.paren_depth += 1;
+                Ok(TokenWithSpan {
+                    token: Token::LParen(LParen {}),
+                    span: Span { start, end: start + 1 },
+                })
+            }
+            Some((start, ')')) => {
+                self.state.paren_depth = self.state.paren_depth.saturating_sub(1);
+                Ok(TokenWithSpan {
+                    token: Token::RParen(RParen {}),
+                    span: Span { start, end: start + 1 },
+                })
+            }
             Some((start, '[')) => Ok(TokenWithSpan {
                 token: Token::LBracket(LBracket {}),
                 span: Span { start, end: start + 1 },

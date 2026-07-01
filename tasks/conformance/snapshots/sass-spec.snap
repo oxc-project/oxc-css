@@ -1,7 +1,7 @@
 suite: sass-spec
 sha: a2ead9225786d49e91f5cc36755b7713596a2338
-files: 26785   success: 25411   failed: 1374
-clean: 25411  recovered: 29  hard_error: 1345  panic: 0
+files: 26785   success: 25463   failed: 1322
+clean: 25463  recovered: 27  hard_error: 1295  panic: 0
 
 failures:
 ERROR    spec/callable/arguments.hrx::function/trailing_comma/keyword_rest/output.css    component value is expected
@@ -25,26 +25,6 @@ ERROR    spec/callable/parameters.hrx::function/error/comma_only/input.scss    e
 ERROR    spec/callable/parameters.hrx::function/error/splat/before_final/input.scss    expect token `)`, but found `$var`
 ERROR    spec/callable/parameters.hrx::mixin/error/comma_only/input.scss    expect token `$var`, but found `,`
 ERROR    spec/callable/parameters.hrx::mixin/error/splat/before_final/input.scss    expect token `)`, but found `$var`
-ERROR    spec/callable/whitespace.hrx::newlines/function/after_arg/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/function/after_colon/sass/input.sass    component value is expected
-ERROR    spec/callable/whitespace.hrx::newlines/function/after_comma/sass/input.sass    expect token `$var`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/function/after_list/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/function/after_paren/sass/input.sass    expect token `$var`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/function/before_colon/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/function/before_list/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/function/before_list_arg/sass/input.sass    expect token `$var`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/function/before_paren/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/function/space_after_colon/sass/input.sass    expect token `,`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/function_invocation/after_colon/sass/input.sass    component value is expected
-ERROR    spec/callable/whitespace.hrx::newlines/mixin/after_arg/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/mixin/after_colon/sass/input.sass    component value is expected
-ERROR    spec/callable/whitespace.hrx::newlines/mixin/after_comma/sass/input.sass    expect token `$var`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/mixin/after_list/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/mixin/after_paren/sass/input.sass    expect token `$var`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/mixin/before_colon/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/mixin/before_list/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/mixin/before_list_arg/sass/input.sass    expect token `$var`, but found `<indent>`
-ERROR    spec/callable/whitespace.hrx::newlines/mixin/before_paren/sass/input.sass    expect token `)`, but found `<indent>`
 ERROR    spec/core_functions/global/map.hrx::merge/output.css    component value is expected
 ERROR    spec/core_functions/global/map.hrx::remove/output.css    component value is expected
 ERROR    spec/core_functions/global/meta.hrx::inspect/output.css    component value is expected
@@ -810,7 +790,6 @@ ERROR    spec/css/plain/import/whitespace.hrx::error/after_import_indented/sass/
 ERROR    spec/css/plain/import/whitespace.hrx::error/media/before/sass/input.sass    expect token `<string>`, but found `<ident>`
 ERROR    spec/css/plain/import/whitespace.hrx::error/supports/declaration/followed_by_import_arg/after_comma/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
 ERROR    spec/css/plain/import/whitespace.hrx::supports/calc/sass/input.sass    expect token `<linebreak>`, but found `;`
-ERROR    spec/css/plain/import/whitespace.hrx::supports/condition_and/after_and/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
 ERROR    spec/css/propset.hrx::error/value_after_propset/input.scss    expect token `:`, but found `}`
 ERROR    spec/css/selector/attribute.hrx::error/modifier/digit/input.scss    expect token `]`, but found `<number>`
 ERROR    spec/css/selector/attribute.hrx::error/modifier/no_operator/input.scss    attribute selector matcher is expected
@@ -833,8 +812,6 @@ ERROR    spec/css/selector/combinator/selector_pseudo.hrx::trailing/single/sibli
 ERROR    spec/css/selector/combinator/trailing.hrx::multiple/no_whitespace/input.scss    simple selector is expected
 ERROR    spec/css/selector/combinator/trailing.hrx::multiple/whitespace/input.scss    simple selector is expected
 ERROR    spec/css/selector/pseudoselector.hrx::error/with_attribute_mismatched/sass/input.scss    expect token `{`, but found `]`
-RECOVER  spec/css/selector/pseudoselector.hrx::whitespace/sass/after_param/input.sass    declaration at top level is disallowed
-RECOVER  spec/css/selector/pseudoselector.hrx::whitespace/sass/before_param/input.sass    declaration at top level is disallowed
 ERROR    spec/css/selector/reference_combinator.hrx::input.scss    expect token `{`, but found `/`
 ERROR    spec/css/selector/slotted.hrx::output.css    expect token `)`, but found `,`
 ERROR    spec/css/style_rule.hrx::sass/declaration/semicolon/input.sass    expect token `<linebreak>`, but found `;`
@@ -898,10 +875,6 @@ ERROR    spec/css/unknown_directive/plain.hrx::output.css    component value is 
 ERROR    spec/css/unknown_directive/semicolon.hrx::top_level/sass/input.sass    expect token `<linebreak>`, but found `;`
 RECOVER  spec/directives/at_root/keyframes.hrx::all/input.scss    unknown keyframe selector
 ERROR    spec/directives/at_root/sass.hrx::empty/no_query/input.sass    simple selector is expected
-ERROR    spec/directives/at_root/whitespace.hrx::after_colon/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/directives/at_root/whitespace.hrx::after_open_paren/sass/input.sass    expect token `<ident>`, but found `<indent>`
-ERROR    spec/directives/at_root/whitespace.hrx::before_close_paren/sass/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/directives/at_root/whitespace.hrx::before_colon/sass/input.sass    expect token `:`, but found `<indent>`
 ERROR    spec/directives/at_root/whitespace.hrx::error/before_query/sass/input.sass    CSS rule is expected
 ERROR    spec/directives/debug.hrx::sass/multiline-after/input.sass    component value is expected
 ERROR    spec/directives/debug.hrx::sass/semicolon/input.sass    expect token `<linebreak>`, but found `;`
@@ -968,14 +941,7 @@ ERROR    spec/directives/forward/member/newlines.hrx::error/hide/between/input.s
 ERROR    spec/directives/forward/member/newlines.hrx::error/show/whitespace_between/input.sass    expect token `<linebreak>`, but found `<indent>`
 ERROR    spec/directives/forward/member/newlines.hrx::hide/after/input.sass    expect token `$var`, but found `<indent>`
 ERROR    spec/directives/forward/member/newlines.hrx::show/after/input.sass    expect token `$var`, but found `<indent>`
-ERROR    spec/directives/forward/whitespace.hrx::after_colon/sass/input.sass    component value is expected
-ERROR    spec/directives/forward/whitespace.hrx::after_default/sass/input.sass    expect token `,`, but found `<indent>`
 ERROR    spec/directives/forward/whitespace.hrx::after_keyword/sass/input.sass    expect token `<ident>`, but found `<indent>`
-ERROR    spec/directives/forward/whitespace.hrx::after_paren/sass/input.sass    expect token `$var`, but found `<indent>`
-ERROR    spec/directives/forward/whitespace.hrx::after_variable_comma/sass/input.sass    expect token `$var`, but found `<indent>`
-ERROR    spec/directives/forward/whitespace.hrx::before_close_paren/sass/input.sass    expect token `,`, but found `<indent>`
-ERROR    spec/directives/forward/whitespace.hrx::before_colon/sass/input.sass    expect token `:`, but found `<indent>`
-ERROR    spec/directives/forward/whitespace.hrx::before_default/sass/input.sass    expect token `,`, but found `<indent>`
 ERROR    spec/directives/forward/whitespace.hrx::before_url/sass/input.sass    string is expected
 ERROR    spec/directives/forward/whitespace.hrx::error/before_keyword/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
 ERROR    spec/directives/forward/whitespace.hrx::hide/after_hide/sass/input.sass    expect token `$var`, but found `<indent>`
@@ -987,7 +953,6 @@ ERROR    spec/directives/function/whitespace.hrx::before_name/sass/input.sass   
 ERROR    spec/directives/function/whitespace.hrx::nested_at_rule/sass/input.sass    component value is expected
 ERROR    spec/directives/if/error/syntax.hrx::else/partial_if/input.scss    expect token `{`, but found `<ident>`
 ERROR    spec/directives/if/sass.hrx::if_statement_unwrapped_multiline/input.sass    component value is expected
-ERROR    spec/directives/if/sass.hrx::if_statement_wrapped_multiline/input.sass    component value is expected
 ERROR    spec/directives/if/whitespace.hrx::condition/after_and/sass/input.sass    component value is expected
 ERROR    spec/directives/if/whitespace.hrx::else_if/before_condition/sass/input.sass    Sass `@else` at-rule is disallowed here
 ERROR    spec/directives/if/whitespace.hrx::else_if/before_if/sass/input.sass    Sass `@else` at-rule is disallowed here
@@ -1034,15 +999,9 @@ ERROR    spec/directives/use/error/syntax/with.hrx::namespace_variable/input.scs
 ERROR    spec/directives/use/error/syntax/with.hrx::no_arguments/input.scss    expect token `(`, but found `;`
 ERROR    spec/directives/use/error/syntax/with.hrx::space_after_dollar/input.scss    unknown token
 ERROR    spec/directives/use/error/syntax/within.hrx::function/input.scss    expect token `(`, but found `{`
-ERROR    spec/directives/use/whitespace.hrx::after_colon/sass/input.sass    component value is expected
 ERROR    spec/directives/use/whitespace.hrx::after_keyword/sass/input.sass    `*` or ident for Sass namespace is expected
-ERROR    spec/directives/use/whitespace.hrx::after_paren/sass/input.sass    expect token `$var`, but found `<indent>`
-ERROR    spec/directives/use/whitespace.hrx::after_variable_comma/sass/input.sass    expect token `$var`, but found `<indent>`
 ERROR    spec/directives/use/whitespace.hrx::after_with/sass/input.sass    expect token `(`, but found `<indent>`
-ERROR    spec/directives/use/whitespace.hrx::before_close_paren/sass/input.sass    expect token `,`, but found `<indent>`
-ERROR    spec/directives/use/whitespace.hrx::before_colon/sass/input.sass    expect token `:`, but found `<indent>`
 ERROR    spec/directives/use/whitespace.hrx::before_url/sass/input.sass    string is expected
-ERROR    spec/directives/use/whitespace.hrx::before_variable_comma/sass/input.sass    expect token `,`, but found `<indent>`
 ERROR    spec/directives/use/whitespace.hrx::error/before_keyword/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
 ERROR    spec/directives/warn.hrx::sass/multiline/input.sass    component value is expected
 ERROR    spec/directives/warn.hrx::sass/semicolon/input.sass    expect token `<linebreak>`, but found `;`
@@ -1062,11 +1021,7 @@ ERROR    spec/expressions/if/css.hrx::paren/not/output.css    component value is
 ERROR    spec/expressions/if/css.hrx::paren/or/output.css    component value is expected
 ERROR    spec/expressions/if/error/and.hrx::empty/input.scss    component value is expected
 ERROR    spec/expressions/if/error/or.hrx::empty/input.scss    component value is expected
-ERROR    spec/expressions/if/syntax.hrx::newline/and/after/input.sass    component value is expected
-ERROR    spec/expressions/if/syntax.hrx::newline/or/after/input.sass    component value is expected
-ERROR    spec/expressions/if/syntax.hrx::newline/parens/after_open/input.sass    component value is expected
 ERROR    spec/expressions/if/syntax.hrx::newline/parens/after_open/output.css    component value is expected
-ERROR    spec/expressions/if/syntax.hrx::newline/parens/before_close/input.sass    component value is expected
 ERROR    spec/expressions/if/syntax.hrx::newline/parens/before_close/output.css    component value is expected
 ERROR    spec/expressions/if/syntax.hrx::whitespace/parens/after_open/output.css    component value is expected
 ERROR    spec/expressions/if/syntax.hrx::whitespace/parens/before_close/output.css    component value is expected
@@ -1355,14 +1310,7 @@ ERROR    spec/values/lists/brackets.hrx::whitespace/multiple/before_rbracket/sas
 ERROR    spec/values/lists/brackets.hrx::whitespace/single/after_lbracket/sass/input.sass    CSS rule is expected
 ERROR    spec/values/lists/brackets.hrx::whitespace/single/after_val/sass/input.sass    CSS rule is expected
 ERROR    spec/values/lists/sass.hrx::error/no_parens/trailing_comma/input.sass    expect token `:`, but found `,`
-ERROR    spec/values/lists/sass.hrx::paren/no_indent/input.sass    component value is expected
-ERROR    spec/values/lists/sass.hrx::paren/value_aligned/input.sass    expect token `)`, but found `<indent>`
 ERROR    spec/values/maps/invalid-key.hrx::input.scss    expect token `;`, but found `...`
-ERROR    spec/values/maps/sass.hrx::whitespace/after_first_colon/input.sass    expect token `)`, but found `:`
-ERROR    spec/values/maps/sass.hrx::whitespace/after_first_key/input.sass    expect token `)`, but found `<indent>`
-ERROR    spec/values/maps/sass.hrx::whitespace/after_second_colon/input.sass    expect token `)`, but found `:`
-ERROR    spec/values/maps/sass.hrx::whitespace/after_second_key/input.sass    expect token `)`, but found `:`
-ERROR    spec/values/maps/sass.hrx::whitespace/between_values/input.sass    expect token `)`, but found `:`
 ERROR    spec/values/numbers/error.hrx::trailing_dot/minus/input.scss    component value is expected
 ERROR    spec/values/numbers/error.hrx::trailing_dot/plus/input.scss    component value is expected
 ERROR    spec/values/strings.hrx::new-line/sass/raw/input.sass    unterminated string
