@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3](https://github.com/oxc-project/oxc-css-parser/compare/oxc-css-parser-v0.0.2...oxc-css-parser-v0.0.3) - 2026-07-01
+
+### Fixed
+
+- glued placeholder handling ([#25](https://github.com/oxc-project/oxc-css-parser/pull/25))
+- accept unquoted numeric attribute selector values like [size=1] ([#21](https://github.com/oxc-project/oxc-css-parser/pull/21))
+
 ## [0.0.2](https://github.com/oxc-project/oxc-css-parser/compare/oxc-css-parser-v0.0.1...oxc-css-parser-v0.0.2) - 2026-06-30
 
 ### Added

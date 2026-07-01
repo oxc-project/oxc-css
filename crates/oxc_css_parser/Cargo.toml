@@ -1,6 +1,6 @@
 [package]
 name = "oxc-css-parser"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2024"
 authors = []
 description = "Parser for CSS, SCSS, Sass, and Less."
