@@ -578,27 +578,37 @@ impl<'a> Parser<'a> {
     /// - a bare `{` after the placeholder IS absorbed — the placeholder is the
     ///   selector for that block (`${mixin}\n{ color: red }` is one rule; a bare
     ///   `{...}` is meaningless without a selector, so this is the only valid read)
-    /// - but selector CONTENT appearing after a newline splits into a separate
-    ///   rule (`${mixin}\n& > .x {}` is two statements, not one)
+    /// - a placeholder separated by whitespace from what follows, then a newline,
+    ///   then selector content = a separate rule (`${mixin}\n& > .x {}` and
+    ///   `${a} ${b}\nhtml {}` are two statements, not one — spaced placeholders
+    ///   are typically mixin invocations, not selector pieces)
+    /// - but a placeholder IMMEDIATELY glued to non-whitespace (e.g. `${p}:hover`
+    ///   or `${p},`) is a compound-selector piece, so a multi-line selector list
+    ///   (`${p}:hover &,\n${q}:focus &, { ... }`) is one rule — keep scanning for `{` across newlines.
     ///
-    /// So this only answers "is a `{` reachable before any non-whitespace content
-    /// appears past a newline?" — the real grammar (strings, comments, `#{...}`
-    /// interpolations, validity) is left to `QualifiedRule::parse`, which runs
-    /// next and rolls back if this guess was wrong. Deliberately NOT a tokenizer:
-    /// it never early-exits on `;`/`}` (those may sit inside an attribute string
-    /// or comment), so it can't misclassify a same-line selector containing them.
+    /// The real grammar (strings, comments, `#{...}` interpolations, validity) is
+    /// left to `QualifiedRule::parse`, which runs next and rolls back if this guess was wrong.
+    /// Deliberately NOT a tokenizer: it never early-exits on `;`/`}`
+    /// (those may sit inside an attribute string or comment),
+    /// so it can't misclassify a same-line selector containing them.
     fn placeholder_starts_qualified_rule(&self, from: usize) -> bool {
+        let bytes = &self.source.as_bytes()[from..];
+        // Immediately-adjacent non-whitespace (`${p}:hover`, `${p},`) means the
+        // placeholder is a compound-selector piece: only `{` matters from here, regardless of newlines.
+        if bytes.first().is_some_and(|b| !b.is_ascii_whitespace()) {
+            return bytes.contains(&b'{');
+        }
+        // Otherwise the placeholder is separated by whitespace from what follows.
+        // A `{` on the same line (whitespace-only prefix) still makes the
+        // placeholder its selector; any non-whitespace after a newline starts a separate rule.
         let mut newline_seen = false;
-        for &b in &self.source.as_bytes()[from..] {
+        for &b in bytes {
             match b {
-                // First `{` (block opener or `#{` interpolation), even after a
-                // newline with no content yet: the placeholder is its selector.
                 b'{' => return true,
                 // `\r`, `\r\n`, and `\n` all count as a newline (the tokenizer
                 // treats a bare `\r` as a line break too).
                 b'\n' | b'\r' => newline_seen = true,
                 _ if b.is_ascii_whitespace() => {}
-                // Non-whitespace content after a newline = a separate rule.
                 _ if newline_seen => return false,
                 _ => {}
             }
