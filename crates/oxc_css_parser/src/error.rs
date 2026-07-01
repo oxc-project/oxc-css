@@ -88,7 +88,6 @@ pub enum ErrorKind {
     DuplicatedSassFlag(&'static str),
     LessGuardOnMultipleComplexSelectors,
     UnexpectedLessMixinCall,
-    UnexpectedSemicolonInSass,
     UnexpectedSimpleBlock,
     TopLevelDeclaration,
 }
@@ -202,7 +201,6 @@ impl Display for ErrorKind {
                 write!(f, "Less guards are only allowed on a single complex selector")
             }
             Self::UnexpectedLessMixinCall => write!(f, "Less mixin call is disallowed"),
-            Self::UnexpectedSemicolonInSass => write!(f, "semicolon in Sass is disallowed"),
             Self::UnexpectedSimpleBlock => write!(f, "simple block is disallowed"),
             Self::TopLevelDeclaration => write!(f, "declaration at top level is disallowed"),
         }

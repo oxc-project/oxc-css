@@ -76,33 +76,6 @@
 //! assert!(matches!(declaration.value[0], ComponentValue::Function(..)));
 //! ```
 //!
-//! #### `tolerate_semicolon_in_sass`
-//!
-//! For Sass (not SCSS), semicolons for every statements are syntax errors.
-//! By default, parser will raise a syntax error and return `Err` when
-//! encountered this.
-//! Enabling this option can turn such syntax errors into recoverable errors,
-//! so they won't prevent parsing the rest of code.
-//!
-//! ```rust
-//! use oxc_css_parser::{Allocator, ParserBuilder, ParserOptions, Syntax, ast::*};
-//!
-//! let allocator = Allocator::default();
-//! let options = ParserOptions {
-//!     tolerate_semicolon_in_sass: true,
-//!     ..Default::default()
-//! };
-//! let builder = ParserBuilder::new(&allocator, "
-//! button
-//!   width: 12px;
-//!   height: 12px;
-//! ").syntax(Syntax::Sass).options(options);
-//! let mut parser = builder.build();
-//!
-//! assert!(parser.parse::<Stylesheet>().is_ok());
-//! assert_eq!(parser.recoverable_errors().len(), 2);
-//! ```
-//!
 //! #### `template_placeholder`
 //!
 //! By default, a backtick is a syntax error outside Less. Setting this option

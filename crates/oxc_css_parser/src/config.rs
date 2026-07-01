@@ -43,10 +43,6 @@ pub struct ParserOptions {
     /// when parsing as values.
     pub try_parsing_value_in_custom_property: bool,
 
-    /// If enabled, trailing semicolon of each statement will be treated
-    /// as recoverable errors, instead of raising a syntax error.
-    pub tolerate_semicolon_in_sass: bool,
-
     /// If enabled, [`Syntax::Css`] accepts the `$variable` syntax handled by the
     /// [`postcss-simple-vars`](https://github.com/postcss/postcss-simple-vars) plugin:
     /// `$var: value;` declarations, `$var` references in property values,

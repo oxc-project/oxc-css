@@ -601,16 +601,13 @@ impl<'a> Parser<'a> {
                 Token::RBrace(..) | Token::Eof(..) | Token::Dedent(..) => break,
                 _ => {
                     if self.syntax == Syntax::Sass {
+                        // The indented syntax also accepts `;` as a statement
+                        // terminator/separator (`a; b`), like a newline.
                         if is_block_element {
-                            eat!(self, Linebreak);
-                        } else if self.options.tolerate_semicolon_in_sass {
-                            if let Some((_, span)) = eat!(self, Semicolon) {
-                                self.recoverable_errors.push(Error {
-                                    kind: ErrorKind::UnexpectedSemicolonInSass,
-                                    span,
-                                });
+                            if eat!(self, Semicolon).is_none() {
+                                eat!(self, Linebreak);
                             }
-                        } else {
+                        } else if eat!(self, Semicolon).is_none() {
                             expect!(self, Linebreak);
                         }
                     } else if is_block_element {
