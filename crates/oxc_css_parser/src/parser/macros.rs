@@ -39,15 +39,21 @@ macro_rules! expect {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! expect_without_ws_or_comments {
-    ($parser:expr, Ident) => {{
+    ($parser:expr, Ident) => {
+        $crate::expect_without_ws_or_comments!($parser, Ident, /* allow_leading_digit */ false)
+    };
+    // Like `Ident`, but the name may start with a digit — Less interpolation
+    // names such as `@{3}` (matching the standalone `@{name}` tokenizer path).
+    ($parser:expr, Ident, $allow_leading_digit:expr) => {{
         use $crate::{
             error::{Error, ErrorKind},
             tokenizer::TokenSymbol,
         };
         debug_assert!($parser.cached_token.is_none());
+        let allow_leading_digit = $allow_leading_digit;
         let tokenizer = &mut $parser.tokenizer;
-        if tokenizer.is_start_of_ident() {
-            tokenizer.scan_ident_sequence()?
+        if tokenizer.is_start_of_ident() || (allow_leading_digit && tokenizer.is_start_of_digit()) {
+            tokenizer.scan_ident_sequence(allow_leading_digit)?
         } else {
             let token_with_span = tokenizer.bump_without_ws_or_comments()?;
             return Err(Error {

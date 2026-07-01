@@ -133,8 +133,10 @@ impl<'a> Tokenizer<'a> {
             (Some((_, '@')), Some((_, c)))
                 // A leading `-` only starts an identifier if the next code point does too
                 // (`@-webkit-*`, `@--custom`); a lone `@-` is a delimiter, not an at-keyword.
-                if is_start_of_ident(c)
-                    && (c != '-' || matches!(chars.peek(), Some((_, c2)) if is_start_of_ident(*c2))) =>
+                // Less also allows digit-led variable names (`@3`).
+                if (is_start_of_ident(c)
+                    && (c != '-' || matches!(chars.peek(), Some((_, c2)) if is_start_of_ident(*c2))))
+                    || (self.syntax == Syntax::Less && c.is_ascii_digit()) =>
             {
                 self.scan_at_keyword()
             }
@@ -170,7 +172,7 @@ impl<'a> Tokenizer<'a> {
             }
             (Some((_, '@' | '$')), Some((_, '{')))
                 if self.syntax == Syntax::Less
-                    && matches!(chars.peek(), Some((_, c)) if is_start_of_ident(*c)) =>
+                    && matches!(chars.peek(), Some((_, c)) if is_start_of_ident(*c) || c.is_ascii_digit()) =>
             {
                 self.scan_less_lbrace_var()
             }
@@ -346,12 +348,20 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    pub(crate) fn scan_ident_sequence(&mut self) -> PResult<(Ident<'a>, Span)> {
+    pub(crate) fn scan_ident_sequence(
+        &mut self,
+        allow_leading_digit: bool,
+    ) -> PResult<(Ident<'a>, Span)> {
         let start;
         let end;
         let mut escaped = false;
         match self.state.chars.peek() {
             Some((i, c)) if c.is_ascii_alphabetic() || *c == '_' || !c.is_ascii() => {
+                start = *i;
+                self.state.chars.next();
+            }
+            // Less variable names may start with a digit (`@3`, `@{3}`); CSS idents may not.
+            Some((i, c)) if allow_leading_digit && c.is_ascii_digit() => {
                 start = *i;
                 self.state.chars.next();
             }
@@ -550,7 +560,7 @@ impl<'a> Tokenizer<'a> {
         value: Number<'a>,
         value_span: Span,
     ) -> PResult<TokenWithSpan<'a>> {
-        let (unit, unit_span) = self.scan_ident_sequence()?;
+        let (unit, unit_span) = self.scan_ident_sequence(false)?;
         Ok(TokenWithSpan {
             token: Token::Dimension(Dimension { value, unit }),
             span: Span { start: value_span.start, end: unit_span.end },
@@ -706,14 +716,15 @@ impl<'a> Tokenizer<'a> {
                 c == '#' && matches!(self.state.chars.peek(), Some((_, '{')))
             }
             Syntax::Less => {
+                // Less interpolation names may start with a digit (`@{3}`), like `@3`.
                 (c == '@' || c == '$')
-                    && matches!(self.peek_two_chars(), Some((_, '{', second)) if is_start_of_ident(second))
+                    && matches!(self.peek_two_chars(), Some((_, '{', second)) if is_start_of_ident(second) || second.is_ascii_digit())
             }
         }
     }
 
     fn scan_ident(&mut self) -> PResult<TokenWithSpan<'a>> {
-        self.scan_ident_sequence()
+        self.scan_ident_sequence(false)
             .map(|(ident, span)| TokenWithSpan { token: Token::Ident(ident), span })
     }
 
@@ -935,7 +946,7 @@ impl<'a> Tokenizer<'a> {
     fn scan_dollar_var(&mut self) -> PResult<TokenWithSpan<'a>> {
         let (start, c) = self.state.chars.next().expect("expect char `$`");
         debug_assert_eq!(c, '$');
-        let (ident, span) = self.scan_ident_sequence()?;
+        let (ident, span) = self.scan_ident_sequence(false)?;
         Ok(TokenWithSpan {
             token: Token::DollarVar(DollarVar { ident }),
             span: Span { start, end: span.end },
@@ -948,7 +959,8 @@ impl<'a> Tokenizer<'a> {
         let (_, c) = self.state.chars.next().expect("expect char `{`");
         debug_assert_eq!(c, '{');
 
-        let (ident, _) = self.scan_ident_sequence()?;
+        // Less allows digit-led variable names, so `@{3}` interpolates `@3`.
+        let (ident, _) = self.scan_ident_sequence(true)?;
         match self.state.chars.next() {
             Some((i, '}')) => {
                 let span = Span { start, end: i + 1 };
@@ -973,7 +985,8 @@ impl<'a> Tokenizer<'a> {
         let (start, c) = self.state.chars.next().expect("expect char `@`");
         debug_assert_eq!(c, '@');
 
-        let (ident, span) = self.scan_ident_sequence()?;
+        // Less allows digit-led variable names like `@3`.
+        let (ident, span) = self.scan_ident_sequence(self.syntax == Syntax::Less)?;
         Ok(TokenWithSpan {
             token: Token::AtKeyword(AtKeyword { ident }),
             span: Span { start, end: span.end },
@@ -1372,6 +1385,12 @@ impl<'a> Tokenizer<'a> {
             }
             _ => false,
         }
+    }
+
+    /// Whether the next code point is an ASCII digit — the start of a Less
+    /// digit-led variable name (`@3`, `@{3}`).
+    pub(crate) fn is_start_of_digit(&mut self) -> bool {
+        matches!(self.state.chars.peek(), Some((_, c)) if c.is_ascii_digit())
     }
 
     pub(crate) fn is_start_of_url_string(&mut self) -> bool {

@@ -1,7 +1,7 @@
 suite: less.js
 sha: 8ae2cc3bfa79f0718ad6fe5f263a1d6819fe9d5c
-files: 459   success: 384   failed: 75
-clean: 384  recovered: 3  hard_error: 72  panic: 0
+files: 459   success: 385   failed: 74
+clean: 385  recovered: 3  hard_error: 71  panic: 0
 
 failures:
 ERROR    packages/test-data/tests-config/at-rules-compressed-evaluation/at-rules-compressed-evaluation.css    expect token `{`, but found `<ident>`
@@ -11,7 +11,6 @@ ERROR    packages/test-data/tests-config/debug/all/linenumbers-all.css    expect
 ERROR    packages/test-data/tests-config/debug/comments/linenumbers-comments.css    expect token `{`, but found `<ident>`
 ERROR    packages/test-data/tests-config/debug/mediaquery/linenumbers-mediaquery.css    expect token `:`, but found `{`
 ERROR    packages/test-data/tests-config/math-always/mixins-guards.less    expect token `;`, but found `<ident>`
-ERROR    packages/test-data/tests-config/math-always/no-sm-operations.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-config/math-parens-division/mixins-args.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-config/math-strict/mixins-args.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-config/math/parens-division/mixins-args.css    component value is expected

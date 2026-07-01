@@ -1,0 +1,9 @@
+@3: red;
+@4: 10px;
+.a {
+  @5: blue;
+  color: @3;
+  width: @4;
+  &-@{3} { x: y }
+  content: "value-@{3}";
+}

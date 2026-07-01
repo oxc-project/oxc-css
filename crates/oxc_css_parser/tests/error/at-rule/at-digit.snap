@@ -1,0 +1,8 @@
+---
+source: crates/oxc_css_parser/tests/error.rs
+---
+error: unknown token
+  ┌─ at-digit.css:1:1
+  │
+1 │ @3: red;
+  │ ^
