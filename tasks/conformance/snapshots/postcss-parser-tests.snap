@@ -1,10 +1,9 @@
 suite: postcss-parser-tests
 sha: de1bc546de3678dd1c85e57cb2e9eece0098ddb9
-files: 30   success: 22   failed: 8
-clean: 22  recovered: 1  hard_error: 7  panic: 0
+files: 30   success: 23   failed: 7
+clean: 23  recovered: 1  hard_error: 6  panic: 0
 
 failures:
-ERROR    cases/atrule-no-space.css    expect token `<ident>`, but found `<eof>`
 ERROR    cases/comments.css    component value is expected
 ERROR    cases/escape.css    attribute selector value is expected
 RECOVER  cases/extends.css    declaration at top level is disallowed

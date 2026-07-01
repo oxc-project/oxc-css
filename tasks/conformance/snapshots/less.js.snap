@@ -1,7 +1,7 @@
 suite: less.js
 sha: 8ae2cc3bfa79f0718ad6fe5f263a1d6819fe9d5c
-files: 459   success: 377   failed: 82
-clean: 377  recovered: 3  hard_error: 79  panic: 0
+files: 459   success: 378   failed: 81
+clean: 378  recovered: 3  hard_error: 78  panic: 0
 
 failures:
 ERROR    packages/test-data/tests-config/at-rules-compressed-evaluation/at-rules-compressed-evaluation.css    expect token `{`, but found `<ident>`
@@ -34,7 +34,6 @@ ERROR    packages/test-data/tests-error/parse/custom-property-unmatched-block-2.
 ERROR    packages/test-data/tests-error/parse/custom-property-unmatched-block-3.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-error/parse/detached-ruleset-6.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-error/parse/import-malformed.less    expect token `(`, but found `<ident>`
-ERROR    packages/test-data/tests-error/parse/import-no-semi.less    expect token `(`, but found `<string>`
 ERROR    packages/test-data/tests-error/parse/mixed-mixin-definition-args-1.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-error/parse/mixed-mixin-definition-args-2.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-error/parse/mixins-guards-cond-expected.less    expect token `;`, but found `<ident>`
