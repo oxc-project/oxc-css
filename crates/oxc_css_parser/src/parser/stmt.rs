@@ -568,6 +568,24 @@ impl<'a> Parser<'a> {
                     bump!(self);
                     continue;
                 }
+                Token::LBrace(..) if self.syntax == Syntax::Css => {
+                    // An empty selector (`{}`): postcss parses it as a qualified rule
+                    // with no selector, so build one with an empty selector list.
+                    let start = span.start;
+                    let block = self.parse::<SimpleBlock>()?;
+                    let selector = SelectorList {
+                        selectors: arena_vec!(self),
+                        comma_spans: arena_vec!(self),
+                        span: Span { start, end: start },
+                    };
+                    let span = Span { start, end: block.span.end };
+                    statements.push(Statement::QualifiedRule(QualifiedRule {
+                        selector,
+                        block,
+                        span,
+                    }));
+                    is_block_element = true;
+                }
                 _ => {
                     return Err(Error {
                         kind: if self.state.in_keyframes_at_rule {

@@ -6,15 +6,15 @@ css-parsing-tests           0        0       0       0      0        0      0
 wpt                         5        3       2       3      0        2      0
 csswg-drafts                9        8       1       8      0        1      0
 webref                      0        0       0       0      0        0      0
-postcss-parser-tests       30       23       7      23      1        6      0
+postcss-parser-tests       30       24       6      24      1        5      0
 sass-spec               26785    25411    1374   25411     29     1345      0
 less.js                   459      385      74     385      3       71      0
 ------------------------------------------------------------------------
-total                   27288    25830    1458   25830     33     1425      0
+total                   27288    25831    1457   25831     33     1424      0
 
 # by syntax
 syntax                  files  success  failed   clean  recov  harderr  panic
-css                     11795    10962     833   10962      5      828      0
+css                     11795    10963     832   10963      5      827      0
 scss                    14748    14388     360   14388     22      338      0
 sass                      439      226     213     226      4      209      0
 less                      306      254      52     254      2       50      0
