@@ -920,7 +920,10 @@ impl<'a> Parse<'a> for LessInterpolatedStr<'a> {
             } else {
                 // '@' or '$' is consumed, so '{' left only
                 let start = expect!(input, LBrace).1.start - 1;
-                let (name, name_span) = expect_without_ws_or_comments!(input, Ident);
+                // Less interpolation names may start with a digit (`@{3}`).
+                let (name, name_span) = expect_without_ws_or_comments!(
+                    input, Ident, /* allow_leading_digit */ true
+                );
 
                 let end = expect!(input, RBrace).1.end;
                 elements.push(match input.source.as_bytes().get(start) {

@@ -716,8 +716,9 @@ impl<'a> Tokenizer<'a> {
                 c == '#' && matches!(self.state.chars.peek(), Some((_, '{')))
             }
             Syntax::Less => {
+                // Less interpolation names may start with a digit (`@{3}`), like `@3`.
                 (c == '@' || c == '$')
-                    && matches!(self.peek_two_chars(), Some((_, '{', second)) if is_start_of_ident(second))
+                    && matches!(self.peek_two_chars(), Some((_, '{', second)) if is_start_of_ident(second) || second.is_ascii_digit())
             }
         }
     }
@@ -1384,6 +1385,12 @@ impl<'a> Tokenizer<'a> {
             }
             _ => false,
         }
+    }
+
+    /// Whether the next code point is an ASCII digit — the start of a Less
+    /// digit-led variable name (`@3`, `@{3}`).
+    pub(crate) fn is_start_of_digit(&mut self) -> bool {
+        matches!(self.state.chars.peek(), Some((_, c)) if c.is_ascii_digit())
     }
 
     pub(crate) fn is_start_of_url_string(&mut self) -> bool {
