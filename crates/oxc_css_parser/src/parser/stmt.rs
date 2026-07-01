@@ -15,6 +15,13 @@ use crate::{
 
 impl<'a> Parse<'a> for Declaration<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
+        // Legacy IE hack: a `*` glued to the property name (e.g. `*color: red`)
+        // makes IE<=7 apply the declaration. Keep it as a property-name prefix.
+        let name_prefix_start = if let Token::Asterisk(..) = peek!(input).token {
+            Some(bump!(input).span.start)
+        } else {
+            None
+        };
         // A css-in-js `${}` placeholder may stand in for the property name
         // (`${foo}: ${bar}`); it is not a real ident, so accept it directly.
         let name = if let Token::Placeholder(..) = peek!(input).token {
@@ -125,7 +132,7 @@ impl<'a> Parse<'a> for Declaration<'a> {
         };
 
         let span = Span {
-            start: name.span().start,
+            start: name_prefix_start.unwrap_or(name.span().start),
             end: if let Some(important) = &important {
                 important.span.end
             } else if let Some(last) = value.last() {
@@ -136,6 +143,7 @@ impl<'a> Parse<'a> for Declaration<'a> {
         };
         Ok(Declaration {
             name,
+            name_prefix: name_prefix_start.map(|_| '*'),
             name_suffix,
             colon_span,
             value,
@@ -397,6 +405,30 @@ impl<'a> Parser<'a> {
                         } else {
                             statements.push(self.parse_less_qualified_rule()?);
                             is_block_element = true;
+                        }
+                    } else if matches!(peek!(self).token, Token::Asterisk(..)) {
+                        // `*color: red` (an IE<=7 hack) looks like a `*` universal
+                        // selector but is a declaration; try the rule, then fall back
+                        // to a declaration before surfacing the selector error.
+                        match self.try_parse(QualifiedRule::parse) {
+                            Ok(rule) => {
+                                statements.push(Statement::QualifiedRule(rule));
+                                is_block_element = true;
+                            }
+                            Err(error_rule) => match self.parse::<Declaration>() {
+                                Ok(decl) => {
+                                    if is_top_level {
+                                        self.recoverable_errors.push(Error {
+                                            kind: ErrorKind::TopLevelDeclaration,
+                                            span: decl.span.clone(),
+                                        });
+                                    }
+                                    statements.push(Statement::Declaration(decl));
+                                }
+                                Err(error_decl) => {
+                                    return Err(if is_top_level { error_rule } else { error_decl });
+                                }
+                            },
                         }
                     } else {
                         statements.push(Statement::QualifiedRule(self.parse()?));

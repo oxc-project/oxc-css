@@ -1,7 +1,7 @@
 suite: sass-spec
 sha: a2ead9225786d49e91f5cc36755b7713596a2338
-files: 26785   success: 25407   failed: 1378
-clean: 25407  recovered: 29  hard_error: 1349  panic: 0
+files: 26785   success: 25409   failed: 1376
+clean: 25409  recovered: 29  hard_error: 1347  panic: 0
 
 failures:
 ERROR    spec/callable/arguments.hrx::function/trailing_comma/keyword_rest/output.css    component value is expected
@@ -1085,8 +1085,8 @@ ERROR    spec/libsass-closed-issues/issue_1169/functioncall.hrx::output.css    c
 ERROR    spec/libsass-closed-issues/issue_1169/interpolated.hrx::output.css    component value is expected
 ERROR    spec/libsass-closed-issues/issue_1169/simple.hrx::output.css    component value is expected
 ERROR    spec/libsass-closed-issues/issue_1178.hrx::output.css    component value is expected
-ERROR    spec/libsass-closed-issues/issue_1188.hrx::input.scss    unexpected whitespace
-ERROR    spec/libsass-closed-issues/issue_1188.hrx::output.css    unexpected whitespace
+ERROR    spec/libsass-closed-issues/issue_1188.hrx::input.scss    expect token `;`, but found `)`
+ERROR    spec/libsass-closed-issues/issue_1188.hrx::output.css    component value is expected
 ERROR    spec/libsass-closed-issues/issue_1218.hrx::input.scss    expect token `{`, but found `<ident>`
 ERROR    spec/libsass-closed-issues/issue_1233.hrx::input.scss    expect token `{`, but found `<ident>`
 ERROR    spec/libsass-closed-issues/issue_1233.hrx::output.css    expect token `{`, but found `<ident>`
@@ -1151,8 +1151,6 @@ ERROR    spec/libsass-todo-issues/issue_221292.hrx::input.scss    CSS rule is ex
 ERROR    spec/libsass-todo-issues/issue_221292.hrx::output.css    CSS rule is expected
 RECOVER  spec/libsass-todo-issues/issue_2295/error/basic.hrx::include.scss    declaration at top level is disallowed
 ERROR    spec/libsass-todo-issues/issue_238764.hrx::input.scss    simple selector is expected
-ERROR    spec/libsass/bourbon.hrx::lib/addons/_clearfix.scss    expect one of `<ident>` or `#{`, but found `<number>`
-ERROR    spec/libsass/bourbon.hrx::lib/css3/_inline-block.scss    unexpected whitespace
 ERROR    spec/libsass/import.hrx::input.scss    expect token `<string>`, but found `<ident>`
 ERROR    spec/libsass/keyframes.hrx::input.scss    expect token `{`, but found `:`
 ERROR    spec/libsass/keyframes.hrx::output.css    expect token `{`, but found `:`

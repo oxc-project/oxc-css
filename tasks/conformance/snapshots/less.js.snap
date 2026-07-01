@@ -1,7 +1,7 @@
 suite: less.js
 sha: 8ae2cc3bfa79f0718ad6fe5f263a1d6819fe9d5c
-files: 459   success: 378   failed: 81
-clean: 378  recovered: 3  hard_error: 78  panic: 0
+files: 459   success: 381   failed: 78
+clean: 381  recovered: 3  hard_error: 75  panic: 0
 
 failures:
 ERROR    packages/test-data/tests-config/at-rules-compressed-evaluation/at-rules-compressed-evaluation.css    expect token `{`, but found `<ident>`
@@ -55,9 +55,7 @@ ERROR    packages/test-data/tests-unit/container/container.less    expect token 
 RECOVER  packages/test-data/tests-unit/css-3/css-3.css    unicode range end value exceeds max allowed code point
 RECOVER  packages/test-data/tests-unit/css-3/css-3.less    unicode range end value exceeds max allowed code point
 ERROR    packages/test-data/tests-unit/css-guards/css-guards.less    expect token `(`, but found `:`
-ERROR    packages/test-data/tests-unit/extend-clearfix/extend-clearfix.css    expect token `<ident>`, but found `<number>`
 ERROR    packages/test-data/tests-unit/extend-clearfix/extend-clearfix.less    expect token `;`, but found `{`
-ERROR    packages/test-data/tests-unit/extend/extend-clearfix.css    expect token `<ident>`, but found `<number>`
 ERROR    packages/test-data/tests-unit/extend/extend-clearfix.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/extract-and-length/extract-and-length.css    component value is expected
 ERROR    packages/test-data/tests-unit/extract-and-length/extract-and-length.less    expect token `;`, but found `{`
@@ -73,12 +71,11 @@ ERROR    packages/test-data/tests-unit/mixins-guards/mixins-guards.less    expec
 ERROR    packages/test-data/tests-unit/namespace-targeted/namespace-targeted.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/operations/operations-advanced.css    component value is expected
 ERROR    packages/test-data/tests-unit/operations/operations.less    expect token `;`, but found `{`
-ERROR    packages/test-data/tests-unit/parser-property-interp/parser-property-interp.css    expect token `<ident>`, but found `<dimension>`
 ERROR    packages/test-data/tests-unit/parser-property-interp/parser-property-interp.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/parser-slashed-combinator/parser-slashed-combinator.css    expect token `{`, but found `/`
 ERROR    packages/test-data/tests-unit/parser-slashed-combinator/parser-slashed-combinator.less    expect token `;`, but found `/`
 ERROR    packages/test-data/tests-unit/permissive-parse/permissive-parse.less    expect token `<ident>`, but found `<at-keyword>`
-ERROR    packages/test-data/tests-unit/property-name-interp/property-name-interp.css    expect token `<ident>`, but found `<dimension>`
+ERROR    packages/test-data/tests-unit/property-name-interp/property-name-interp.css    expect token `:`, but found `+`
 ERROR    packages/test-data/tests-unit/property-name-interp/property-name-interp.less    expect token `(`, but found `{`
 ERROR    packages/test-data/tests-unit/strings/strings.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/urls/actual.css    invalid URL

@@ -651,7 +651,7 @@ impl_span_ignored_eq_struct!(CustomSelectorArgs<'a> { args, comma_spans, });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_struct!(CustomSelectorPrelude<'a> { custom_selector, selector, });
 #[cfg(feature = "span_ignored_eq")]
-impl_span_ignored_eq_struct!(Declaration<'a> { name, name_suffix, colon_span, value, important, less_property_merge, });
+impl_span_ignored_eq_struct!(Declaration<'a> { name, name_prefix, name_suffix, colon_span, value, important, less_property_merge, });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_struct!(Delimiter { kind, });
 #[cfg(feature = "span_ignored_eq")]

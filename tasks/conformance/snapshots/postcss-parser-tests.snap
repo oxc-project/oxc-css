@@ -9,5 +9,5 @@ ERROR    cases/escape.css    attribute selector value is expected
 RECOVER  cases/extends.css    declaration at top level is disallowed
 ERROR    cases/inside.css    expect token `<ident>`, but found `}`
 ERROR    cases/no-selector.css    CSS rule is expected
-ERROR    cases/prop.css    unexpected whitespace
+ERROR    cases/prop.css    unknown token
 ERROR    cases/rule-at.css    component value is expected

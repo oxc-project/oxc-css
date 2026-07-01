@@ -400,6 +400,9 @@ pub struct CustomSelectorPrelude<'a> {
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 pub struct Declaration<'a> {
     pub name: InterpolableIdent<'a>,
+    /// Legacy IE hack prefix glued to the property name, e.g. `'*'` in `*color: red`.
+    #[cfg_attr(feature = "serialize", serde(skip_serializing_if = "Option::is_none"))]
+    pub name_prefix: Option<char>,
     pub name_suffix: Option<char>,
     pub colon_span: Span,
     pub value: Vec<'a, ComponentValue<'a>>,
