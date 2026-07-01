@@ -1,0 +1,8 @@
+suite: wpt
+sha: 1722fb6566acac7b0fc7bfc9aae55a47594b9d03
+files: 5   success: 3   failed: 2
+clean: 3  recovered: 0  hard_error: 2  panic: 0
+
+failures:
+ERROR    css/css-syntax/charset/support/bomless-utf16.css    unknown token
+ERROR    css/css-syntax/charset/support/bomless-utf16be.css    unknown token

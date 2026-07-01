@@ -12,15 +12,17 @@ test:
 fmt:
     cargo fmt
 
-# Clone the conformance suites (pinned SHAs) and parse them with oxc-css-parser.
-# Optionally restrict to named suites, e.g. `just conformance sass-spec less.js`.
+# Clone the conformance suites (pinned SHAs), parse them, and regenerate the
+# committed snapshots under tasks/conformance/snapshots/. Review with `git diff`.
+# Optionally restrict to named suites, e.g. `just conformance sass-spec less.js`
+# (a filtered run updates only those suites' snapshots, not summary.snap).
 conformance *suites:
-    cargo run -p conformance --release -- {{ suites }}
+    cargo run -p conformance -- {{ suites }}
 
 # Clone/update the conformance suites without parsing them.
 conformance-clone *suites:
-    cargo run -p conformance --release -- --clone {{ suites }}
+    cargo run -p conformance -- --clone {{ suites }}
 
 # Remove all cloned conformance repos.
 conformance-clean:
-    cargo run -p conformance --release -- --clean
+    cargo run -p conformance -- --clean
