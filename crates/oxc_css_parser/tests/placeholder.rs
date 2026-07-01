@@ -222,10 +222,7 @@ fn placeholder_led_selector_does_not_cross_newline() {
     // Space between placeholders is the standalone signal: two bare-placeholder
     // mixin invocations followed by a separate rule on the next line, matching
     // styled-components' `${sanitize} ${fonts}\nhtml {}` idiom.
-    let ss = parse(
-        "`PLACEHOLDER-0` `PLACEHOLDER-1`\nhtml { color: red }",
-        Some(opts()),
-    );
+    let ss = parse("`PLACEHOLDER-0` `PLACEHOLDER-1`\nhtml { color: red }", Some(opts()));
     assert_eq!(ss.statements.len(), 3);
     assert!(matches!(ss.statements[0], Statement::Placeholder(Placeholder { index: 0, .. })));
     assert!(matches!(ss.statements[1], Statement::Placeholder(Placeholder { index: 1, .. })));
