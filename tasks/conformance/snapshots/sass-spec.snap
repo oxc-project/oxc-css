@@ -1,7 +1,7 @@
 suite: sass-spec
 sha: a2ead9225786d49e91f5cc36755b7713596a2338
-files: 26785   success: 25401   failed: 1384
-clean: 25401  recovered: 29  hard_error: 1355  panic: 0
+files: 26785   success: 25407   failed: 1378
+clean: 25407  recovered: 29  hard_error: 1349  panic: 0
 
 failures:
 ERROR    spec/callable/arguments.hrx::function/trailing_comma/keyword_rest/output.css    component value is expected
@@ -813,11 +813,6 @@ ERROR    spec/css/plain/import/whitespace.hrx::error/media/before/sass/input.sas
 ERROR    spec/css/plain/import/whitespace.hrx::error/supports/declaration/followed_by_import_arg/after_comma/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
 ERROR    spec/css/plain/import/whitespace.hrx::supports/calc/sass/input.sass    expect token `<linebreak>`, but found `;`
 ERROR    spec/css/plain/import/whitespace.hrx::supports/condition_and/after_and/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
-ERROR    spec/css/plain/import/whitespace.hrx::supports/condition_function/after_paren/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
-ERROR    spec/css/plain/import/whitespace.hrx::supports/condition_function/before_end_paren/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
-ERROR    spec/css/plain/import/whitespace.hrx::supports/declaration/prop/after_open/scss/input.scss    expect token `;`, but found `<ident>`
-ERROR    spec/css/plain/import/whitespace.hrx::supports/declaration/prop/space_after_open/sass/input.sass    expect token `<linebreak>`, but found `<ident>`
-ERROR    spec/css/plain/import/whitespace.hrx::supports/declaration/prop/space_after_open/scss/input.scss    expect token `;`, but found `<ident>`
 ERROR    spec/css/propset.hrx::error/value_after_propset/input.scss    expect token `:`, but found `}`
 ERROR    spec/css/selector/attribute.hrx::error/modifier/digit/input.scss    expect token `]`, but found `<number>`
 ERROR    spec/css/selector/attribute.hrx::error/modifier/no_operator/input.scss    attribute selector matcher is expected
@@ -1124,7 +1119,6 @@ RECOVER  spec/libsass-closed-issues/issue_2023/pseudo-selector-id.hrx::input.scs
 RECOVER  spec/libsass-closed-issues/issue_2023/pseudo-selector-nr.hrx::input.scss    invalid ID selector name
 ERROR    spec/libsass-closed-issues/issue_2031/extended-not.hrx::output.css    component value is expected
 ERROR    spec/libsass-closed-issues/issue_2081.hrx::input.scss    expect token `}`, but found `;`
-ERROR    spec/libsass-closed-issues/issue_2120.hrx::input.scss    expect token `<string>`, but found `<ident>`
 ERROR    spec/libsass-closed-issues/issue_2140.hrx::output.css    component value is expected
 ERROR    spec/libsass-closed-issues/issue_2143.hrx::input.scss    component value is expected
 ERROR    spec/libsass-closed-issues/issue_221255.hrx::input.scss    CSS rule is expected

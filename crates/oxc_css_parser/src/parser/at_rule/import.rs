@@ -80,7 +80,7 @@ impl<'a> Parse<'a> for ImportPrelude<'a> {
             span.end = supports.span().end;
         }
 
-        let media = if matches!(peek!(input).token, Token::Semicolon(..)) {
+        let media = if matches!(peek!(input).token, Token::Semicolon(..) | Token::Eof(..)) {
             None
         } else {
             let media = input.parse::<MediaQueryList>()?;

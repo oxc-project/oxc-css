@@ -1,0 +1,48 @@
+---
+source: crates/oxc_css_parser/tests/ast.rs
+---
+Stylesheet(
+  type: "Stylesheet",
+  statements: [
+    AtRule(
+      type: "AtRule",
+      name: Ident(
+        type: "Ident",
+        name: "import",
+        raw: "import",
+        span: Span(
+          start: 1,
+          end: 7,
+        ),
+      ),
+      prelude: Some(ImportPrelude(
+        type: "ImportPrelude",
+        href: Str(
+          type: "Str",
+          value: "test.css",
+          raw: "\"test.css\"",
+          span: Span(
+            start: 7,
+            end: 17,
+          ),
+        ),
+        layer: None,
+        supports: None,
+        media: None,
+        span: Span(
+          start: 7,
+          end: 17,
+        ),
+      )),
+      block: None,
+      span: Span(
+        start: 0,
+        end: 17,
+      ),
+    ),
+  ],
+  span: Span(
+    start: 0,
+    end: 18,
+  ),
+)
