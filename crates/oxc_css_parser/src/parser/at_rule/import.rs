@@ -71,13 +71,7 @@ impl<'a> Parse<'a> for ImportPrelude<'a> {
             let kind = if let Ok(supports_condition) = parser.try_parse(SupportsCondition::parse) {
                 ImportPreludeSupportsKind::SupportsCondition(supports_condition)
             } else {
-                // Reject the IE `*` hack in a `supports(...)` feature declaration,
-                // same as `@supports` — it is a style-rule quirk, not a feature query.
-                let decl: Declaration = parser.parse()?;
-                if decl.name_prefix.is_some() {
-                    return Err(Error { kind: ErrorKind::TryParseError, span: decl.span.clone() });
-                }
-                ImportPreludeSupportsKind::Declaration(decl)
+                parser.parse().map(ImportPreludeSupportsKind::Declaration)?
             };
             let (_, Span { end, .. }) = expect!(parser, RParen);
             Ok(ImportPreludeSupports { kind, span: Span { start: span.start, end } })

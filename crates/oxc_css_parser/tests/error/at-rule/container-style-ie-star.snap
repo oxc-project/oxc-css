@@ -1,0 +1,8 @@
+---
+source: crates/oxc_css_parser/tests/error.rs
+---
+error: expect token `<ident>`, but found `*`
+  ┌─ container-style-ie-star.css:1:18
+  │
+1 │ @container style(*zoom: 1) { a { color: red } }
+  │                  ^

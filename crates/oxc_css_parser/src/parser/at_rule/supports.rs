@@ -127,13 +127,7 @@ impl<'a> Parse<'a> for SupportsInParens<'a> {
 impl<'a> Parse<'a> for SupportsDecl<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let start = expect!(input, LParen).1.start;
-        let decl: Declaration = input.parse()?;
-        // The IE `*` hack is a style-rule quirk; `@supports (*zoom: 1)` is not a
-        // valid feature declaration, so reject it and let the caller fall through
-        // to `<general-enclosed>`.
-        if decl.name_prefix.is_some() {
-            return Err(Error { kind: ErrorKind::TryParseError, span: decl.span.clone() });
-        }
+        let decl = input.parse()?;
         let end = expect!(input, RParen).1.end;
         Ok(SupportsDecl { decl, span: Span { start, end } })
     }

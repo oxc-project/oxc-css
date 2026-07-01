@@ -19,8 +19,8 @@ impl<'a> Parse<'a> for Declaration<'a> {
         // makes IE<=7 apply the declaration. Keep it as a property-name prefix — but
         // only when glued: `* color` (whitespace or a comment after `*`) is not the
         // hack, so leave the `*` for the normal (failing) parse.
-        let name_prefix_start = if let TokenWithSpan { token: Token::Asterisk(..), span } =
-            peek!(input)
+        let name_prefix_start = if input.state.allow_ie_star_hack
+            && let TokenWithSpan { token: Token::Asterisk(..), span } = peek!(input)
             && input
                 .source
                 .as_bytes()
@@ -273,7 +273,7 @@ impl<'a> Parser<'a> {
     fn parse_rule_or_declaration(&mut self, is_top_level: bool) -> PResult<(Statement<'a>, bool)> {
         match self.try_parse(QualifiedRule::parse) {
             Ok(rule) => Ok((Statement::QualifiedRule(rule), true)),
-            Err(error_rule) => match self.parse::<Declaration>() {
+            Err(error_rule) => match self.parse_style_rule_declaration() {
                 Ok(decl) => {
                     // Only Scss/Sass produce `SassNestingDeclaration`; in CSS this is
                     // always `false`, matching the previous per-syntax behavior.
@@ -292,6 +292,14 @@ impl<'a> Parser<'a> {
                 Err(error_decl) => Err(if is_top_level { error_rule } else { error_decl }),
             },
         }
+    }
+
+    /// Parse a declaration that is a statement in a style-rule block, enabling the
+    /// IE `*color` hack (see `ParserState::allow_ie_star_hack`). Feature-query
+    /// declarations (`@supports`, `@container style()`, `@import supports()`) call
+    /// `Declaration::parse` directly and so never enable it.
+    fn parse_style_rule_declaration(&mut self) -> PResult<Declaration<'a>> {
+        self.with_state(ParserState { allow_ie_star_hack: true, ..self.state.clone() }).parse()
     }
 
     fn parse_statements(
@@ -408,7 +416,7 @@ impl<'a> Parser<'a> {
                                 // ident-led path; keep root-level `*zoom: 1` an error.
                                 Err(rule_err) if is_top_level => return Err(rule_err),
                                 Err(_) => {
-                                    let decl = self.parse::<Declaration>()?;
+                                    let decl = self.parse_style_rule_declaration()?;
                                     statements.push(Statement::Declaration(decl));
                                 }
                             }

@@ -10,6 +10,10 @@ pub(super) struct ParserState {
     pub(super) sass_ctx: u8,
     pub(super) less_ctx: u8,
     pub(super) in_keyframes_at_rule: bool,
+    /// Enabled only while parsing a declaration that is a statement in a style-rule
+    /// block, so the IE `*color` hack does not leak into feature queries
+    /// (`@supports`, `@container style()`, `@import supports()`).
+    pub(super) allow_ie_star_hack: bool,
 }
 
 #[derive(Clone, Debug)]
