@@ -47,7 +47,7 @@ macro_rules! expect_without_ws_or_comments {
         debug_assert!($parser.cached_token.is_none());
         let tokenizer = &mut $parser.tokenizer;
         if tokenizer.is_start_of_ident() {
-            tokenizer.scan_ident_sequence()?
+            tokenizer.scan_ident_sequence(false)?
         } else {
             let token_with_span = tokenizer.bump_without_ws_or_comments()?;
             return Err(Error {
