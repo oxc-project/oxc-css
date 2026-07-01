@@ -402,6 +402,16 @@ impl<'a> Parser<'a> {
                     if self.syntax == Syntax::Less {
                         if let Ok(extend_rule) = self.try_parse(LessExtendRule::parse) {
                             statements.push(Statement::LessExtendRule(extend_rule));
+                        } else if matches!(peek!(self).token, Token::Asterisk(..)) {
+                            // `*zoom: 1` (an IE<=7 hack) looks like a `*` universal
+                            // selector but is a declaration; try the rule, then fall back.
+                            if let Ok(stmt) = self.try_parse(Parser::parse_less_qualified_rule) {
+                                statements.push(stmt);
+                                is_block_element = true;
+                            } else {
+                                let decl = self.parse::<Declaration>()?;
+                                statements.push(Statement::Declaration(decl));
+                            }
                         } else {
                             statements.push(self.parse_less_qualified_rule()?);
                             is_block_element = true;
