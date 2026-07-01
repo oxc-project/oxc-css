@@ -1,0 +1,3 @@
+a { @import "a.css" }
+a { @import "a.css" screen }
+a { @import "a.css"; }

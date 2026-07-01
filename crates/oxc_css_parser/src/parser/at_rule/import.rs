@@ -80,7 +80,12 @@ impl<'a> Parse<'a> for ImportPrelude<'a> {
             span.end = supports.span().end;
         }
 
-        let media = if matches!(peek!(input).token, Token::Semicolon(..) | Token::Eof(..)) {
+        // `}` ends the at-rule too, so an `@import` nested in a style rule needs no
+        // trailing `;` (`a { @import "b.css" }`); it can't start a media query.
+        let media = if matches!(
+            peek!(input).token,
+            Token::Semicolon(..) | Token::Eof(..) | Token::RBrace(..)
+        ) {
             None
         } else {
             let media = input.parse::<MediaQueryList>()?;
