@@ -553,6 +553,29 @@ impl<'a> Parse<'a> for ComplexSelector<'a> {
             Token::LBrace(..) | Token::Indent(..) | Token::Linebreak(..)
         ) {
             if is_previous_combinator {
+                // dart-sass allows consecutive combinators (`> >`, `+ ~`) and a
+                // trailing combinator (`:is(a +)`); after a combinator, take another
+                // combinator or stop at a selector boundary rather than requiring a
+                // compound selector. CSS keeps the strict alternation.
+                if matches!(input.syntax, Syntax::Scss | Syntax::Sass) {
+                    if matches!(
+                        peek!(input).token,
+                        Token::GreaterThan(..)
+                            | Token::Plus(..)
+                            | Token::Tilde(..)
+                            | Token::BarBar(..)
+                    ) && let Some(combinator) = input.parse_combinator(end)?
+                    {
+                        end = combinator.span.end;
+                        children.push(ComplexSelectorChild::Combinator(combinator));
+                        continue;
+                    } else if matches!(
+                        peek!(input).token,
+                        Token::RParen(..) | Token::Comma(..) | Token::RBrace(..) | Token::Eof(..)
+                    ) {
+                        break;
+                    }
+                }
                 let compound_selector = input.parse::<CompoundSelector>()?;
                 end = compound_selector.span.end;
                 children.push(ComplexSelectorChild::CompoundSelector(compound_selector));

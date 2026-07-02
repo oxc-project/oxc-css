@@ -1,0 +1,7 @@
+> > a {b: c}
++ ~ a {b: c}
+a > + b {c: d}
+a~>b {c: d}
+:is(+ ~ a) {b: c}
+:is(a +) {b: c}
++ ~ d {@extend a}

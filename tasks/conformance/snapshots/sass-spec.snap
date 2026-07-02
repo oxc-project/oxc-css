@@ -1,7 +1,7 @@
 suite: sass-spec
 sha: a2ead9225786d49e91f5cc36755b7713596a2338
-files: 26785   success: 25488   failed: 1297
-clean: 25488  recovered: 27  hard_error: 1270  panic: 0
+files: 26785   success: 25515   failed: 1270
+clean: 25515  recovered: 27  hard_error: 1243  panic: 0
 
 failures:
 ERROR    spec/callable/arguments.hrx::function/trailing_comma/keyword_rest/output.css    component value is expected
@@ -792,19 +792,6 @@ ERROR    spec/css/selector/attribute.hrx::sass/whitespace/after_lbracket_indente
 ERROR    spec/css/selector/attribute.hrx::sass/whitespace/after_operator/input.sass    attribute selector value is expected
 ERROR    spec/css/selector/attribute.hrx::sass/whitespace/after_val/input.sass    attribute selector matcher is expected
 ERROR    spec/css/selector/attribute.hrx::sass/whitespace/before_operator/input.sass    attribute selector matcher is expected
-ERROR    spec/css/selector/combinator/is.hrx::leading/multiple/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/leading.hrx::multiple/no_whitespace/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/leading.hrx::multiple/whitespace/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/middle.hrx::multiple/no_whitespace/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/middle.hrx::multiple/whitespace/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/selector_pseudo.hrx::leading/multiple/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/selector_pseudo.hrx::middle/multiple/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/selector_pseudo.hrx::trailing/multiple/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/selector_pseudo.hrx::trailing/single/child/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/selector_pseudo.hrx::trailing/single/next_sibling/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/selector_pseudo.hrx::trailing/single/sibling/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/trailing.hrx::multiple/no_whitespace/input.scss    simple selector is expected
-ERROR    spec/css/selector/combinator/trailing.hrx::multiple/whitespace/input.scss    simple selector is expected
 ERROR    spec/css/selector/pseudoselector.hrx::error/with_attribute_mismatched/sass/input.scss    expect token `{`, but found `]`
 ERROR    spec/css/selector/reference_combinator.hrx::input.scss    expect token `{`, but found `/`
 ERROR    spec/css/selector/slotted.hrx::output.css    expect token `)`, but found `,`
@@ -869,9 +856,6 @@ ERROR    spec/directives/each.hrx::sass/multiline/after_each/input.sass    expec
 ERROR    spec/directives/each.hrx::sass/multiline/after_in/input.sass    component value is expected
 ERROR    spec/directives/each.hrx::sass/multiline/after_variable/input.sass    expect token `<ident>`, but found `<indent>`
 ERROR    spec/directives/error.hrx::sass/multiline_after/input.sass    component value is expected
-ERROR    spec/directives/extend/bogus.hrx::multi/leading/input.scss    simple selector is expected
-ERROR    spec/directives/extend/bogus.hrx::multi/middle/input.scss    simple selector is expected
-ERROR    spec/directives/extend/bogus.hrx::multi/trailing/input.scss    simple selector is expected
 ERROR    spec/directives/extend/error.hrx::complex/input.scss    expect token `;`, but found `<ident>`
 ERROR    spec/directives/extend/error.hrx::no_selector/input.scss    simple selector is expected
 ERROR    spec/directives/extend/whitespace.hrx::after_arg/sass/input.sass    simple selector is expected
@@ -1113,15 +1097,6 @@ RECOVER  spec/non_conformant/errors/invalid-parent/return-in-ruleset.hrx::input.
 ERROR    spec/non_conformant/errors/unicode/report/after.hrx::input.scss    expect token `:`, but found `<eof>`
 ERROR    spec/non_conformant/errors/unicode/report/before.hrx::input.scss    expect token `}`, but found `<eof>`
 ERROR    spec/non_conformant/extend-tests/069_test_attribute_unification.hrx::input.scss    expect token `{`, but found `%`
-ERROR    spec/non_conformant/extend-tests/129_test_nested_extender_with_hacky_selector.hrx::input.scss    simple selector is expected
-ERROR    spec/non_conformant/extend-tests/130_test_nested_extender_with_hacky_selector.hrx::input.scss    simple selector is expected
-ERROR    spec/non_conformant/extend-tests/133_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
-ERROR    spec/non_conformant/extend-tests/134_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
-ERROR    spec/non_conformant/extend-tests/135_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
-ERROR    spec/non_conformant/extend-tests/136_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
-ERROR    spec/non_conformant/extend-tests/137_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
-ERROR    spec/non_conformant/extend-tests/138_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
-ERROR    spec/non_conformant/extend-tests/139_test_combinator_unification_for_hacky_combinators.hrx::input.scss    simple selector is expected
 ERROR    spec/non_conformant/extend-tests/189_test_placeholder_descendant_selector.hrx::input.scss    expect token `{`, but found `%`
 ERROR    spec/non_conformant/extend-tests/190_test_semi_placeholder_selector.hrx::input.scss    expect token `{`, but found `%`
 ERROR    spec/non_conformant/extend-tests/217_test_parent_and_sibling_extend.hrx::input.scss    expect token `{`, but found `%`
@@ -1198,13 +1173,11 @@ ERROR    spec/non_conformant/sass/selectors.hrx::input.sass    CSS rule is expec
 ERROR    spec/non_conformant/sass_4_0/interpolation/function_name.hrx::output.css    component value is expected
 ERROR    spec/non_conformant/scss-tests/044_test_trailing_comma_in_selector.hrx::input.scss    simple selector is expected
 ERROR    spec/non_conformant/scss/cons-up.hrx::output.css    component value is expected
-ERROR    spec/non_conformant/scss/css_selector_hacks.hrx::input.scss    simple selector is expected
 ERROR    spec/non_conformant/scss/css_unary_ops.hrx::output.css    component value is expected
 ERROR    spec/non_conformant/scss/important-in-arglist.hrx::input.scss    expect token `;`, but found `<ident>`
 ERROR    spec/non_conformant/scss/important-in-arglist.hrx::output.css    expect token `;`, but found `<ident>`
 ERROR    spec/non_conformant/scss/media/interpolated.hrx::input.scss    expect token `{`, but found `<ident>`
 ERROR    spec/non_conformant/scss/null.hrx::output.css    component value is expected
-ERROR    spec/non_conformant/scss/weird-selectors.hrx::input.scss    simple selector is expected
 ERROR    spec/non_conformant/scss/while_without_condition.hrx::input.scss    component value is expected
 ERROR    spec/operators/modulo.hrx::error/syntax/whitespace/newline/after_percent/input.sass    CSS rule is expected
 ERROR    spec/operators/newlines.hrx::binary/after/input.sass    component value is expected
