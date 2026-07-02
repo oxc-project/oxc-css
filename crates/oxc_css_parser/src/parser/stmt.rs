@@ -44,6 +44,15 @@ impl<'a> Parse<'a> for Declaration<'a> {
         let name = if let Token::Placeholder(..) = peek!(input).token {
             let (placeholder, span) = expect!(input, Placeholder);
             InterpolableIdent::Placeholder((placeholder, span).into())
+        } else if input.state.allow_ie_star_hack
+            && input.syntax == Syntax::Less
+            && let TokenWithSpan { token: Token::Number(number), span } = peek!(input)
+            && number.raw.bytes().all(|b| b.is_ascii_digit())
+        {
+            let raw = number.raw;
+            let span = span.clone();
+            bump!(input);
+            InterpolableIdent::Literal(Ident { name: raw, raw, span })
         } else if name_prefix.is_none()
             && input.state.allow_ie_star_hack
             && input.syntax == Syntax::Css
@@ -519,6 +528,16 @@ impl<'a> Parser<'a> {
                             }
                         }
                     }
+                }
+                // `5:-` — less.js's ruleProperty regex (`[_a-zA-Z0-9-]+`)
+                // allows digit-only declaration names
+                Token::Number(..)
+                    if self.syntax == Syntax::Less
+                        && !is_top_level
+                        && self.source.as_bytes().get(span.end) == Some(&b':') =>
+                {
+                    let decl = self.parse_style_rule_declaration()?;
+                    statements.push(Statement::Declaration(decl));
                 }
                 // `.3D(...)` — less.js allows digit-led mixin names, which
                 // arrive as one <dimension-token>; they behave exactly like

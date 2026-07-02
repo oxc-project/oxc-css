@@ -13,7 +13,7 @@ impl<'a> Parse<'a> for MediaAnd<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let keyword = input.parse::<Ident>()?;
         if keyword.name.eq_ignore_ascii_case("and") {
-            let media_in_parens = input.parse::<MediaInParens>()?;
+            let media_in_parens = input.parse_media_in_parens_after_logic()?;
             let span = Span { start: keyword.span.start, end: media_in_parens.span.end };
             Ok(MediaAnd { keyword, media_in_parens, span })
         } else {
@@ -35,7 +35,9 @@ impl<'a> Parse<'a> for MediaConditionAfterMediaType<'a> {
             }
         };
 
-        let condition = input.parse_media_condition(/* allow_or */ false)?;
+        let condition = input.parse_media_condition(
+            /* allow_or */ false, /* after_logic_keyword */ true,
+        )?;
 
         let span = Span { start: and.span.start, end: condition.span.end };
         Ok(MediaConditionAfterMediaType { and, condition, span })
@@ -135,7 +137,9 @@ impl<'a> Parse<'a> for MediaInParens<'a> {
 impl<'a> Parse<'a> for MediaInParensKind<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if let Ok(media_condition) = input.try_parse(|parser| {
-            let media_condition = parser.parse_media_condition(/* allow_or */ true)?;
+            let media_condition = parser.parse_media_condition(
+                /* allow_or */ true, /* after_logic_keyword */ false,
+            )?;
             // `(#{$x}-width: 1px)`: the interpolation parses as a
             // `SassInterpolation` media condition, but a trailing `:` means it is
             // really a media feature name. Require the closing `)` here so such
@@ -183,7 +187,7 @@ impl<'a> Parse<'a> for MediaOr<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let keyword = input.parse::<Ident>()?;
         if keyword.name.eq_ignore_ascii_case("or") {
-            let media_in_parens = input.parse::<MediaInParens>()?;
+            let media_in_parens = input.parse_media_in_parens_after_logic()?;
             let span = Span { start: keyword.span.start, end: media_in_parens.span.end };
             Ok(MediaOr { keyword, media_in_parens, span })
         } else {
@@ -194,9 +198,11 @@ impl<'a> Parse<'a> for MediaOr<'a> {
 
 impl<'a> Parse<'a> for MediaQuery<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
-        if let Ok(condition_only) =
-            input.try_parse(|parser| parser.parse_media_condition(/* allow_or */ true))
-        {
+        if let Ok(condition_only) = input.try_parse(|parser| {
+            parser.parse_media_condition(
+                /* allow_or */ true, /* after_logic_keyword */ false,
+            )
+        }) {
             Ok(MediaQuery::ConditionOnly(condition_only))
         } else if input.syntax == Syntax::Less {
             match peek!(input).token {
@@ -290,7 +296,35 @@ impl<'a> Parse<'a> for MediaQueryWithType<'a> {
 }
 
 impl<'a> Parser<'a> {
-    fn parse_media_condition(&mut self, allow_or: bool) -> PResult<MediaCondition<'a>> {
+    /// `<media-in-parens>` right after `and`/`or`. A bare ident there
+    /// (`@media screen and print`) is not valid MQ syntax, but browsers still
+    /// parse the rule — the query merely evaluates to "not all" — so preserve
+    /// it like `<general-enclosed>` raw tokens. Only this position is safe to
+    /// relax: elsewhere an ident is a media type (`@media print`).
+    fn parse_media_in_parens_after_logic(&mut self) -> PResult<MediaInParens<'a>> {
+        if self.syntax == Syntax::Css
+            && let TokenWithSpan { token: Token::Ident(ident), span } = peek!(self)
+            && !ident.name().eq_ignore_ascii_case("not")
+            && self.source.as_bytes().get(span.end) != Some(&b'(')
+        {
+            let token = bump!(self);
+            let span = token.span.clone();
+            return Ok(MediaInParens {
+                kind: MediaInParensKind::GeneralEnclosed(TokenSeq {
+                    tokens: arena_vec!(self; token),
+                    span: span.clone(),
+                }),
+                span,
+            });
+        }
+        self.parse()
+    }
+
+    fn parse_media_condition(
+        &mut self,
+        allow_or: bool,
+        after_logic_keyword: bool,
+    ) -> PResult<MediaCondition<'a>> {
         match &peek!(self).token {
             Token::Ident(ident) if ident.name().eq_ignore_ascii_case("not") => {
                 let media_not = self.parse::<MediaNot>()?;
@@ -301,7 +335,11 @@ impl<'a> Parser<'a> {
                 })
             }
             _ => {
-                let first = self.parse::<MediaInParens>()?;
+                let first = if after_logic_keyword {
+                    self.parse_media_in_parens_after_logic()?
+                } else {
+                    self.parse::<MediaInParens>()?
+                };
                 let mut span = first.span.clone();
                 let mut conditions = arena_vec!(self; MediaConditionKind::MediaInParens(first));
                 if let Token::Ident(ident) = &peek!(self).token {

@@ -425,12 +425,24 @@ fn rel_path(path: &Path, base: &Path) -> String {
 
 /// Whether an HRX entry belongs to a test that expects a compile error: the
 /// reference compiler rejects it, so a parse error is correct behavior. Error
-/// tests carry a sibling `error` (or `error-<impl>`) entry in the same directory.
+/// tests carry a sibling `error` (or `error-<impl>`) entry in the same
+/// directory. Tests whose `options.yml` lists dart-sass under `:todo:` are
+/// known-unsupported by the reference compiler (fuzzer archives etc.), so
+/// failures there are expected as well.
 fn hrx_expects_error(entries: &[(String, String)], entry: &str) -> bool {
     let dir = entry.rsplit_once('/').map_or("", |(dir, _)| dir);
-    entries.iter().any(|(name, _)| {
+    entries.iter().any(|(name, content)| {
         let (entry_dir, base) = name.rsplit_once('/').map_or(("", name.as_str()), |(d, b)| (d, b));
-        entry_dir == dir && (base == "error" || base.starts_with("error-"))
+        if entry_dir == dir && (base == "error" || base.starts_with("error-")) {
+            return true;
+        }
+        // options.yml applies to its own directory and everything below it
+        base == "options.yml"
+            && (entry_dir == dir
+                || entry_dir.is_empty()
+                || dir.starts_with(&format!("{entry_dir}/")))
+            && content.contains(":todo:")
+            && content.contains("dart-sass")
     })
 }
 

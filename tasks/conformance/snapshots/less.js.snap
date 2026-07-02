@@ -1,14 +1,11 @@
 suite: less.js
 sha: 8ae2cc3bfa79f0718ad6fe5f263a1d6819fe9d5c
-files: 459   success: 424   failed: 11   expected: 24
-clean: 424  recovered: 0  hard_error: 11  panic: 0
+files: 459   success: 427   failed: 8   expected: 24
+clean: 427  recovered: 0  hard_error: 8  panic: 0
 
 failures:
-ERROR    packages/test-data/tests-config/at-rules-compressed-evaluation/at-rules-compressed-evaluation.css    expect token `(`, but found `<ident>`
 ERROR    packages/test-data/tests-config/debug/all/linenumbers-all.css    expect token `:`, but found `{`
-ERROR    packages/test-data/tests-config/debug/comments/linenumbers-comments.css    expect token `(`, but found `<ident>`
 ERROR    packages/test-data/tests-config/debug/mediaquery/linenumbers-mediaquery.css    expect token `:`, but found `{`
-ERROR    packages/test-data/tests-unit/css-guards/css-guards.less    expect token `(`, but found `:`
 ERROR    packages/test-data/tests-unit/import/import-inline.css    expect token `{`, but found `<bad string>`
 ERROR    packages/test-data/tests-unit/import/import-reference.css    expect token `:`, but found `<ident>`
 ERROR    packages/test-data/tests-unit/import/import/invalid-css.less    expect token `(`, but found `<ident>`
