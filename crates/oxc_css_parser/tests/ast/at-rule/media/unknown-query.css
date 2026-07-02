@@ -1,0 +1,10 @@
+@media (example, all,), speech {
+  a {
+    b: c;
+  }
+}
+@media &test, speech {
+  a {
+    b: c;
+  }
+}

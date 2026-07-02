@@ -337,7 +337,7 @@ impl_spanned_enum!(MediaInParensKind<'a> {
 impl_spanned_struct!(MediaNot<'a>);
 impl_spanned_struct!(MediaOr<'a>);
 impl_spanned_enum!(MediaQuery<'a> {
-    tuple: [ConditionOnly, WithType, Function, LessVariable, LessNamespaceValue, ],
+    tuple: [ConditionOnly, WithType, Function, LessVariable, LessNamespaceValue, Unknown, ],
     unit: [],
 });
 impl_spanned_struct!(MediaQueryList<'a>);
@@ -382,7 +382,7 @@ impl_spanned_struct!(PseudoPage<'a>);
 impl_spanned_struct!(QualifiedRule<'a>);
 impl_spanned_struct!(QueryInParens<'a>);
 impl_spanned_enum!(QueryInParensKind<'a> {
-    tuple: [ContainerCondition, SizeFeature, StyleQuery, ScrollState, ],
+    tuple: [ContainerCondition, SizeFeature, StyleQuery, ScrollState, ScrollStateCondition, ],
     unit: [],
 });
 impl_spanned_struct!(Ratio<'a>);
@@ -966,7 +966,7 @@ impl_span_ignored_eq_struct!(MediaNot<'a> { keyword, media_in_parens, });
 impl_span_ignored_eq_struct!(MediaOr<'a> { keyword, media_in_parens, });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_enum!(MediaQuery<'a> {
-    tuple: [ConditionOnly, WithType, Function, LessVariable, LessNamespaceValue, ],
+    tuple: [ConditionOnly, WithType, Function, LessVariable, LessNamespaceValue, Unknown, ],
     unit: [],
 });
 #[cfg(feature = "span_ignored_eq")]
@@ -1038,7 +1038,7 @@ impl_span_ignored_eq_struct!(QualifiedRule<'a> { selector, block, });
 impl_span_ignored_eq_struct!(QueryInParens<'a> { kind, });
 #[cfg(feature = "span_ignored_eq")]
 impl_span_ignored_eq_enum!(QueryInParensKind<'a> {
-    tuple: [ContainerCondition, SizeFeature, StyleQuery, ScrollState, ],
+    tuple: [ContainerCondition, SizeFeature, StyleQuery, ScrollState, ScrollStateCondition, ],
     unit: [],
 });
 #[cfg(feature = "span_ignored_eq")]
@@ -1698,6 +1698,7 @@ impl_enum_as_is!(MediaQuery<'a> {
         Function(Function<'a>) => is_function, as_function,
         LessVariable(LessVariable<'a>) => is_less_variable, as_less_variable,
         LessNamespaceValue(Box<'a, LessNamespaceValue<'a>>) => is_less_namespace_value, as_less_namespace_value,
+        Unknown(TokenSeq<'a>) => is_unknown, as_unknown,
     ],
     unit: [],
 });
@@ -1760,6 +1761,7 @@ impl_enum_as_is!(QueryInParensKind<'a> {
         SizeFeature(Box<'a, MediaFeature<'a>>) => is_size_feature, as_size_feature,
         StyleQuery(StyleQuery<'a>) => is_style_query, as_style_query,
         ScrollState(Box<'a, MediaFeature<'a>>) => is_scroll_state, as_scroll_state,
+        ScrollStateCondition(Box<'a, ContainerCondition<'a>>) => is_scroll_state_condition, as_scroll_state_condition,
     ],
     unit: [],
 });

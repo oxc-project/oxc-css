@@ -232,14 +232,14 @@ impl<'a> Parse<'a> for MediaQuery<'a> {
 // https://www.w3.org/TR/mediaqueries-4/#mq-syntax
 impl<'a> Parse<'a> for MediaQueryList<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
-        let first = input.parse::<MediaQuery>()?;
+        let first = input.parse_media_query_or_unknown(/* has_siblings */ false)?;
         let mut span = first.span().clone();
 
         let mut queries = arena_vec!(input; first);
         let mut comma_spans = arena_vec!(input);
         while let Some((_, comma_span)) = eat!(input, Comma) {
             comma_spans.push(comma_span);
-            queries.push(input.parse()?);
+            queries.push(input.parse_media_query_or_unknown(/* has_siblings */ true)?);
         }
         debug_assert_eq!(comma_spans.len() + 1, queries.len());
 
@@ -296,6 +296,45 @@ impl<'a> Parse<'a> for MediaQueryWithType<'a> {
 }
 
 impl<'a> Parser<'a> {
+    /// One query of a media query list. In CSS an unparseable query inside a
+    /// *list* does not discard the rule — it merely evaluates to "not all"
+    /// (`@media &test, speech {}` still applies to speech) — so on failure
+    /// the query's raw tokens are preserved as [`MediaQuery::Unknown`]. A
+    /// sole invalid query stays an error (dart-sass rejects it in plain CSS
+    /// too), which is why list membership is required: the query must follow
+    /// or be followed by a comma.
+    fn parse_media_query_or_unknown(&mut self, has_siblings: bool) -> PResult<MediaQuery<'a>> {
+        let error = match self.try_parse(MediaQuery::parse) {
+            Ok(query) => return Ok(query),
+            Err(error) => error,
+        };
+        if self.syntax != Syntax::Css {
+            return Err(error);
+        }
+        let start = peek!(self).span.start;
+        let mut tokens = arena_vec!(self);
+        let mut pairs = Vec::new();
+        loop {
+            match &peek!(self).token {
+                Token::Eof(..) | Token::Semicolon(..) => break,
+                Token::Comma(..) | Token::LBrace(..) if pairs.is_empty() => break,
+                token => {
+                    if !crate::util::track_paired_token(token, &mut pairs) {
+                        break;
+                    }
+                }
+            }
+            tokens.push(bump!(self));
+        }
+        if !has_siblings && !matches!(peek!(self).token, Token::Comma(..)) {
+            return Err(error);
+        }
+        let Some(end) = tokens.last().map(|t| t.span.end) else {
+            return Err(error);
+        };
+        Ok(MediaQuery::Unknown(TokenSeq { tokens, span: Span { start, end } }))
+    }
+
     /// `<media-in-parens>` right after `and`/`or`. A bare ident there
     /// (`@media screen and print`) is not valid MQ syntax, but browsers still
     /// parse the rule — the query merely evaluates to "not all" — so preserve

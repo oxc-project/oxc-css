@@ -1,7 +1,11 @@
 suite: csswg-drafts
 sha: cca93bb94ae073c964ffe076bbe75d6baef90dd6
-files: 9   success: 9   failed: 0   expected: 0
-clean: 9  recovered: 0  hard_error: 0  panic: 0
+files: 214   success: 212   failed: 0   expected: 2
+clean: 212  recovered: 0  hard_error: 0  panic: 0
 
 failures:
 none
+
+expected failures (error tests, correct behavior):
+ERROR    selectors-4/Overview.bs::L1439    expect token `<ident>`, but found `.`
+ERROR    selectors-4/Overview.bs::L1447    expect token `<ident>`, but found `.`
