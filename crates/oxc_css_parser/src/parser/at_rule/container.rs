@@ -113,6 +113,15 @@ impl<'a> Parse<'a> for QueryInParens<'a> {
             } else if keyword.eq_ignore_ascii_case("scroll-state") {
                 // https://drafts.csswg.org/css-conditional-5/#scroll-state-container
                 expect_without_ws_or_comments!(input, LParen);
+                // `scroll-state((stuck: top) and (stuck: left))` nests a full
+                // condition; `scroll-state(stuck: top)` is a bare feature
+                if matches!(peek!(input).token, Token::LParen(..)) {
+                    let condition = input.parse()?;
+                    let kind =
+                        QueryInParensKind::ScrollStateCondition(arena_box!(input, condition));
+                    let (_, Span { end, .. }) = expect!(input, RParen);
+                    return Ok(QueryInParens { kind, span: Span { start: ident_span.start, end } });
+                }
                 let media = input.parse()?;
                 let kind = QueryInParensKind::ScrollState(arena_box!(input, media));
                 let (_, Span { end, .. }) = expect!(input, RParen);
@@ -278,11 +287,17 @@ impl<'a> Parse<'a> for ContainerPrelude<'a> {
             }
             ident => Ok(ident),
         });
+        // `@container my-page-layout { ... }` — querying by name only
+        // (css-conditional-5) has no condition at all.
+        if let (Ok(parsed_name), Token::LBrace(..)) = (&name, &peek!(input).token) {
+            let span = parsed_name.span().clone();
+            return Ok(ContainerPrelude { name: name.ok(), condition: None, span });
+        }
         let condition = input.parse::<ContainerCondition>()?;
         let mut span = condition.span().clone();
         if let Ok(name) = &name {
             span.start = name.span().start;
         }
-        Ok(ContainerPrelude { name: name.ok(), condition, span })
+        Ok(ContainerPrelude { name: name.ok(), condition: Some(condition), span })
     }
 }

@@ -348,7 +348,8 @@ pub struct ContainerConditionOr<'a> {
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 pub struct ContainerPrelude<'a> {
     pub name: Option<InterpolableIdent<'a>>,
-    pub condition: ContainerCondition<'a>,
+    /// `None` for a name-only prelude: `@container my-page-layout { ... }`.
+    pub condition: Option<ContainerCondition<'a>>,
     pub span: Span,
 }
 
@@ -1418,6 +1419,9 @@ pub enum MediaQuery<'a> {
     Function(Function<'a>),
     LessVariable(LessVariable<'a>),
     LessNamespaceValue(Box<'a, LessNamespaceValue<'a>>),
+    /// An unparseable query preserved as raw tokens; browsers evaluate such
+    /// a query as "not all" without discarding the rule.
+    Unknown(TokenSeq<'a>),
 }
 
 #[derive(Debug)]
@@ -1664,6 +1668,8 @@ pub enum QueryInParensKind<'a> {
     SizeFeature(Box<'a, MediaFeature<'a>>),
     StyleQuery(StyleQuery<'a>),
     ScrollState(Box<'a, MediaFeature<'a>>),
+    /// `scroll-state((stuck: top) and (stuck: left))`
+    ScrollStateCondition(Box<'a, ContainerCondition<'a>>),
 }
 
 #[derive(Debug)]

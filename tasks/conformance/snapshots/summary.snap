@@ -5,17 +5,17 @@
 suite                   files  success  failed  expected   clean  recov  harderr  panic
 css-parsing-tests           0        0       0         0       0      0        0      0
 wpt                         7        5       0         2       5      0        0      0
-csswg-drafts                9        9       0         0       9      0        0      0
+csswg-drafts              214      212       0         2     212      0        0      0
 webref                      0        0       0         0       0      0        0      0
 postcss-parser-tests       30       28       2         0      28      1        1      0
 sass-spec               26787    26490       2       295   26490      0        2      0
 less.js                   459      427       8        24     427      0        8      0
 ------------------------------------------------------------------------
-total                   27292    26959      12       321   26959      1       11      0
+total                   27497    27162      12       323   27162      1       11      0
 
 # by syntax
 syntax                  files  success  failed  expected   clean  recov  harderr  panic
-css                     11797    11765       7        25   11765      1        6      0
+css                     12002    11968       7        27   11968      1        6      0
 scss                    14750    14517       1       232   14517      0        1      0
 sass                      439      398       1        40     398      0        1      0
 less                      306      279       3        24     279      0        3      0

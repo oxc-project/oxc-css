@@ -1,9 +1,0 @@
----
-source: crates/oxc_css_parser/tests/error.rs
-assertion_line: 50
----
-error: expect token `]`, but found `<eof>`
-  ┌─ invalid-attr-6.css:2:1
-  │
-2 │ 
-  │ ^

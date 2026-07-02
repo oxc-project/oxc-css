@@ -1,0 +1,10 @@
+@container scroll-state((stuck: top) and (stuck: left)) {
+  a {
+    b: c;
+  }
+}
+@container scroll-state(stuck: top) {
+  a {
+    b: c;
+  }
+}

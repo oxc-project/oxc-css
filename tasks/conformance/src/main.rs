@@ -107,9 +107,12 @@ const SUITES: &[Suite] = &[
             "css-cascade-5",
         ],
         walk: "",
-        expect_error_under: &[],
+        // examples the spec itself presents as invalid (`h2..foo` — "entirely
+        // invalid and the entire style rule is dropped"); line-keyed, so
+        // revisit when bumping the pinned SHA
+        expect_error_under: &["selectors-4/Overview.bs::L1439", "selectors-4/Overview.bs::L1447"],
         postcss_simple_vars: false,
-        note: "Phase 2 — extract examples from Bikeshed (.bs) sources",
+        note: "spec examples extracted from Bikeshed (.bs) sources",
     },
     Suite {
         name: "webref",
@@ -317,7 +320,7 @@ fn collect_files(dir: &Path, out: &mut Vec<PathBuf>) {
             if !is_git {
                 collect_files(&path, out);
             }
-        } else if syntax_for(&path).is_some() || is_hrx(&path) {
+        } else if syntax_for(&path).is_some() || is_hrx(&path) || is_bikeshed(&path) {
             out.push(path);
         }
     }
@@ -446,6 +449,279 @@ fn hrx_expects_error(entries: &[(String, String)], entry: &str) -> bool {
     })
 }
 
+fn is_bikeshed(path: &Path) -> bool {
+    path.extension().is_some_and(|ext| ext == "bs")
+}
+
+/// Parse one extracted spec example. Examples are frequently fragments — a
+/// run of declarations, a selector, or a value — so a failed stylesheet parse
+/// is retried in each of those contexts before it counts as a failure (the
+/// same methodology as the issue #19 prototype).
+fn process_example(
+    rel_path: String,
+    css: &str,
+    options: ParserOptions,
+    expect_error: bool,
+    report: &mut SuiteReport,
+) {
+    let outcome = parse_outcome(css, Syntax::Css, options);
+    let outcome = if matches!(outcome, Outcome::Clean) {
+        outcome
+    } else {
+        let contexts =
+            [format!("a {{\n{css}\n}}"), format!("{css} {{}}"), format!("a {{ p: {css} }}")];
+        if contexts
+            .iter()
+            .any(|wrapped| matches!(parse_outcome(wrapped, Syntax::Css, options), Outcome::Clean))
+        {
+            Outcome::Clean
+        } else {
+            outcome
+        }
+    };
+    report.tally.record(&outcome, expect_error);
+    report.by_syntax.get_mut(Syntax::Css).record(&outcome, expect_error);
+    let (failure, is_panic) = match outcome {
+        Outcome::Clean => return,
+        Outcome::Recovered(label) => (Failure { tag: "RECOVER", rel_path, label }, false),
+        Outcome::HardError(label) => (Failure { tag: "ERROR", rel_path, label }, false),
+        Outcome::Panic => (Failure { tag: "PANIC", rel_path, label: String::new() }, true),
+    };
+    if expect_error && !is_panic {
+        report.expected_failures.push(failure);
+    } else {
+        report.failures.push(failure);
+    }
+}
+
+/// Extract CSS example blocks from a Bikeshed spec source: the contents of
+/// `<pre>`/`<xmp>` blocks that are marked as CSS examples (their own
+/// class/highlight says so, or they sit inside a `<div class=example>`),
+/// skipping IDL/grammar/propdef/metadata blocks and examples that are not
+/// actually CSS (embedded HTML demos, `…` elisions).
+fn extract_bikeshed_examples(source: &str) -> Vec<(usize, String)> {
+    const EXCLUDE: &[&str] = &[
+        "idl",
+        "propdef",
+        "descdef",
+        "prod",
+        "railroad",
+        "metadata",
+        "biblio",
+        "anchors",
+        "link-defaults",
+        "argumentdef",
+        "elementdef",
+        "simpledef",
+        "lang-html",
+        "lang-js",
+        "lang-markup",
+        "highlight=html",
+        "highlight=\"html\"",
+        "highlight=js",
+        "highlight=\"js\"",
+        "highlight=xml",
+    ];
+
+    let mut out = Vec::new();
+    let mut div_stack: Vec<bool> = Vec::new();
+    let mut i = 0;
+    while let Some(offset) = source[i..].find('<') {
+        let at = i + offset;
+        let rest = &source[at..];
+        if let Some(tag) = tag_at(rest, "<div") {
+            div_stack.push(tag.to_ascii_lowercase().contains("example"));
+            i = at + tag.len();
+        } else if rest.starts_with("</div") {
+            div_stack.pop();
+            i = at + 5;
+        } else if let Some((attrs, content, after)) =
+            block_at(rest, "pre").or_else(|| block_at(rest, "xmp"))
+        {
+            let attrs = attrs.to_ascii_lowercase();
+            let marked_css = attrs.contains("example")
+                || attrs.contains("lang-css")
+                || attrs.contains("language-css")
+                || attrs.contains("highlight=css")
+                || attrs.contains("highlight=\"css\"")
+                || attrs.contains("highlight='css'");
+            let in_example = div_stack.iter().any(|&is_example| is_example);
+            let excluded = EXCLUDE.iter().any(|marker| attrs.contains(marker));
+            if (marked_css || in_example) && !excluded {
+                let css = clean_example(content);
+                if !css.is_empty() {
+                    let line = 1 + source[..at].matches('\n').count();
+                    out.push((line, css));
+                }
+            }
+            i = at + after;
+        } else {
+            i = at + 1;
+        }
+    }
+    out
+}
+
+/// The full `<name ...>` opening tag at the start of `rest`, if present.
+fn tag_at<'s>(rest: &'s str, open: &str) -> Option<&'s str> {
+    let tail = rest.strip_prefix(open)?;
+    if !tail.starts_with([' ', '\t', '\n', '>']) {
+        return None;
+    }
+    rest.find('>').map(|end| &rest[..=end])
+}
+
+/// A whole `<name ...>content</name>` block at the start of `rest`; returns
+/// (opening-tag attrs, raw content, offset just past the closing tag).
+fn block_at<'s>(rest: &'s str, name: &str) -> Option<(&'s str, &'s str, usize)> {
+    let tail = rest.strip_prefix('<')?.strip_prefix(name)?;
+    if !tail.starts_with([' ', '\t', '\n', '>']) {
+        return None;
+    }
+    let open_end = rest.find('>')?;
+    let close = format!("</{name}");
+    let close_at = open_end + rest[open_end..].find(&close)?;
+    let after = close_at + rest[close_at..].find('>').map_or(close.len(), |e| e + 1);
+    Some((&rest[1 + name.len()..open_end], &rest[open_end + 1..close_at], after))
+}
+
+/// Unescape, dedent, and vet an extracted example; empty string means "skip".
+fn clean_example(raw: &str) -> String {
+    // Bikeshed sources use empty HTML comments to control whitespace
+    // (`<pre><!--\n-->2n+0 ...`); drop those before anything else, keeping
+    // real content comments (a CDO/CDC example is never whitespace-only).
+    let text = strip_whitespace_html_comments(raw);
+    let text = html_unescape(&text);
+    // not CSS: embedded HTML demos, elision placeholders, pseudocode math
+    if looks_like_markup(&text) || text.contains('…') {
+        return String::new();
+    }
+    if text.lines().any(|l| l.trim() == "...") {
+        return String::new();
+    }
+    if text.lines().any(|line| {
+        let mut parts = line.trim().splitn(2, char::is_whitespace);
+        let head = parts.next().unwrap_or("");
+        !head.is_empty()
+            && head.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+            && parts.next().is_some_and(|tail| tail.trim_start().starts_with("= "))
+    }) {
+        return String::new();
+    }
+    // `{ ... }` / `(...)` elision placeholders stand for omitted contents;
+    // empty the block so the surrounding syntax still gets parsed.
+    let text = text.replace("{ ... }", "{}").replace("{...}", "{}");
+    dedent(&text)
+}
+
+fn strip_whitespace_html_comments(raw: &str) -> String {
+    let mut out = String::with_capacity(raw.len());
+    let mut rest = raw;
+    while let Some(at) = rest.find("<!--") {
+        match rest[at + 4..].find("-->") {
+            Some(len) if rest[at + 4..at + 4 + len].trim().is_empty() => {
+                out.push_str(&rest[..at]);
+                rest = &rest[at + 4 + len + 3..];
+            }
+            _ => {
+                out.push_str(&rest[..at + 4]);
+                rest = &rest[at + 4..];
+            }
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+fn html_unescape(raw: &str) -> String {
+    let mut out = String::with_capacity(raw.len());
+    let mut rest = raw;
+    while let Some(at) = rest.find('&') {
+        out.push_str(&rest[..at]);
+        rest = &rest[at..];
+        let mut matched = false;
+        for (entity, ch) in [
+            ("&lt;", '<'),
+            ("&gt;", '>'),
+            ("&quot;", '"'),
+            ("&#39;", '\''),
+            ("&#x27;", '\''),
+            ("&apos;", '\''),
+            ("&#xa;", '\n'),
+            ("&#xA;", '\n'),
+            ("&nbsp;", ' '),
+            ("&amp;", '&'),
+        ] {
+            if rest.starts_with(entity) {
+                out.push(ch);
+                rest = &rest[entity.len()..];
+                matched = true;
+                break;
+            }
+        }
+        if !matched {
+            out.push('&');
+            rest = &rest[1..];
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+/// Whether the text still contains HTML-tag-looking sequences (`</...`,
+/// `<span ...>`). Range media queries (`(400px < width)`) don't trip this:
+/// their `<` is never followed directly by a letter run. Value-grammar
+/// references (`<color>`) do, which is desirable — grammar snippets are not
+/// parseable CSS either.
+fn looks_like_markup(text: &str) -> bool {
+    let bytes = text.as_bytes();
+    for (i, &b) in bytes.iter().enumerate() {
+        if b != b'<' {
+            continue;
+        }
+        match bytes.get(i + 1) {
+            Some(b'/') => return true,
+            Some(c) if c.is_ascii_alphabetic() => {
+                let mut j = i + 1;
+                while bytes.get(j).is_some_and(|c| c.is_ascii_alphanumeric() || *c == b'-') {
+                    j += 1;
+                }
+                if matches!(bytes.get(j), Some(b'>' | b' ' | b'\t' | b'\n')) {
+                    return true;
+                }
+            }
+            _ => {}
+        }
+    }
+    false
+}
+
+/// Strip the longest common leading whitespace and surrounding blank lines.
+fn dedent(text: &str) -> String {
+    let mut prefix: Option<&str> = None;
+    for line in text.lines().filter(|l| !l.trim().is_empty()) {
+        let lead = &line[..line.len() - line.trim_start().len()];
+        prefix = Some(match prefix {
+            None => lead,
+            Some(prev) => {
+                let common =
+                    prev.as_bytes().iter().zip(lead.as_bytes()).take_while(|(a, b)| a == b).count();
+                &prev[..common]
+            }
+        });
+    }
+    let prefix = prefix.unwrap_or("");
+    let mut lines: Vec<&str> =
+        text.lines().map(|l| l.strip_prefix(prefix).unwrap_or(l.trim_start())).collect();
+    while lines.first().is_some_and(|l| l.trim().is_empty()) {
+        lines.remove(0);
+    }
+    while lines.last().is_some_and(|l| l.trim().is_empty()) {
+        lines.pop();
+    }
+    lines.join("\n")
+}
+
 fn run_suite(suite: &Suite) -> SuiteReport {
     let suite_root = repos_dir().join(suite.name);
     let mut files = Vec::new();
@@ -464,6 +740,12 @@ fn run_suite(suite: &Suite) -> SuiteReport {
         if let Some(syntax) = syntax_for(&path) {
             let expect_error = suite.expect_error_under.iter().any(|p| rel.starts_with(p));
             process_unit(rel, &source, syntax, options, expect_error, &mut report);
+        } else if is_bikeshed(&path) {
+            for (line, css) in extract_bikeshed_examples(&source) {
+                let unit = format!("{rel}::L{line}");
+                let expect_error = suite.expect_error_under.iter().any(|p| unit.starts_with(p));
+                process_example(unit, &css, options, expect_error, &mut report);
+            }
         } else {
             // sass-spec packs each test in an `.hrx` archive; parse its entries.
             let entries = parse_hrx(&source);
