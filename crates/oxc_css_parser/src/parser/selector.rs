@@ -452,6 +452,21 @@ impl<'a> Parse<'a> for AttributeSelector<'a> {
                     });
                     None
                 }
+                // An unusual value like `[attr=;]` is invalid per the
+                // Selectors grammar, but postcss accepts it; preserve the raw
+                // tokens up to the closing `]`.
+                TokenWithSpan { span, .. } if input.syntax == Syntax::Css => {
+                    let start = span.start;
+                    let mut tokens = arena_vec!(input);
+                    while !matches!(peek!(input).token, Token::RBracket(..) | Token::Eof(..)) {
+                        tokens.push(bump!(input));
+                    }
+                    let end = tokens.last().map_or(start, |t| t.span.end);
+                    Some(AttributeSelectorValue::TokenSeq(TokenSeq {
+                        tokens,
+                        span: Span { start, end },
+                    }))
+                }
                 token_with_span => {
                     return Err(Error {
                         kind: ErrorKind::ExpectAttributeSelectorValue,

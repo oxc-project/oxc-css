@@ -120,6 +120,7 @@ pub enum AttributeSelectorValue<'a> {
     Dimension(Dimension<'a>),
     Percentage(Percentage<'a>),
     LessEscapedStr(LessEscapedStr<'a>),
+    TokenSeq(TokenSeq<'a>),
 }
 
 #[derive(Debug)]
