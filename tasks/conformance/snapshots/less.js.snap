@@ -25,7 +25,7 @@ ERROR    packages/test-data/tests-unit/import/import/invalid-css.less    expect 
 ERROR    packages/test-data/tests-unit/media/media.less    expect token `{`, but found `<ident>`
 ERROR    packages/test-data/tests-unit/namespace-targeted/namespace-targeted.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/operations/operations.less    expect token `;`, but found `{`
-ERROR    packages/test-data/tests-unit/permissive-parse/permissive-parse.less    expect token `<eof>`, but found `}`
+ERROR    packages/test-data/tests-unit/permissive-parse/permissive-parse.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/property-name-interp/property-name-interp.css    expect token `:`, but found `+`
 ERROR    packages/test-data/tests-unit/property-name-interp/property-name-interp.less    expect token `(`, but found `{`
 ERROR    packages/test-data/tests-unit/strings/strings.less    expect token `;`, but found `{`

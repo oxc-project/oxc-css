@@ -56,6 +56,18 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
+    /// Cancel pending continuation indents against incoming `Dedent`s (their
+    /// mirror tokens). Returns whether any were drained.
+    pub(super) fn drain_sass_pending_dedents(&mut self) -> PResult<bool> {
+        let mut drained = false;
+        while self.sass_pending_indents > 0 && matches!(peek!(self).token, Token::Dedent(..)) {
+            bump!(self);
+            self.sass_pending_indents -= 1;
+            drained = true;
+        }
+        Ok(drained)
+    }
+
     pub(super) fn parse_maybe_sass_list(
         &mut self,
         allow_comma: bool,
@@ -1098,26 +1110,32 @@ impl<'a> Parse<'a> for SassIfAtRule<'a> {
             // In the indented syntax `@else` sits on the line after the
             // previous clause's block, so a Linebreak may precede it; only
             // consume that separator when an else/elseif actually follows.
-            let else_keyword = input.try_parse(|p| {
-                if p.syntax == Syntax::Sass {
-                    while eat!(p, Linebreak).is_some() {}
-                }
+            // (Linebreak tokens exist only in the indented syntax, so the
+            // rollback snapshot is needed only when one is present.)
+            fn else_keyword<'a>(p: &mut Parser<'a>) -> PResult<(Span, bool)> {
+                while eat!(p, Linebreak).is_some() {}
                 let is_else = match &peek!(p).token {
                     Token::AtKeyword(at_keyword) => match &*at_keyword.ident.name() {
-                        "else" => Some(true),
+                        "else" => true,
                         // `elseif` is deprecated by Sass
-                        "elseif" => Some(false),
-                        _ => None,
+                        "elseif" => false,
+                        _ => {
+                            let span = peek!(p).span.clone();
+                            return Err(Error { kind: ErrorKind::TryParseError, span });
+                        }
                     },
-                    _ => None,
-                };
-                match is_else {
-                    Some(is_else) => Ok((bump!(p).span, is_else)),
-                    None => {
-                        Err(Error { kind: ErrorKind::TryParseError, span: peek!(p).span.clone() })
+                    _ => {
+                        let span = peek!(p).span.clone();
+                        return Err(Error { kind: ErrorKind::TryParseError, span });
                     }
-                }
-            });
+                };
+                Ok((bump!(p).span, is_else))
+            }
+            let else_keyword = if matches!(peek!(input).token, Token::Linebreak(..)) {
+                input.try_parse(else_keyword)
+            } else {
+                else_keyword(input)
+            };
             let Ok((else_span, is_else)) = else_keyword else { break };
             else_spans.push(else_span);
             if is_else {

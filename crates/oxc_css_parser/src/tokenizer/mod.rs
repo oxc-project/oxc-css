@@ -382,7 +382,7 @@ impl<'a> Tokenizer<'a> {
         // comment started on continue the comment — but only for a comment
         // that starts its line (a statement-level comment); one trailing
         // after code is plain whitespace with no children.
-        let starts_line = {
+        let starts_line = || {
             let bytes = self.source.as_bytes();
             let mut i = start;
             while i > 0 && matches!(bytes[i - 1], b' ' | b'\t') {
@@ -390,7 +390,7 @@ impl<'a> Tokenizer<'a> {
             }
             i == 0 || matches!(bytes[i - 1], b'\n' | b'\r' | b'\x0C')
         };
-        let end = if self.syntax == Syntax::Sass && self.state.paren_depth == 0 && starts_line {
+        let end = if self.syntax == Syntax::Sass && self.state.paren_depth == 0 && starts_line() {
             self.consume_sass_comment_continuation(end)
         } else {
             end
@@ -427,13 +427,14 @@ impl<'a> Tokenizer<'a> {
                     }
                 }
             }
-            if !saw_newline || content_start.is_none() || indent <= base {
+            let Some(content_start) = content_start else { return end };
+            if !saw_newline || indent <= base {
                 return end;
             }
             // deeper content: the line belongs to the comment — consume it
             while let Some((i, c)) = self.state.chars.peek() {
                 if matches!(c, '\n' | '\r' | '\x0C') {
-                    if *i >= content_start.unwrap() {
+                    if *i >= content_start {
                         break;
                     }
                     self.state.chars.next();
@@ -1535,4 +1536,16 @@ impl<'a> Tokenizer<'a> {
 #[inline]
 fn is_start_of_ident(c: char) -> bool {
     c.is_ascii_alphabetic() || c == '-' || c == '_' || !c.is_ascii() || c == '\\'
+}
+
+/// Whether an identifier starts at byte offset `at` of `source`, using the
+/// same dash lookahead as the tokenizer's dispatch (`-x` starts one, a lone
+/// `-` doesn't).
+pub(crate) fn ident_starts_at(source: &str, at: usize) -> bool {
+    let mut chars = source.get(at..).unwrap_or_default().chars();
+    match chars.next() {
+        Some('-') => matches!(chars.next(), Some(c) if is_start_of_ident(c) && c != '-'),
+        Some(c) => is_start_of_ident(c),
+        None => false,
+    }
 }

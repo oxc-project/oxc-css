@@ -408,48 +408,50 @@ impl<'a> Parser<'a> {
                             || ident.name.eq_ignore_ascii_case("max"));
                     // The calc grammar doesn't cover SassScript uses of these
                     // names (`abs(\$number: -3)`, `max(1 2 3...)`,
-                    // `round(-(1) + 2)`); fall back to a strict SassScript
-                    // call — but only there, so invalid calc stays invalid.
-                    let typed = self.try_parse(|p| {
-                        let values = p.parse_calc_args(allow_modulo)?;
-                        if matches!(&peek!(p).token, Token::RParen(..)) {
-                            Ok(values)
-                        } else {
-                            let span = peek!(p).span.clone();
-                            Err(Error { kind: ErrorKind::TryParseError, span })
-                        }
-                    });
-                    match typed {
-                        Ok(values) => values,
-                        Err(error) => {
-                            if !matches!(self.syntax, Syntax::Scss | Syntax::Sass) {
-                                return Err(error);
+                    // `round(-(1) + 2)`); Scss/Sass fall back to a strict
+                    // SassScript call — but only there, so invalid calc stays
+                    // invalid. Other syntaxes have no fallback, so they skip
+                    // the rollback snapshot entirely.
+                    if !matches!(self.syntax, Syntax::Scss | Syntax::Sass) {
+                        self.parse_calc_args(allow_modulo)?
+                    } else {
+                        let typed = self.try_parse(|p| {
+                            let values = p.parse_calc_args(allow_modulo)?;
+                            if matches!(&peek!(p).token, Token::RParen(..)) {
+                                Ok(values)
+                            } else {
+                                let span = peek!(p).span.clone();
+                                Err(Error { kind: ErrorKind::TryParseError, span })
                             }
-                            let (args, comma_spans) = self.parse_sass_invocation_args()?;
-                            // Only a keyword argument justifies the fallback
-                            // (`abs(\$number: -3)` is a SassScript call); plain
-                            // expressions the calc grammar rejected
-                            // (`calc(1px % 2px)`, double spreads) stay invalid.
-                            if !args
-                                .iter()
-                                .any(|arg| matches!(arg, ComponentValue::SassKeywordArgument(..)))
-                            {
-                                return Err(error);
-                            }
-                            let mut values = self.vec_with_capacity(args.len() * 2);
-                            let mut comma_spans = comma_spans.into_iter();
-                            for (i, arg) in args.into_iter().enumerate() {
-                                if i > 0
-                                    && let Some(span) = comma_spans.next()
-                                {
-                                    values.push(ComponentValue::Delimiter(Delimiter {
-                                        kind: DelimiterKind::Comma,
-                                        span,
-                                    }));
+                        });
+                        match typed {
+                            Ok(values) => values,
+                            Err(error) => {
+                                let (args, comma_spans) = self.parse_sass_invocation_args()?;
+                                // Only a keyword argument justifies the fallback
+                                // (`abs(\$number: -3)` is a SassScript call); plain
+                                // expressions the calc grammar rejected
+                                // (`calc(1px % 2px)`, double spreads) stay invalid.
+                                if !args.iter().any(|arg| {
+                                    matches!(arg, ComponentValue::SassKeywordArgument(..))
+                                }) {
+                                    return Err(error);
                                 }
-                                values.push(arg);
+                                let mut values = self.vec_with_capacity(args.len() * 2);
+                                let mut comma_spans = comma_spans.into_iter();
+                                for (i, arg) in args.into_iter().enumerate() {
+                                    if i > 0
+                                        && let Some(span) = comma_spans.next()
+                                    {
+                                        values.push(ComponentValue::Delimiter(Delimiter {
+                                            kind: DelimiterKind::Comma,
+                                            span,
+                                        }));
+                                    }
+                                    values.push(arg);
+                                }
+                                values
                             }
-                            values
                         }
                     }
                 }
@@ -575,34 +577,17 @@ impl<'a> Parser<'a> {
         loop {
             match &peek!(self).token {
                 Token::Eof(..) => break,
-                Token::LParen(..) => pairs.push(util::PairedToken::Paren),
-                Token::RParen(..) => {
-                    if let Some(util::PairedToken::Paren) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
-                Token::LBracket(..) => pairs.push(util::PairedToken::Bracket),
-                Token::RBracket(..) => {
-                    if let Some(util::PairedToken::Bracket) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
-                Token::LBrace(..) | Token::HashLBrace(..) => pairs.push(util::PairedToken::Brace),
-                Token::RBrace(..) => {
-                    if let Some(util::PairedToken::Brace) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
                 // Interpolated strings must be parsed structurally so the
                 // tokenizer resumes the string after each `#{...}`.
                 Token::StrTemplate(..) => {
                     values.push(ComponentValue::InterpolableStr(self.parse()?));
                     continue;
                 }
-                _ => {}
+                token => {
+                    if !util::track_paired_token(token, &mut pairs) {
+                        break;
+                    }
+                }
             }
             values.push(ComponentValue::TokenWithSpan(bump!(self)));
         }

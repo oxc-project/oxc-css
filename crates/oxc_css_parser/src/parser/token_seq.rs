@@ -7,7 +7,6 @@ use crate::{
     peek,
     pos::Span,
     tokenizer::{Token, TokenWithSpan},
-    util::PairedToken,
 };
 
 impl<'a> Parser<'a> {
@@ -31,35 +30,12 @@ impl<'a> Parser<'a> {
                     self.consume_str_template_tokens_into(&mut tokens)?;
                     continue;
                 }
-                Token::LParen(..) => {
-                    pairs.push(PairedToken::Paren);
-                }
-                Token::RParen(..) => {
-                    if let Some(PairedToken::Paren) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
-                Token::LBracket(..) => {
-                    pairs.push(PairedToken::Bracket);
-                }
-                Token::RBracket(..) => {
-                    if let Some(PairedToken::Bracket) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
-                Token::LBrace(..) | Token::HashLBrace(..) => {
-                    pairs.push(PairedToken::Brace);
-                }
-                Token::RBrace(..) => {
-                    if let Some(PairedToken::Brace) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
                 Token::Eof(..) => break,
-                _ => {}
+                token => {
+                    if !crate::util::track_paired_token(token, &mut pairs) {
+                        break;
+                    }
+                }
             }
             tokens.push(bump!(self));
         }

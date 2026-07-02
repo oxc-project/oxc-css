@@ -91,6 +91,23 @@ impl<'a> Parser<'a> {
         }))
     }
 
+    /// The parenthesized part of a guard condition, after its `(` was
+    /// consumed: guards are math mode (`when (8+(5-1) < 13)`). Returns the
+    /// condition and the `)`'s end offset.
+    fn parse_less_guard_paren_condition(
+        &mut self,
+        needs_parens: bool,
+    ) -> PResult<(LessCondition<'a>, usize)> {
+        let condition = self
+            .with_state(ParserState {
+                less_ctx: self.state.less_ctx | LESS_CTX_ALLOW_DIV,
+                ..self.state.clone()
+            })
+            .parse_less_condition_inside_parens(needs_parens)?;
+        let (_, Span { end, .. }) = expect!(self, RParen);
+        Ok((condition, end))
+    }
+
     fn parse_less_condition_inside_parens(
         &mut self,
         needs_parens: bool,
@@ -138,14 +155,7 @@ impl<'a> Parser<'a> {
             match &peek!(self).token {
                 Token::LParen(..) => {
                     let Span { start, .. } = bump!(self).span;
-                    // guards are math mode: `when (8+(5-1) < 13)`
-                    let condition = self
-                        .with_state(ParserState {
-                            less_ctx: self.state.less_ctx | LESS_CTX_ALLOW_DIV,
-                            ..self.state.clone()
-                        })
-                        .parse_less_condition_inside_parens(needs_parens)?;
-                    let (_, Span { end, .. }) = expect!(self, RParen);
+                    let (condition, end) = self.parse_less_guard_paren_condition(needs_parens)?;
                     LessCondition::Parenthesized(LessParenthesizedCondition {
                         condition: arena_box!(self, condition),
                         span: Span { start, end },
@@ -153,29 +163,18 @@ impl<'a> Parser<'a> {
                 }
                 Token::Ident(ident) if ident.raw == "not" => {
                     let Span { start, .. } = bump!(self).span;
-                    if matches!(peek!(self).token, Token::LParen(..)) {
-                        bump!(self);
-                        // guards are math mode: `when not (8+(5-1) < 13)`
-                        let condition = self
-                            .with_state(ParserState {
-                                less_ctx: self.state.less_ctx | LESS_CTX_ALLOW_DIV,
-                                ..self.state.clone()
-                            })
-                            .parse_less_condition_inside_parens(needs_parens)?;
-                        let (_, Span { end, .. }) = expect!(self, RParen);
-                        LessCondition::Negated(LessNegatedCondition {
-                            condition: arena_box!(self, condition),
-                            span: Span { start, end },
-                        })
+                    let (condition, end) = if eat!(self, LParen).is_some() {
+                        self.parse_less_guard_paren_condition(needs_parens)?
                     } else {
                         // less.js also accepts a bare operand: `when not @a`
                         let condition = self.parse_less_condition_atom()?;
                         let end = condition.span().end;
-                        LessCondition::Negated(LessNegatedCondition {
-                            condition: arena_box!(self, condition),
-                            span: Span { start, end },
-                        })
-                    }
+                        (condition, end)
+                    };
+                    LessCondition::Negated(LessNegatedCondition {
+                        condition: arena_box!(self, condition),
+                        span: Span { start, end },
+                    })
                 }
                 _ => {
                     if needs_parens {
@@ -467,48 +466,6 @@ impl<'a> Parser<'a> {
                         span: bump!(self).span,
                     }
                 }
-                // a signed dimension glued to the left operand is an
-                // operation in math mode: `(10px / 2px+6px-1px*2)`
-                TokenWithSpan { token: Token::Dimension(token), span }
-                    if precedence == PRECEDENCE_PLUS
-                        && (token.value.raw.starts_with('+')
-                            || token.value.raw.starts_with('-'))
-                        && span.start == left.span().end =>
-                {
-                    let (dimension, dimension_span) = expect!(self, Dimension);
-                    let op = LessOperationOperator {
-                        kind: if dimension.value.raw.starts_with('+') {
-                            LessOperationOperatorKind::Plus
-                        } else {
-                            LessOperationOperatorKind::Minus
-                        },
-                        span: Span { start: dimension_span.start, end: dimension_span.start + 1 },
-                    };
-                    let span = Span { start: left.span().start, end: dimension_span.end };
-                    let right = self
-                        .dimension(
-                            crate::token::Dimension {
-                                value: crate::token::Number {
-                                    raw: unsafe {
-                                        dimension
-                                            .value
-                                            .raw
-                                            .get_unchecked(1..dimension.value.raw.len())
-                                    },
-                                },
-                                unit: dimension.unit,
-                            },
-                            Span { start: dimension_span.start + 1, end: dimension_span.end },
-                        )
-                        .map(ComponentValue::Dimension)?;
-                    left = ComponentValue::LessBinaryOperation(LessBinaryOperation {
-                        left: arena_box!(self, left),
-                        op,
-                        right: arena_box!(self, right),
-                        span,
-                    });
-                    continue;
-                }
                 TokenWithSpan { token: Token::Number(token), span }
                     if precedence == PRECEDENCE_PLUS
                         && (token.raw.starts_with('+')
@@ -630,7 +587,10 @@ impl<'a> Parser<'a> {
         match &peek!(self).token {
             Token::Ident(ident) if ident.raw == "when" => {
                 let mut selector_list = selector_list;
-                let guarded_single = selector_list.selectors.len() == 1;
+                // a guard on a pre-existing multi-selector list is the
+                // (recoverable) legacy error; per-selector guards added by
+                // the merge loop below are fine
+                let guard_on_multiple_selectors = selector_list.selectors.len() > 1;
                 let mut guard = self.parse::<LessConditions>()?;
                 // less.js also guards each selector of a list sharing one
                 // block (`.a when (..), .b when (..) { }`); the AST has a
@@ -659,7 +619,7 @@ impl<'a> Parser<'a> {
                 }
                 let block = self.parse::<SimpleBlock>()?;
                 let span = Span { start: selector_list.span.start, end: block.span.end };
-                if !guarded_single && selector_list.selectors.len() > 1 {
+                if guard_on_multiple_selectors {
                     self.recoverable_errors.push(Error {
                         kind: ErrorKind::LessGuardOnMultipleComplexSelectors,
                         span: guard.span.clone(),
@@ -813,17 +773,14 @@ impl<'a> Parse<'a> for LessConditions<'a> {
         // A comma may also separate the next guarded selector of the rule
         // (`.a when (..), .b when (..) {`), so only consume it when a
         // condition actually follows.
-        while let Ok((comma_span, condition)) = input.try_parse(|p| {
-            let comma_span = match eat!(p, Comma) {
-                Some((_, span)) => span,
-                None => {
-                    let span = peek!(p).span.clone();
-                    return Err(Error { kind: ErrorKind::TryParseError, span });
-                }
+        while matches!(peek!(input).token, Token::Comma(..)) {
+            let Ok((comma_span, condition)) = input.try_parse(|p| {
+                let (_, comma_span) = expect!(p, Comma);
+                let condition = p.parse_less_condition(true)?;
+                Ok((comma_span, condition))
+            }) else {
+                break;
             };
-            let condition = p.parse_less_condition(true)?;
-            Ok((comma_span, condition))
-        }) {
             comma_spans.push(comma_span);
             conditions.push(condition);
         }

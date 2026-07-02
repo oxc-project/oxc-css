@@ -32,38 +32,47 @@ impl<'a> Parse<'a> for AtRule<'a> {
         let at_rule_name = at_keyword.ident.name();
         let (prelude, block, end) = if at_rule_name.eq_ignore_ascii_case("media") {
             // The typed grammar must account for the whole prelude; queries it
-            // can't express (`@media all #{$m}`, less.js's `all and screen`)
-            // are kept as raw tokens instead.
-            let prelude = input
-                .try_parse(|p| {
-                    let queries = MediaQueryList::parse(p)?;
-                    match &peek!(p).token {
-                        Token::LBrace(..)
-                        | Token::Indent(..)
-                        | Token::Semicolon(..)
-                        | Token::Dedent(..)
-                        | Token::Linebreak(..)
-                        | Token::Eof(..) => Ok(AtRulePrelude::Media(queries)),
-                        _ => {
-                            let span = peek!(p).span.clone();
-                            Err(Error { kind: ErrorKind::TryParseError, span })
-                        }
-                    }
-                })
-                .ok();
-            let prelude = match prelude {
-                Some(prelude) => Some(prelude),
-                None if matches!(peek!(input).token, Token::LBrace(..) | Token::Indent(..)) => None,
+            // can't express (`@media all #{$m}`) are kept as raw tokens.
+            let prelude = match input
+                .try_parse_full_prelude(|p| MediaQueryList::parse(p).map(AtRulePrelude::Media))
+            {
+                Ok(prelude) => Some(prelude),
+                Err(_) if matches!(peek!(input).token, Token::LBrace(..) | Token::Indent(..)) => {
+                    None
+                }
                 // Only interpolation justifies the raw form — dart-sass
                 // reparses such queries after resolving `#{...}`; plain
                 // malformed logic (`@media a and b or c`) must keep erroring.
-                None if matches!(input.syntax, Syntax::Scss | Syntax::Sass)
-                    && interpolation_before_block(input.source, peek!(input).span.start) =>
-                {
-                    let raw = input.parse_raw_at_rule_prelude()?;
-                    Some(AtRulePrelude::Unknown(arena_box!(input, raw)))
+                Err(_) => {
+                    let raw = if matches!(input.syntax, Syntax::Scss | Syntax::Sass) {
+                        input.try_parse(|p| {
+                            let raw = p.parse_raw_at_rule_prelude()?;
+                            let has_interpolation = matches!(
+                                &raw,
+                                UnknownAtRulePrelude::TokenSeq(seq)
+                                    if seq.tokens.iter().any(|t| matches!(
+                                        t.token,
+                                        Token::HashLBrace(..) | Token::StrTemplate(..)
+                                    ))
+                            );
+                            if has_interpolation {
+                                Ok(raw)
+                            } else {
+                                let span = peek!(p).span.clone();
+                                Err(Error { kind: ErrorKind::TryParseError, span })
+                            }
+                        })
+                    } else {
+                        Err(Error {
+                            kind: ErrorKind::TryParseError,
+                            span: peek!(input).span.clone(),
+                        })
+                    };
+                    match raw {
+                        Ok(raw) => Some(AtRulePrelude::Unknown(arena_box!(input, raw))),
+                        Err(_) => Some(AtRulePrelude::Media(input.parse()?)),
+                    }
                 }
-                None => Some(AtRulePrelude::Media(input.parse()?)),
             };
             let block = input.parse::<SimpleBlock>()?;
             let end = block.span.end;
@@ -84,21 +93,7 @@ impl<'a> Parse<'a> for AtRule<'a> {
                     // also carries loose preludes (`@keyframes \$a`,
                     // `@-moz-keyframes name /* c */ line 429`) — keep those as
                     // raw tokens like an unknown at-rule's prelude.
-                    let typed = input.try_parse(|p| {
-                        let name = p.parse::<KeyframesName>()?;
-                        match &peek!(p).token {
-                            Token::LBrace(..)
-                            | Token::Indent(..)
-                            | Token::Semicolon(..)
-                            | Token::Dedent(..)
-                            | Token::Linebreak(..)
-                            | Token::Eof(..) => Ok(name),
-                            _ => {
-                                let span = peek!(p).span.clone();
-                                Err(Error { kind: ErrorKind::TryParseError, span })
-                            }
-                        }
-                    });
+                    let typed = input.try_parse_full_prelude(KeyframesName::parse);
                     match typed {
                         Ok(name) => Some(AtRulePrelude::Keyframes(name)),
                         Err(_) => input
@@ -168,16 +163,18 @@ impl<'a> Parse<'a> for AtRule<'a> {
             let end = block.span.end;
             (prelude, Some(block), end)
         } else if at_rule_name.eq_ignore_ascii_case("layer") {
-            let mut prelude = input.try_parse(LayerNames::parse).map(AtRulePrelude::Layer).ok();
-            // a Less variable may stand for the name: `@layer @layer-name {`
-            if prelude.is_none()
-                && input.syntax == Syntax::Less
-                && matches!(peek!(input).token, Token::AtKeyword(..))
-            {
-                let raw = input.parse_raw_at_rule_prelude()?;
-                prelude = Some(AtRulePrelude::Unknown(arena_box!(input, raw)));
-            }
-            let prelude = prelude;
+            let prelude = match input.try_parse(LayerNames::parse) {
+                Ok(names) => Some(AtRulePrelude::Layer(names)),
+                // a Less variable may stand for the name: `@layer @layer-name {`
+                Err(_)
+                    if input.syntax == Syntax::Less
+                        && matches!(peek!(input).token, Token::AtKeyword(..)) =>
+                {
+                    let raw = input.parse_raw_at_rule_prelude()?;
+                    Some(AtRulePrelude::Unknown(arena_box!(input, raw)))
+                }
+                Err(_) => None,
+            };
             let block = if matches!(peek!(input).token, Token::LBrace(..) | Token::Indent(..)) {
                 Some(input.parse::<SimpleBlock>()?)
             } else {
@@ -528,22 +525,29 @@ impl<'a> Parse<'a> for AtRule<'a> {
     }
 }
 
-/// Whether an `#{...}` interpolation occurs between `from` and the prelude's
-/// end (the block's `{` or a `;`).
-fn interpolation_before_block(source: &str, from: usize) -> bool {
-    let bytes = source.as_bytes();
-    let mut i = from;
-    while i < bytes.len() {
-        match bytes[i] {
-            b'#' if bytes.get(i + 1) == Some(&b'{') => return true,
-            b'{' | b';' => return false,
-            _ => i += 1,
-        }
-    }
-    false
-}
-
 impl<'a> Parser<'a> {
+    /// `try_parse` a typed at-rule prelude that must account for everything
+    /// up to the end of the prelude (the block's opener or the statement
+    /// boundary) — otherwise the parse is rolled back so the caller can fall
+    /// back to a raw form.
+    fn try_parse_full_prelude<T>(&mut self, f: impl FnOnce(&mut Self) -> PResult<T>) -> PResult<T> {
+        self.try_parse(|p| {
+            let value = f(p)?;
+            match &peek!(p).token {
+                Token::LBrace(..)
+                | Token::Indent(..)
+                | Token::Semicolon(..)
+                | Token::Dedent(..)
+                | Token::Linebreak(..)
+                | Token::Eof(..) => Ok(value),
+                _ => {
+                    let span = peek!(p).span.clone();
+                    Err(Error { kind: ErrorKind::TryParseError, span })
+                }
+            }
+        })
+    }
+
     /// A raw at-rule prelude: everything up to the body's `{` (or the end of
     /// the statement), balancing pairs so interpolations and parens pass
     /// through — CSS custom function preludes (`--name(--arg) returns <type>`)
@@ -560,30 +564,18 @@ impl<'a> Parser<'a> {
                 | Token::Indent(..)
                 | Token::Eof(..) => break,
                 Token::LBrace(..) if pairs.is_empty() => break,
-                Token::LBrace(..) | Token::HashLBrace(..) => {
-                    pairs.push(crate::util::PairedToken::Brace);
+                // Interpolated strings must be consumed structurally — the
+                // tokenizer resumes the string after each `#{...}` — but
+                // their pieces are still plain tokens.
+                Token::StrTemplate(..) => {
+                    self.consume_str_template_tokens_into(&mut tokens)?;
+                    continue;
                 }
-                Token::RBrace(..) => {
-                    if let Some(crate::util::PairedToken::Brace) = pairs.pop() {
-                    } else {
+                token => {
+                    if !crate::util::track_paired_token(token, &mut pairs) {
                         break;
                     }
                 }
-                Token::LParen(..) => pairs.push(crate::util::PairedToken::Paren),
-                Token::RParen(..) => {
-                    if let Some(crate::util::PairedToken::Paren) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
-                Token::LBracket(..) => pairs.push(crate::util::PairedToken::Bracket),
-                Token::RBracket(..) => {
-                    if let Some(crate::util::PairedToken::Bracket) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
-                _ => {}
             }
             tokens.push(bump!(self));
         }

@@ -117,10 +117,24 @@ impl<'a> Parse<'a> for SupportsInParens<'a> {
                             span,
                         })
                     }
-                    name => match peek!(input) {
-                        TokenWithSpan { token: Token::LParen(..), span }
-                            if span.start == name_end =>
-                        {
+                    name => {
+                        let glued_lparen = matches!(
+                            peek!(input),
+                            TokenWithSpan { token: Token::LParen(..), span }
+                                if span.start == name_end
+                        );
+                        // Only a pure interpolation may stand alone
+                        // (`#{"(a: b)"}`); a mixed ident like `a#{b}` still
+                        // needs parens or a function call, as in dart-sass.
+                        let pure_interpolation = matches!(
+                            &name,
+                            InterpolableIdent::SassInterpolated(interpolation)
+                                if matches!(
+                                    interpolation.elements.as_slice(),
+                                    [SassInterpolatedIdentElement::Expression(..)]
+                                )
+                        );
+                        if glued_lparen {
                             // An unknown function here is `<general-enclosed>`
                             // (css-conditional): its contents are raw tokens.
                             let function = input.parse_raw_function(name)?;
@@ -129,30 +143,20 @@ impl<'a> Parse<'a> for SupportsInParens<'a> {
                                 kind: SupportsInParensKind::Function(function),
                                 span,
                             })
-                        }
-                        // Only a pure interpolation may stand alone
-                        // (`#{"(a: b)"}`); a mixed ident like `a#{b}` still
-                        // needs parens or a function call, as in dart-sass.
-                        _ if matches!(
-                            &name,
-                            InterpolableIdent::SassInterpolated(interpolation)
-                                if matches!(
-                                    interpolation.elements.as_slice(),
-                                    [SassInterpolatedIdentElement::Expression(..)]
-                                )
-                        ) =>
-                        {
+                        } else if pure_interpolation {
                             let span = name.span().clone();
                             Ok(SupportsInParens {
                                 kind: SupportsInParensKind::Interpolation(name),
                                 span,
                             })
+                        } else {
+                            let TokenWithSpan { token, span } = peek!(input);
+                            Err(Error {
+                                kind: ErrorKind::Unexpected("'('", token.symbol()),
+                                span: span.clone(),
+                            })
                         }
-                        TokenWithSpan { token, span } => Err(Error {
-                            kind: ErrorKind::Unexpected("'('", token.symbol()),
-                            span: span.clone(),
-                        }),
-                    },
+                    }
                 }
             }
             TokenWithSpan { token, span } => Err(Error {

@@ -10,7 +10,6 @@ use crate::{
     expect, peek,
     pos::{Span, Spanned},
     tokenizer::{Token, TokenWithSpan},
-    util::PairedToken,
 };
 
 impl<'a> Parse<'a> for Declaration<'a> {
@@ -104,17 +103,13 @@ impl<'a> Parse<'a> for Declaration<'a> {
                             _ => None,
                         };
                         let next = peek!(p);
-                        match &next.token {
-                            Token::Semicolon(..)
-                            | Token::RBrace(..)
-                            | Token::RParen(..)
-                            | Token::Dedent(..)
-                            | Token::Linebreak(..)
-                            | Token::Eof(..) => Ok((values, important)),
-                            _ => Err(Error {
+                        if at_declaration_value_end(&next.token) {
+                            Ok((values, important))
+                        } else {
+                            Err(Error {
                                 kind: ErrorKind::ExpectComponentValue,
                                 span: next.span.clone(),
-                            }),
+                            })
                         }
                     });
                     match typed {
@@ -148,15 +143,7 @@ impl<'a> Parse<'a> for Declaration<'a> {
         // another component, and only a trailing one is structural.
         while matches!(input.syntax, Syntax::Scss | Syntax::Sass)
             && important.is_some()
-            && !matches!(
-                &peek!(input).token,
-                Token::Semicolon(..)
-                    | Token::RBrace(..)
-                    | Token::RParen(..)
-                    | Token::Dedent(..)
-                    | Token::Linebreak(..)
-                    | Token::Eof(..)
-            )
+            && !at_declaration_value_end(&peek!(input).token)
         {
             if let Some(annotation) = important.take() {
                 value.push(ComponentValue::ImportantAnnotation(annotation));
@@ -198,6 +185,19 @@ impl<'a> Parse<'a> for Declaration<'a> {
     }
 }
 
+/// End of a declaration's value: the declaration terminator tokens.
+fn at_declaration_value_end(token: &Token) -> bool {
+    matches!(
+        token,
+        Token::Semicolon(..)
+            | Token::RBrace(..)
+            | Token::RParen(..)
+            | Token::Dedent(..)
+            | Token::Linebreak(..)
+            | Token::Eof(..)
+    )
+}
+
 impl<'a> Parse<'a> for ImportantAnnotation<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         let (_, span) = expect!(input, Exclamation);
@@ -233,16 +233,10 @@ impl<'a> Parse<'a> for SimpleBlock<'a> {
             // A continuation line deeper than this block's own level leaves a
             // pending indent whose `Dedent` arrives before the block opens
             // (`a,\n    b\n  c: d`); cancel those out first.
-            let mut drained = 0u32;
-            while input.sass_pending_indents > 0 && matches!(peek!(input).token, Token::Dedent(..))
-            {
-                bump!(input);
-                input.sass_pending_indents -= 1;
-                drained += 1;
-            }
+            let drained = input.drain_sass_pending_dedents()?;
             if let Some((_, span)) = eat!(input, Indent) {
                 span.end
-            } else if drained > 0
+            } else if drained
                 && input.sass_pending_indents == 0
                 && input.tokenizer.reopen_indent_level()
             {
@@ -318,33 +312,6 @@ impl<'a> Parser<'a> {
                 Token::LBrace(..) if stop_at_top_level_brace && pairs.is_empty() => {
                     break;
                 }
-                Token::LParen(..) => {
-                    pairs.push(PairedToken::Paren);
-                }
-                Token::RParen(..) => {
-                    if let Some(PairedToken::Paren) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
-                Token::LBracket(..) => {
-                    pairs.push(PairedToken::Bracket);
-                }
-                Token::RBracket(..) => {
-                    if let Some(PairedToken::Bracket) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
-                Token::LBrace(..) | Token::HashLBrace(..) => {
-                    pairs.push(PairedToken::Brace);
-                }
-                Token::RBrace(..) => {
-                    if let Some(PairedToken::Brace) = pairs.pop() {
-                    } else {
-                        break;
-                    }
-                }
                 // An interpolated string (e.g. `'#{$expr}'` inside
                 // `filter: progid:...`) must be parsed structurally:
                 // the tokenizer needs `scan_string_template` to resume
@@ -354,7 +321,11 @@ impl<'a> Parser<'a> {
                     values.push(ComponentValue::InterpolableStr(self.parse()?));
                     continue;
                 }
-                _ => {}
+                token => {
+                    if !crate::util::track_paired_token(token, &mut pairs) {
+                        break;
+                    }
+                }
             }
             values.push(ComponentValue::TokenWithSpan(bump!(self)));
         }
@@ -389,6 +360,18 @@ impl<'a> Parser<'a> {
             }
         }
         Ok(values)
+    }
+
+    /// In a `@keyframes` body, an ident may start a keyframe block (`from {`)
+    /// or — in real-world code — a plain declaration (`blah: blee;`); dart-sass
+    /// accepts both. Returns the statement and whether it opened a block.
+    fn parse_keyframe_block_or_declaration(&mut self) -> PResult<(Statement<'a>, bool)> {
+        if let Ok(block) = self.try_parse(KeyframeBlock::parse) {
+            Ok((Statement::KeyframeBlock(block), true))
+        } else {
+            let decl = self.parse_style_rule_declaration()?;
+            Ok((Statement::Declaration(decl), false))
+        }
     }
 
     /// Parse a qualified rule, falling back to a declaration when the `foo: bar`
@@ -444,15 +427,10 @@ impl<'a> Parser<'a> {
                     match self.syntax {
                         Syntax::Css => {
                             if self.state.in_keyframes_at_rule {
-                                // real-world keyframes bodies also carry plain
-                                // declarations (`@keyframes a { blah: blee; }`)
-                                if let Ok(block) = self.try_parse(KeyframeBlock::parse) {
-                                    statements.push(Statement::KeyframeBlock(block));
-                                    is_block_element = true;
-                                } else {
-                                    let decl = self.parse_style_rule_declaration()?;
-                                    statements.push(Statement::Declaration(decl));
-                                }
+                                let (stmt, is_block) =
+                                    self.parse_keyframe_block_or_declaration()?;
+                                is_block_element = is_block;
+                                statements.push(stmt);
                             } else {
                                 let (stmt, is_block) =
                                     self.parse_rule_or_declaration(is_top_level)?;
@@ -469,13 +447,10 @@ impl<'a> Parser<'a> {
                                     sass_var_decl
                                 )));
                             } else if self.state.in_keyframes_at_rule {
-                                if let Ok(block) = self.try_parse(KeyframeBlock::parse) {
-                                    statements.push(Statement::KeyframeBlock(block));
-                                    is_block_element = true;
-                                } else {
-                                    let decl = self.parse_style_rule_declaration()?;
-                                    statements.push(Statement::Declaration(decl));
-                                }
+                                let (stmt, is_block) =
+                                    self.parse_keyframe_block_or_declaration()?;
+                                is_block_element = is_block;
+                                statements.push(stmt);
                             } else {
                                 let (stmt, is_block) =
                                     self.parse_rule_or_declaration(is_top_level)?;
@@ -487,11 +462,11 @@ impl<'a> Parser<'a> {
                             if let Ok(stmt) = self.try_parse(Parser::parse_less_qualified_rule) {
                                 statements.push(stmt);
                                 is_block_element = true;
-                            } else if let Ok(decl) = self.try_parse(|parser| {
+                            } else if let Ok(decl) =
                                 // less.js parses root-level declarations and
                                 // only rejects them at eval time.
-                                parser.parse()
-                            }) {
+                                self.try_parse(Declaration::parse)
+                            {
                                 statements.push(Statement::Declaration(decl));
                             } else if self.state.in_keyframes_at_rule {
                                 statements.push(Statement::KeyframeBlock(self.parse()?));
@@ -689,9 +664,7 @@ impl<'a> Parser<'a> {
                 }
                 Token::Plus(..)
                     if self.syntax == Syntax::Sass
-                        && self.source.as_bytes().get(span.end).is_some_and(|b| {
-                            b.is_ascii_alphabetic() || *b == b'_' || !b.is_ascii()
-                        }) =>
+                        && crate::tokenizer::ident_starts_at(self.source, span.end) =>
                 {
                     let plus_span = bump!(self).span;
                     let prelude = self.parse::<SassInclude>()?;
@@ -788,13 +761,7 @@ impl<'a> Parser<'a> {
             // clause, so its matching `Dedent` has no block to close). A
             // drained `Dedent` is itself a line boundary, so the statement
             // separator is already satisfied.
-            let mut drained_dedents = false;
-            while self.sass_pending_indents > 0 && matches!(peek!(self).token, Token::Dedent(..)) {
-                bump!(self);
-                self.sass_pending_indents -= 1;
-                drained_dedents = true;
-            }
-            if drained_dedents {
+            if self.drain_sass_pending_dedents()? {
                 continue;
             }
             match &peek!(self).token {

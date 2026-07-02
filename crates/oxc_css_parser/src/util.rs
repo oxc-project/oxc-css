@@ -20,6 +20,38 @@ pub(crate) enum PairedToken {
     Brace,
 }
 
+/// Track `()`/`[]`/`{}` nesting for raw-token scans (`#{` counts as a brace
+/// opener). Returns `false` for an unmatched closer — the caller's scan
+/// should stop before consuming it. Non-pairing tokens return `true`.
+pub(crate) fn track_paired_token(
+    token: &crate::tokenizer::Token,
+    pairs: &mut Vec<PairedToken>,
+) -> bool {
+    use crate::tokenizer::Token;
+    match token {
+        Token::LParen(..) => pairs.push(PairedToken::Paren),
+        Token::RParen(..) => {
+            if !matches!(pairs.pop(), Some(PairedToken::Paren)) {
+                return false;
+            }
+        }
+        Token::LBracket(..) => pairs.push(PairedToken::Bracket),
+        Token::RBracket(..) => {
+            if !matches!(pairs.pop(), Some(PairedToken::Bracket)) {
+                return false;
+            }
+        }
+        Token::LBrace(..) | Token::HashLBrace(..) => pairs.push(PairedToken::Brace),
+        Token::RBrace(..) => {
+            if !matches!(pairs.pop(), Some(PairedToken::Brace)) {
+                return false;
+            }
+        }
+        _ => {}
+    }
+    true
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum ListSeparatorKind {
     Unknown,

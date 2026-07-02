@@ -15,13 +15,9 @@ impl<'a> Parse<'a> for ImportPrelude<'a> {
         // The indented syntax accepts an unquoted path (`@import other.css`),
         // but an ident glued to `(` is a function href
         // (`@import url("theme.css")`), which the `Url::parse` arm handles.
-        let sass_unquoted_path = input.syntax == Syntax::Sass && {
-            let ident_end = match peek!(input) {
-                TokenWithSpan { token: Token::Ident(..), span } => Some(span.end),
-                _ => None,
-            };
-            ident_end.is_some_and(|end| input.source.as_bytes().get(end) != Some(&b'('))
-        };
+        let sass_unquoted_path = input.syntax == Syntax::Sass
+            && matches!(peek!(input), TokenWithSpan { token: Token::Ident(..), span }
+                if input.source.as_bytes().get(span.end) != Some(&b'('));
         let href = match &peek!(input).token {
             Token::Str(..) | Token::StrTemplate(..) => input.parse().map(ImportPreludeHref::Str)?,
             Token::Ident(..) if sass_unquoted_path => {
@@ -30,7 +26,7 @@ impl<'a> Parse<'a> for ImportPrelude<'a> {
                 while matches!(
                     &peek!(input).token,
                     Token::Ident(..) | Token::Dot(..) | Token::Minus(..) | Token::Solidus(..)
-                ) && (peek!(input).span.start == end || end == start)
+                ) && peek!(input).span.start == end
                 {
                     end = bump!(input).span.end;
                 }
@@ -155,30 +151,30 @@ impl<'a> ImportPrelude<'a> {
         });
         // `}` ends the at-rule too, so an `@import` nested in a style rule needs no
         // trailing `;` (`a { @import "b.css" }`); it can't start a media query.
-        let media = if matches!(
-            peek!(input).token,
-            Token::Semicolon(..)
-                | Token::Eof(..)
-                | Token::RBrace(..)
-                | Token::Dedent(..)
-                | Token::Linebreak(..)
-        ) {
+        let media = if at_import_prelude_end(&peek!(input).token) {
             None
         } else {
             Some(input.parse::<MediaQueryList>()?)
         };
 
         // Anything left over means this tail isn't the standard grammar.
-        match &peek!(input).token {
-            Token::Semicolon(..)
+        if at_import_prelude_end(&peek!(input).token) {
+            Ok((layer, supports.ok(), media))
+        } else {
+            let span = peek!(input).span.clone();
+            Err(Error { kind: ErrorKind::TryParseError, span })
+        }
+    }
+}
+
+/// End of an `@import` prelude: the statement boundary tokens.
+fn at_import_prelude_end(token: &Token) -> bool {
+    matches!(
+        token,
+        Token::Semicolon(..)
             | Token::Eof(..)
             | Token::RBrace(..)
             | Token::Dedent(..)
-            | Token::Linebreak(..) => Ok((layer, supports.ok(), media)),
-            _ => {
-                let span = peek!(input).span.clone();
-                Err(Error { kind: ErrorKind::TryParseError, span })
-            }
-        }
-    }
+            | Token::Linebreak(..)
+    )
 }

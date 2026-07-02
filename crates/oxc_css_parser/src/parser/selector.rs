@@ -1320,25 +1320,43 @@ impl<'a> Parser<'a> {
                 span: bump!(self).span,
             })),
             // deprecated shadow-piercing `/deep/` and less.js's arbitrary
-            // slashed combinators (`.container /shadow/ .content`)
-            TokenWithSpan {
-                token: Token::Solidus(..),
-                span,
-            } if !matches!(self.syntax, Syntax::Scss | Syntax::Sass) && {
-                // dart-sass rejects reference combinators, so keep them
-                // CSS/Less-only
-                let rest = &self.source.as_bytes()[span.end..];
-                let ident_len = rest.iter().take_while(|b| b.is_ascii_alphanumeric() || **b == b'-' || **b == b'_').count();
-                ident_len > 0 && rest.get(ident_len) == Some(&b'/')
-            } =>
+            // slashed combinators (`.container /shadow/ .content`) — but not
+            // in Scss/Sass, where dart-sass rejects reference combinators
+            TokenWithSpan { token: Token::Solidus(..), .. }
+                if !matches!(self.syntax, Syntax::Scss | Syntax::Sass) =>
             {
-                let start = bump!(self).span.start;
-                bump!(self); // the identifier
-                let end = bump!(self).span.end; // `/`
-                Ok(Some(Combinator {
-                    kind: CombinatorKind::Deep,
-                    span: Span { start, end },
-                }))
+                let deep = self.try_parse(|p| {
+                    let start = bump!(p).span; // `/`
+                    let ident_end = match peek!(p) {
+                        TokenWithSpan { token: Token::Ident(..), span }
+                            if span.start == start.end =>
+                        {
+                            bump!(p).span.end
+                        }
+                        TokenWithSpan { span, .. } => {
+                            return Err(Error {
+                                kind: ErrorKind::TryParseError,
+                                span: span.clone(),
+                            });
+                        }
+                    };
+                    match peek!(p) {
+                        TokenWithSpan { token: Token::Solidus(..), span }
+                            if span.start == ident_end =>
+                        {
+                            let end = bump!(p).span.end;
+                            Ok(Span { start: start.start, end })
+                        }
+                        TokenWithSpan { span, .. } => Err(Error {
+                            kind: ErrorKind::TryParseError,
+                            span: span.clone(),
+                        }),
+                    }
+                });
+                match deep {
+                    Ok(span) => Ok(Some(Combinator { kind: CombinatorKind::Deep, span })),
+                    Err(_) => Ok(None),
+                }
             }
             // deprecated shadow combinators `^` and `^^` (Less corpora)
             TokenWithSpan {
