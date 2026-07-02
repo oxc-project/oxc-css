@@ -1,7 +1,7 @@
 ---
 source: crates/oxc_css_parser/tests/error.rs
 ---
-error: unknown token
+error: component value is expected
   ┌─ dollar.scss:1:12
   │
 1 │ a {b: calc($)}

@@ -1300,10 +1300,6 @@ impl<'a> Tokenizer<'a> {
                     span: Span { start, end: start + 1 },
                 }),
             },
-            // A lone `^` or `$` is a plain `<delim-token>` in CSS, but in the
-            // preprocessor dialects it starts real syntax (`$var`, Less `^`),
-            // so there it stays a tokenizer error — the reference compilers
-            // reject it and error tests depend on that.
             Some((start, '^')) => match self.state.chars.peek() {
                 Some((_, '=')) => {
                     self.state.chars.next();
@@ -1312,12 +1308,8 @@ impl<'a> Tokenizer<'a> {
                         span: Span { start, end: start + 2 },
                     })
                 }
-                _ if self.syntax == Syntax::Css => Ok(TokenWithSpan {
+                _ => Ok(TokenWithSpan {
                     token: Token::Unknown(Unknown {}),
-                    span: Span { start, end: start + 1 },
-                }),
-                _ => Err(Error {
-                    kind: ErrorKind::UnknownToken,
                     span: Span { start, end: start + 1 },
                 }),
             },
@@ -1329,12 +1321,8 @@ impl<'a> Tokenizer<'a> {
                         span: Span { start, end: start + 2 },
                     })
                 }
-                _ if self.syntax == Syntax::Css => Ok(TokenWithSpan {
+                _ => Ok(TokenWithSpan {
                     token: Token::Unknown(Unknown {}),
-                    span: Span { start, end: start + 1 },
-                }),
-                _ => Err(Error {
-                    kind: ErrorKind::UnknownToken,
                     span: Span { start, end: start + 1 },
                 }),
             },

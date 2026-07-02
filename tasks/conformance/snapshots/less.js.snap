@@ -1,20 +1,18 @@
 suite: less.js
 sha: 8ae2cc3bfa79f0718ad6fe5f263a1d6819fe9d5c
-files: 459   success: 395   failed: 42   expected: 22
-clean: 395  recovered: 3  hard_error: 39  panic: 0
+files: 459   success: 398   failed: 39   expected: 22
+clean: 398  recovered: 3  hard_error: 36  panic: 0
 
 failures:
 ERROR    packages/test-data/tests-config/at-rules-compressed-evaluation/at-rules-compressed-evaluation.css    expect token `{`, but found `<ident>`
 ERROR    packages/test-data/tests-config/compression/compression.css    expect token `{`, but found `<unknown>`
-ERROR    packages/test-data/tests-config/compression/compression.less    unknown token
+ERROR    packages/test-data/tests-config/compression/compression.less    expect token `;`, but found `<unknown>`
 ERROR    packages/test-data/tests-config/debug/all/linenumbers-all.css    expect token `:`, but found `{`
 ERROR    packages/test-data/tests-config/debug/comments/linenumbers-comments.css    expect token `{`, but found `<ident>`
 ERROR    packages/test-data/tests-config/debug/mediaquery/linenumbers-mediaquery.css    expect token `:`, but found `{`
 ERROR    packages/test-data/tests-config/math-always/mixins-guards.less    expect token `;`, but found `<ident>`
 ERROR    packages/test-data/tests-config/math-parens-division/mixins-args.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-config/math-strict/mixins-args.less    expect token `;`, but found `{`
-ERROR    packages/test-data/tests-config/static-urls/urls.less    expect token `;`, but found `{`
-ERROR    packages/test-data/tests-config/url-args/urls.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-error/eval/detached-ruleset-2.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-error/eval/mixin-not-defined-2.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-error/eval/multiple-guards-on-css-selectors.less    expect token `;`, but found `<ident>`
@@ -44,7 +42,6 @@ ERROR    packages/test-data/tests-unit/property-name-interp/property-name-interp
 ERROR    packages/test-data/tests-unit/property-name-interp/property-name-interp.less    expect token `(`, but found `{`
 ERROR    packages/test-data/tests-unit/strings/strings.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/urls/actual.css    unterminated string
-ERROR    packages/test-data/tests-unit/urls/urls.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/variables-in-at-rules/variables-in-at-rules.less    expect token `<string>`, but found `<string template>`
 
 expected failures (error tests, correct behavior):

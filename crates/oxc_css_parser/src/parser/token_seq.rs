@@ -1,5 +1,14 @@
 use super::Parser;
-use crate::{ast::*, bump, error::PResult, peek, pos::Span, tokenizer::Token, util::PairedToken};
+use crate::{
+    Syntax,
+    ast::*,
+    bump,
+    error::{Error, ErrorKind, PResult},
+    peek,
+    pos::Span,
+    tokenizer::Token,
+    util::PairedToken,
+};
 
 impl<'a> Parser<'a> {
     pub(super) fn parse_tokens_in_parens(&mut self) -> PResult<TokenSeq<'a>> {
@@ -8,6 +17,13 @@ impl<'a> Parser<'a> {
         let mut pairs = Vec::with_capacity(1);
         loop {
             match &peek!(self).token {
+                // A stray delimiter is a plain token in CSS, but the
+                // preprocessor dialects give it real syntax (`$var`, Less
+                // `^`), and their reference compilers reject it here.
+                Token::Unknown(..) if self.syntax != Syntax::Css => {
+                    let span = peek!(self).span.clone();
+                    return Err(Error { kind: ErrorKind::UnknownToken, span });
+                }
                 Token::LParen(..) => {
                     pairs.push(PairedToken::Paren);
                 }

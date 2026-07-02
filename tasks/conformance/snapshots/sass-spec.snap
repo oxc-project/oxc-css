@@ -1,7 +1,7 @@
 suite: sass-spec
 sha: a2ead9225786d49e91f5cc36755b7713596a2338
-files: 26787   success: 26252   failed: 227   expected: 308
-clean: 26252  recovered: 12  hard_error: 215  panic: 0
+files: 26787   success: 26276   failed: 203   expected: 308
+clean: 26276  recovered: 12  hard_error: 191  panic: 0
 
 failures:
 ERROR    spec/core_functions/string/unquote.hrx::meaningful_css_characters/output.css    expect token `}`, but found `<eof>`
@@ -16,28 +16,8 @@ ERROR    spec/css/function.hrx::result/uppercase/characters/output.css    compon
 ERROR    spec/css/function.hrx::uppercase/result/characters/input.scss    expect one of `<ident>` or `#{`, but found `&`
 ERROR    spec/css/function.hrx::uppercase/result/characters/output.css    component value is expected
 ERROR    spec/css/function.hrx::uppercase/result/nesting/output.css    component value is expected
-ERROR    spec/css/functions/special/comment.hrx::element/after_open_paren/loud/input.scss    ID selector is expected
-ERROR    spec/css/functions/special/comment.hrx::element/after_open_paren/silent/input.scss    ID selector is expected
-ERROR    spec/css/functions/special/comment.hrx::element/before_close_paren/loud/input.scss    ID selector is expected
-ERROR    spec/css/functions/special/comment.hrx::element/before_close_paren/silent/input.scss    ID selector is expected
-ERROR    spec/css/functions/special/prefixed/lowercase.hrx::calc/punctuation/input.scss    unknown token
-ERROR    spec/css/functions/special/prefixed/lowercase.hrx::element/punctuation/input.scss    unknown token
-ERROR    spec/css/functions/special/prefixed/lowercase.hrx::expression/punctuation/input.scss    unknown token
-ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/interpolation/input.scss    component value is expected
-ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/number/input.scss    component value is expected
-ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/punctuation/input.scss    component value is expected
-ERROR    spec/css/functions/special/prefixed/lowercase.hrx::progid/script_like/input.scss    component value is expected
 ERROR    spec/css/functions/special/prefixed/lowercase.hrx::url/punctuation/input.scss    expect token `)`, but found `<eof>`
-ERROR    spec/css/functions/special/prefixed/uppercase.hrx::calc/punctuation/input.scss    unknown token
-ERROR    spec/css/functions/special/prefixed/uppercase.hrx::element/punctuation/input.scss    unknown token
-ERROR    spec/css/functions/special/prefixed/uppercase.hrx::expression/punctuation/input.scss    unknown token
-ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/interpolation/input.scss    component value is expected
-ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/number/input.scss    component value is expected
-ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/punctuation/input.scss    component value is expected
-ERROR    spec/css/functions/special/prefixed/uppercase.hrx::progid/script_like/input.scss    component value is expected
 ERROR    spec/css/functions/special/prefixed/uppercase.hrx::url/punctuation/input.scss    expect token `)`, but found `<eof>`
-ERROR    spec/css/functions/special/unprefixed.hrx::lowercase/type/punctuation/input.scss    unknown token
-ERROR    spec/css/functions/special/unprefixed.hrx::uppercase/type/punctuation/input.scss    unknown token
 ERROR    spec/css/important.hrx::syntax/sass/multiline/after_bang/input.sass    expect token `<ident>`, but found `<indent>`
 ERROR    spec/css/keyframes.hrx::name/variable_like/input.scss    string is expected
 ERROR    spec/css/keyframes.hrx::name/variable_like/output.css    string is expected
@@ -98,7 +78,6 @@ RECOVER  spec/css/unicode_range/range.hrx::output.css    unicode range start val
 RECOVER  spec/css/unicode_range/simple.hrx::input.scss    unicode range end value exceeds max allowed code point
 RECOVER  spec/css/unicode_range/simple.hrx::output.css    unicode range end value exceeds max allowed code point
 ERROR    spec/css/unknown_directive/name_interpolation.hrx::input.scss    CSS rule is expected
-ERROR    spec/css/unknown_directive/plain.hrx::input.scss    component value is expected
 RECOVER  spec/directives/at_root/keyframes.hrx::all/input.scss    unknown keyframe selector
 ERROR    spec/directives/at_root/sass.hrx::empty/no_query/input.sass    simple selector is expected
 ERROR    spec/directives/debug.hrx::sass/multiline-after/input.sass    component value is expected
@@ -153,9 +132,6 @@ ERROR    spec/directives/while.hrx::whitespace/before_var/sass/input.sass    com
 ERROR    spec/expressions/comments.hrx::silent/sass/indented/identifier/input.sass    CSS rule is expected
 ERROR    spec/expressions/comments.hrx::silent/sass/indented/interpolation/input.sass    CSS rule is expected
 ERROR    spec/expressions/if/css.hrx::alone/argument/input.scss    expect token `<ident>`, but found `@`
-ERROR    spec/libsass-closed-issues/issue_1102.hrx::input.scss    expect token `;`, but found `)`
-ERROR    spec/libsass-closed-issues/issue_1102.hrx::output.css    expect token `;`, but found `)`
-ERROR    spec/libsass-closed-issues/issue_1188.hrx::input.scss    expect token `;`, but found `)`
 ERROR    spec/libsass-closed-issues/issue_1218.hrx::input.scss    expect token `{`, but found `<ident>`
 ERROR    spec/libsass-closed-issues/issue_1233.hrx::input.scss    expect token `{`, but found `<ident>`
 ERROR    spec/libsass-closed-issues/issue_1233.hrx::output.css    expect token `{`, but found `<ident>`
@@ -351,12 +327,12 @@ ERROR    spec/directives/forward/error/syntax.hrx::as/no_star/input.scss    expe
 ERROR    spec/directives/forward/error/syntax.hrx::as/nothing/input.scss    expect token `<ident>`, but found `;`
 ERROR    spec/directives/forward/error/syntax.hrx::empty/input.scss    string is expected
 ERROR    spec/directives/forward/error/syntax.hrx::hide/and_show/input.scss    expect token `;`, but found `<ident>`
-ERROR    spec/directives/forward/error/syntax.hrx::hide/empty_variable/input.scss    unknown token
+ERROR    spec/directives/forward/error/syntax.hrx::hide/empty_variable/input.scss    expect token `$var`, but found `<unknown>`
 ERROR    spec/directives/forward/error/syntax.hrx::hide/invalid/input.scss    expect token `$var`, but found `<number>`
 ERROR    spec/directives/forward/error/syntax.hrx::hide/nothing/input.scss    expect token `$var`, but found `;`
 ERROR    spec/directives/forward/error/syntax.hrx::hide/trailing_comma/input.scss    expect token `$var`, but found `;`
 ERROR    spec/directives/forward/error/syntax.hrx::show/and_hide/input.scss    expect token `;`, but found `<ident>`
-ERROR    spec/directives/forward/error/syntax.hrx::show/empty_variable/input.scss    unknown token
+ERROR    spec/directives/forward/error/syntax.hrx::show/empty_variable/input.scss    expect token `$var`, but found `<unknown>`
 ERROR    spec/directives/forward/error/syntax.hrx::show/invalid/input.scss    expect token `$var`, but found `<number>`
 ERROR    spec/directives/forward/error/syntax.hrx::show/nothing/input.scss    expect token `$var`, but found `;`
 ERROR    spec/directives/forward/error/syntax.hrx::show/trailing_comma/input.scss    expect token `$var`, but found `;`
@@ -370,7 +346,7 @@ ERROR    spec/directives/forward/error/syntax.hrx::with/missing_keyword/input.sc
 ERROR    spec/directives/forward/error/syntax.hrx::with/missing_value/input.scss    expect token `:`, but found `)`
 ERROR    spec/directives/forward/error/syntax.hrx::with/namespace_variable/input.scss    expect token `$var`, but found `<ident>`
 ERROR    spec/directives/forward/error/syntax.hrx::with/no_arguments/input.scss    expect token `(`, but found `;`
-ERROR    spec/directives/forward/error/syntax.hrx::with/space_after_dollar/input.scss    unknown token
+ERROR    spec/directives/forward/error/syntax.hrx::with/space_after_dollar/input.scss    expect token `$var`, but found `<unknown>`
 ERROR    spec/directives/forward/member/newlines.hrx::error/hide/between/input.sass    expect token `<linebreak>`, but found `<indent>`
 ERROR    spec/directives/forward/member/newlines.hrx::error/show/whitespace_between/input.sass    expect token `<linebreak>`, but found `<indent>`
 ERROR    spec/directives/forward/whitespace.hrx::error/before_keyword/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
@@ -395,8 +371,8 @@ ERROR    spec/directives/use/error/syntax/member.hrx::mixin/definition/input.scs
 ERROR    spec/directives/use/error/syntax/member.hrx::mixin/no_member/input.scss    expect token `<ident>`, but found `}`
 ERROR    spec/directives/use/error/syntax/member.hrx::mixin/no_namespace/input.scss    expect token `<ident>`, but found `.`
 RECOVER  spec/directives/use/error/syntax/member.hrx::variable/global/input.scss    Sass flag `!global` is disallowed
-ERROR    spec/directives/use/error/syntax/member.hrx::variable/no_member/input.scss    unknown token
-ERROR    spec/directives/use/error/syntax/member.hrx::variable/no_namespace/input.scss    unknown token
+ERROR    spec/directives/use/error/syntax/member.hrx::variable/no_member/input.scss    expect token `<ident>`, but found `<unknown>`
+ERROR    spec/directives/use/error/syntax/member.hrx::variable/no_namespace/input.scss    component value is expected
 ERROR    spec/directives/use/error/syntax/url.hrx::unquoted/input.scss    string is expected
 ERROR    spec/directives/use/error/syntax/with.hrx::before_as/input.scss    expect token `;`, but found `<ident>`
 ERROR    spec/directives/use/error/syntax/with.hrx::default/input.scss    expect token `,`, but found `!`
@@ -406,7 +382,7 @@ ERROR    spec/directives/use/error/syntax/with.hrx::missing_keyword/input.scss  
 ERROR    spec/directives/use/error/syntax/with.hrx::missing_value/input.scss    expect token `:`, but found `)`
 ERROR    spec/directives/use/error/syntax/with.hrx::namespace_variable/input.scss    expect token `$var`, but found `<ident>`
 ERROR    spec/directives/use/error/syntax/with.hrx::no_arguments/input.scss    expect token `(`, but found `;`
-ERROR    spec/directives/use/error/syntax/with.hrx::space_after_dollar/input.scss    unknown token
+ERROR    spec/directives/use/error/syntax/with.hrx::space_after_dollar/input.scss    expect token `$var`, but found `<unknown>`
 ERROR    spec/directives/use/error/syntax/within.hrx::function/input.scss    expect token `(`, but found `{`
 ERROR    spec/directives/use/whitespace.hrx::error/before_keyword/sass/input.sass    expect token `<linebreak>`, but found `<indent>`
 ERROR    spec/expressions/if/error/and.hrx::empty/input.scss    component value is expected
@@ -485,51 +461,51 @@ ERROR    spec/parser/interpolation.hrx::error/selector/unmatched_close_paren/inp
 ERROR    spec/parser/selector.hrx::error/empty_placeholder/input.scss    expect one of `<ident>` or `#{`, but found `{`
 ERROR    spec/parser/selector.hrx::error/newline/before_comma/input.sass    CSS rule is expected
 ERROR    spec/values/calculation/abs.hrx::error/sass_script_and_variable/input.scss    component value is expected
-ERROR    spec/values/calculation/abs.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/abs.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/acos.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/acos.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/acos.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/asin.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/asin.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/asin.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/atan.hrx::error/sass_script/input.scss    component value is expected
 ERROR    spec/values/calculation/atan2.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/atan2.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/atan2.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/calc-size.hrx::error/syntax/invalid_arg/input.scss    unknown token
-ERROR    spec/values/calculation/calc/error/syntax.hrx::dollar/input.scss    unknown token
+ERROR    spec/values/calculation/calc/error/syntax.hrx::dollar/input.scss    component value is expected
 ERROR    spec/values/calculation/calc/error/syntax.hrx::double_operator/input.scss    component value is expected
 ERROR    spec/values/calculation/calc/error/syntax.hrx::hash/input.scss    component value is expected
 ERROR    spec/values/calculation/calc/error/syntax.hrx::interpolation/line_noise/input.scss    component value is expected
 ERROR    spec/values/calculation/calc/error/syntax.hrx::leading_operator/input.scss    component value is expected
 ERROR    spec/values/calculation/calc/error/syntax.hrx::trailing_operator/input.scss    component value is expected
 ERROR    spec/values/calculation/calc/error/syntax.hrx::unknown_operator/input.scss    component value is expected
-ERROR    spec/values/calculation/clamp.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/clamp.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/clamp.hrx::error/syntax/rest/input.scss    component value is expected
 ERROR    spec/values/calculation/cos.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/cos.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/cos.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/exp.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/exp.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/exp.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/hypot.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/hypot.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/hypot.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/log.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/log.hrx::error/syntax/invalid_arg/input.scss    unknown token
-ERROR    spec/values/calculation/max.hrx::error/syntax/invalid_arg/input.scss    unknown token
-ERROR    spec/values/calculation/min.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/log.hrx::error/syntax/invalid_arg/input.scss    component value is expected
+ERROR    spec/values/calculation/max.hrx::error/syntax/invalid_arg/input.scss    component value is expected
+ERROR    spec/values/calculation/min.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/mod.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/mod.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/mod.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/pow.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/pow.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/pow.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/rem.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/rem.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/rem.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/round/error.hrx::one_argument/sass_script/variable_named_argument/input.scss    component value is expected
-ERROR    spec/values/calculation/round/error.hrx::one_argument/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/round/error.hrx::one_argument/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/round/error.hrx::two_argument/sass_script/input.scss    component value is expected
 ERROR    spec/values/calculation/sign.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/sign.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/sign.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/sin.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/sin.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/sin.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/sqrt.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/sqrt.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/sqrt.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/calculation/tan.hrx::error/sass_script/input.scss    component value is expected
-ERROR    spec/values/calculation/tan.hrx::error/syntax/invalid_arg/input.scss    unknown token
+ERROR    spec/values/calculation/tan.hrx::error/syntax/invalid_arg/input.scss    component value is expected
 ERROR    spec/values/lists/sass.hrx::error/no_parens/trailing_comma/input.sass    expect token `:`, but found `,`
 ERROR    spec/values/maps/invalid-key.hrx::input.scss    expect token `;`, but found `...`
 ERROR    spec/values/numbers/error.hrx::trailing_dot/minus/input.scss    component value is expected

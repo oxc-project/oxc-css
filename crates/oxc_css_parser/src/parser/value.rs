@@ -13,6 +13,26 @@ use crate::{
 const PRECEDENCE_MULTIPLY: u8 = 2;
 const PRECEDENCE_PLUS: u8 = 1;
 
+/// Strip one leading `-vendor-` prefix (`-moz-calc` -> `calc`); returns the
+/// name unchanged when there is none.
+fn unvendored(name: &str) -> &str {
+    name.strip_prefix('-').and_then(|rest| rest.split_once('-')).map_or(name, |(_, base)| base)
+}
+
+/// dart-sass "special functions" whose contents may be raw text rather than
+/// values, but which are worth a typed parse first (so plain `element(#id)`
+/// or `-webkit-calc(1px + 2px)` keep their structured AST): `element(...)`
+/// and `type(...)`, plus `calc(...)`/`url(...)` under an unrecognized vendor
+/// prefix. (`expression(...)` and `progid:...(...)` are always raw, and an
+/// unvendored `calc`/`url` is parsed as a real calculation/URL.)
+fn is_special_typed_or_raw_function(name: &str) -> bool {
+    let base = unvendored(name);
+    let vendored = base.len() != name.len();
+    base.eq_ignore_ascii_case("element")
+        || (!vendored && base.eq_ignore_ascii_case("type"))
+        || (vendored && (base.eq_ignore_ascii_case("calc") || base.eq_ignore_ascii_case("url")))
+}
+
 impl<'a> Parser<'a> {
     pub(in crate::parser) fn parse_calc_expr(
         &mut self,
@@ -89,15 +109,18 @@ impl<'a> Parser<'a> {
                         Ok(url) => return Ok(ComponentValue::Url(arena_box!(self, url))),
                         Err(Error { kind: ErrorKind::TryParseError, .. }) => {}
                         Err(error) => {
-                            return if matches!(self.syntax, Syntax::Scss | Syntax::Sass) {
-                                let (function_name, function_name_span) = expect!(self, Ident);
-                                let function_name = self.ident(function_name, function_name_span);
-                                self.parse_function(InterpolableIdent::Literal(function_name))
-                                    .map(ComponentValue::Function)
-                                    .map_err(|_| error)
-                            } else {
-                                Err(error)
-                            };
+                            // Not a `<url-token>` (quotes, parens, or raw
+                            // whitespace inside). Reference compilers accept
+                            // these as a function call with raw-ish contents
+                            // (`url(fn("s"))`, multi-line data: URIs), so fall
+                            // back to a function parse, keeping the original
+                            // error if even that shape doesn't fit.
+                            let (function_name, function_name_span) = expect!(self, Ident);
+                            let function_name = self.ident(function_name, function_name_span);
+                            return self
+                                .parse_function_typed_or_raw(function_name)
+                                .map(ComponentValue::Function)
+                                .map_err(|_| error);
                         }
                     }
                 }
@@ -112,8 +135,38 @@ impl<'a> Parser<'a> {
                                 self.parse_src_url(ident)
                                     .map(|url| ComponentValue::Url(arena_box!(self, url)))
                             }
+                            InterpolableIdent::Literal(ident)
+                                if unvendored(ident.name).eq_ignore_ascii_case("expression") =>
+                            {
+                                // IE `expression(...)` (any vendor prefix):
+                                // contents are script, not CSS values.
+                                self.parse_raw_function(ident).map(ComponentValue::Function)
+                            }
+                            InterpolableIdent::Literal(ident)
+                                if is_special_typed_or_raw_function(ident.name) =>
+                            {
+                                self.parse_function_typed_or_raw(ident)
+                                    .map(ComponentValue::Function)
+                            }
                             ident => self.parse_function(ident).map(ComponentValue::Function),
                         };
+                    }
+                    // IE filter syntax `-c-progid:d.e(...)` — everything to
+                    // the matching `)` is raw. (An unprefixed `progid:` at the
+                    // start of a value takes the whole-value raw path in
+                    // `Declaration::parse` instead.)
+                    TokenWithSpan { token: Token::Colon(..), span }
+                        if span.start == ident_end
+                            && matches!(
+                                &ident,
+                                InterpolableIdent::Literal(id)
+                                    if unvendored(id.name).eq_ignore_ascii_case("progid")
+                            ) =>
+                    {
+                        if let InterpolableIdent::Literal(ident) = ident {
+                            return self.parse_progid_function(ident).map(ComponentValue::Function);
+                        }
+                        unreachable!("guard matched a literal ident");
                     }
                     TokenWithSpan { token: Token::Dot(..), span }
                         if matches!(self.syntax, Syntax::Scss | Syntax::Sass)
@@ -371,6 +424,98 @@ impl<'a> Parser<'a> {
         Ok(Function { name: FunctionName::Ident(name), args, span })
     }
 
+    /// Parse a function with the typed grammar; when its arguments don't fit
+    /// (dart-sass special functions carry raw text: `element(/**/ c)`,
+    /// `-c-calc(@#$)`, `url(fn("s"))`), re-parse the contents as raw tokens.
+    pub(super) fn parse_function_typed_or_raw(&mut self, name: Ident<'a>) -> PResult<Function<'a>> {
+        let name_copy = Ident { name: name.name, raw: name.raw, span: name.span.clone() };
+        match self.try_parse(|p| p.parse_function(InterpolableIdent::Literal(name))) {
+            Ok(function) => Ok(function),
+            Err(_) => self.parse_raw_function(name_copy),
+        }
+    }
+
+    /// Parse `name(<raw contents>)` where the contents are preserved tokens
+    /// balanced to the matching `)` (IE `expression(...)` and friends).
+    fn parse_raw_function(&mut self, name: Ident<'a>) -> PResult<Function<'a>> {
+        expect!(self, LParen);
+        let mut args = self.vec_with_capacity(4);
+        self.parse_raw_function_args_into(&mut args)?;
+        let end = expect!(self, RParen).1.end;
+        let span = Span { start: name.span.start, end };
+        Ok(Function { name: FunctionName::Ident(InterpolableIdent::Literal(name)), args, span })
+    }
+
+    /// IE filter syntax `progid:DXImageTransform.Microsoft.f(...)`, optionally
+    /// vendor prefixed: the `:dotted.path` prefix and the parenthesized
+    /// contents are all preserved tokens.
+    fn parse_progid_function(&mut self, name: Ident<'a>) -> PResult<Function<'a>> {
+        let mut args = self.vec_with_capacity(4);
+        loop {
+            match &peek!(self).token {
+                Token::LParen(..)
+                | Token::Semicolon(..)
+                | Token::RBrace(..)
+                | Token::RParen(..)
+                | Token::Eof(..)
+                | Token::Indent(..)
+                | Token::Dedent(..)
+                | Token::Linebreak(..) => break,
+                _ => args.push(ComponentValue::TokenWithSpan(bump!(self))),
+            }
+        }
+        expect!(self, LParen);
+        self.parse_raw_function_args_into(&mut args)?;
+        let end = expect!(self, RParen).1.end;
+        let span = Span { start: name.span.start, end };
+        Ok(Function { name: FunctionName::Ident(InterpolableIdent::Literal(name)), args, span })
+    }
+
+    /// Consume function contents as preserved tokens, balancing pairs, until
+    /// the function's own `)`. Semicolons and stray delimiters are legal here
+    /// (`expression(a;b)`, `url(data:...;base64,...)`).
+    fn parse_raw_function_args_into(
+        &mut self,
+        values: &mut oxc_allocator::Vec<'a, ComponentValue<'a>>,
+    ) -> PResult<()> {
+        let mut pairs: Vec<util::PairedToken> = Vec::with_capacity(1);
+        loop {
+            match &peek!(self).token {
+                Token::Eof(..) => break,
+                Token::LParen(..) => pairs.push(util::PairedToken::Paren),
+                Token::RParen(..) => {
+                    if let Some(util::PairedToken::Paren) = pairs.pop() {
+                    } else {
+                        break;
+                    }
+                }
+                Token::LBracket(..) => pairs.push(util::PairedToken::Bracket),
+                Token::RBracket(..) => {
+                    if let Some(util::PairedToken::Bracket) = pairs.pop() {
+                    } else {
+                        break;
+                    }
+                }
+                Token::LBrace(..) | Token::HashLBrace(..) => pairs.push(util::PairedToken::Brace),
+                Token::RBrace(..) => {
+                    if let Some(util::PairedToken::Brace) = pairs.pop() {
+                    } else {
+                        break;
+                    }
+                }
+                // Interpolated strings must be parsed structurally so the
+                // tokenizer resumes the string after each `#{...}`.
+                Token::StrTemplate(..) => {
+                    values.push(ComponentValue::InterpolableStr(self.parse()?));
+                    continue;
+                }
+                _ => {}
+            }
+            values.push(ComponentValue::TokenWithSpan(bump!(self)));
+        }
+        Ok(())
+    }
+
     pub(super) fn parse_function_args(
         &mut self,
     ) -> PResult<oxc_allocator::Vec<'a, ComponentValue<'a>>> {
@@ -390,6 +535,13 @@ impl<'a> Parser<'a> {
                 }
                 Token::Indent(..) | Token::Dedent(..) | Token::Linebreak(..) => {
                     bump!(self);
+                }
+                // A stray delimiter is a plain token in CSS, but the
+                // preprocessor dialects give it real syntax and their
+                // reference compilers reject it in function arguments.
+                Token::Unknown(..) if self.syntax != Syntax::Css => {
+                    let span = peek!(self).span.clone();
+                    return Err(Error { kind: ErrorKind::UnknownToken, span });
                 }
                 _ => {
                     let value = if let Ok(value) = self.try_parse(ComponentValue::parse) {

@@ -1,7 +1,7 @@
 ---
 source: crates/oxc_css_parser/tests/error.rs
 ---
-error: unknown token
+error: expect token `$var`, but found `<unknown>`
   ┌─ show-empty-variable.scss:1:19
   │
 1 │ @forward "a" show $;
