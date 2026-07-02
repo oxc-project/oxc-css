@@ -1,0 +1,10 @@
+@media screen and print {
+  body {
+    color: black;
+  }
+}
+@media (min-width: 100px) and speech and tty {
+  a {
+    b: c;
+  }
+}

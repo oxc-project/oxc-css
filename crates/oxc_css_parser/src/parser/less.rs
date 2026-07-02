@@ -392,7 +392,20 @@ impl<'a> Parser<'a> {
                     .parse_less_parenthesized_operation(allow_mixin_call)
                     .map(ComponentValue::LessParenthesizedOperation)?,
                 Token::Minus(..) => {
-                    self.parse::<LessNegativeValue>().map(ComponentValue::LessNegativeValue)?
+                    // less.js's keyword regex also matches a bare `-`
+                    // (`a:hover when (2 = true) {5:-}`); only treat it as one
+                    // when a terminator follows immediately
+                    let end = peek!(self).span.end;
+                    if matches!(self.source.as_bytes().get(end), None | Some(b';' | b'}')) {
+                        let span = bump!(self).span;
+                        ComponentValue::InterpolableIdent(InterpolableIdent::Literal(Ident {
+                            name: "-",
+                            raw: "-",
+                            span,
+                        }))
+                    } else {
+                        self.parse::<LessNegativeValue>().map(ComponentValue::LessNegativeValue)?
+                    }
                 }
                 _ => {
                     let value = self.parse_component_value_atom()?;
