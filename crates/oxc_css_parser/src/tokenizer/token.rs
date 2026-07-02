@@ -81,6 +81,7 @@ pub enum Token<'s> {
     StrTemplate(StrTemplate<'s>),
     Tilde(Tilde),
     TildeEqual(TildeEqual),
+    Unknown(Unknown),
     UrlRaw(UrlRaw<'s>),
     UrlTemplate(UrlTemplate<'s>),
 }
@@ -426,6 +427,15 @@ pub struct Tilde {}
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "kind", rename_all = "camelCase"))]
 pub struct TildeEqual {}
+
+/// Any single code point that no other token matches (a stray `^`, a control
+/// character, ...). CSS Syntax calls this a `<delim-token>`: it is not an
+/// error at the tokenizer level, and raw component-value contexts (custom
+/// property values, unparsable declaration values) preserve it verbatim.
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serialize", derive(Serialize))]
+#[cfg_attr(feature = "serialize", serde(tag = "kind", rename_all = "camelCase"))]
+pub struct Unknown {}
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]

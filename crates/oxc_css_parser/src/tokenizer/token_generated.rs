@@ -170,6 +170,7 @@ impl_enum_as_is!(Token<'s> {
         StrTemplate(StrTemplate<'s>) => is_str_template, as_str_template,
         Tilde(Tilde) => is_tilde, as_tilde,
         TildeEqual(TildeEqual) => is_tilde_equal, as_tilde_equal,
+        Unknown(Unknown) => is_unknown, as_unknown,
         UrlRaw(UrlRaw<'s>) => is_url_raw, as_url_raw,
         UrlTemplate(UrlTemplate<'s>) => is_url_template, as_url_template,
     ],

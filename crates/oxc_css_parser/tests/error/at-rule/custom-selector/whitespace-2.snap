@@ -1,10 +1,8 @@
 ---
 source: crates/oxc_css_parser/tests/error.rs
 ---
-error: unknown token
+error: expect token `:`, but found `<unknown>`
   ┌─ whitespace-2.css:1:18
   │
 1 │ @custom-selector $ foo:--foo .foo;
   │                  ^
-
-

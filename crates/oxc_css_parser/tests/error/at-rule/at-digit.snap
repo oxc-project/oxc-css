@@ -1,7 +1,7 @@
 ---
 source: crates/oxc_css_parser/tests/error.rs
 ---
-error: unknown token
+error: CSS rule is expected
   ┌─ at-digit.css:1:1
   │
 1 │ @3: red;

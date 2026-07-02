@@ -1,11 +1,9 @@
 suite: postcss-parser-tests
 sha: de1bc546de3678dd1c85e57cb2e9eece0098ddb9
-files: 30   success: 25   failed: 5   expected: 0
-clean: 25  recovered: 1  hard_error: 4  panic: 0
+files: 30   success: 27   failed: 3   expected: 0
+clean: 27  recovered: 1  hard_error: 2  panic: 0
 
 failures:
-ERROR    cases/comments.css    component value is expected
 ERROR    cases/escape.css    attribute selector value is expected
 RECOVER  cases/extends.css    declaration at top level is disallowed
-ERROR    cases/prop.css    unknown token
-ERROR    cases/rule-at.css    component value is expected
+ERROR    cases/prop.css    CSS rule is expected

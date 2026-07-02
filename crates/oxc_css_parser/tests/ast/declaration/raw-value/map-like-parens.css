@@ -1,0 +1,7 @@
+a {
+  b: (3: 4, 5: 6);
+  c: ("key": c value, "d": d value);
+  d: ();
+  e: [(), ()];
+  f: (positional: ((1,)), named: (c: 2));
+}

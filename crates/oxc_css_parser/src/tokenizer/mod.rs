@@ -1300,6 +1300,10 @@ impl<'a> Tokenizer<'a> {
                     span: Span { start, end: start + 1 },
                 }),
             },
+            // A lone `^` or `$` is a plain `<delim-token>` in CSS, but in the
+            // preprocessor dialects it starts real syntax (`$var`, Less `^`),
+            // so there it stays a tokenizer error — the reference compilers
+            // reject it and error tests depend on that.
             Some((start, '^')) => match self.state.chars.peek() {
                 Some((_, '=')) => {
                     self.state.chars.next();
@@ -1308,6 +1312,10 @@ impl<'a> Tokenizer<'a> {
                         span: Span { start, end: start + 2 },
                     })
                 }
+                _ if self.syntax == Syntax::Css => Ok(TokenWithSpan {
+                    token: Token::Unknown(Unknown {}),
+                    span: Span { start, end: start + 1 },
+                }),
                 _ => Err(Error {
                     kind: ErrorKind::UnknownToken,
                     span: Span { start, end: start + 1 },
@@ -1321,6 +1329,10 @@ impl<'a> Tokenizer<'a> {
                         span: Span { start, end: start + 2 },
                     })
                 }
+                _ if self.syntax == Syntax::Css => Ok(TokenWithSpan {
+                    token: Token::Unknown(Unknown {}),
+                    span: Span { start, end: start + 1 },
+                }),
                 _ => Err(Error {
                     kind: ErrorKind::UnknownToken,
                     span: Span { start, end: start + 1 },
@@ -1360,15 +1372,18 @@ impl<'a> Tokenizer<'a> {
                 token: Token::Percent(Percent {}),
                 span: Span { start, end: start + 1 },
             }),
-            Some((start, '@')) if self.syntax != Syntax::Css => {
+            Some((start, '@')) => {
                 Ok(TokenWithSpan { token: Token::At(At {}), span: Span { start, end: start + 1 } })
             }
             Some((i, c)) if c.is_ascii_whitespace() => Err(Error {
                 kind: ErrorKind::UnexpectedWhitespace,
                 span: Span { start: i, end: i + 1 },
             }),
-            Some((i, c)) => Err(Error {
-                kind: ErrorKind::UnknownToken,
+            // CSS Syntax: anything else is a <delim-token>, not a tokenizer
+            // error. Typed grammar rules reject it where it doesn't belong;
+            // raw component-value contexts preserve it.
+            Some((i, c)) => Ok(TokenWithSpan {
+                token: Token::Unknown(Unknown {}),
                 span: Span { start: i, end: i + c.len_utf8() },
             }),
             None => {

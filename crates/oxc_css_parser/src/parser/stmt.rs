@@ -60,7 +60,7 @@ impl<'a> Parse<'a> for Declaration<'a> {
         let less_property_merge = if input.syntax == Syntax::Less { input.parse()? } else { None };
 
         let (_, colon_span) = expect!(input, Colon);
-        let value = {
+        let (value, mut important) = {
             let mut parser = input.with_state(ParserState {
                 qualified_rule_ctx: Some(QualifiedRuleContext::DeclarationValue),
                 ..input.state
@@ -79,68 +79,64 @@ impl<'a> Parse<'a> for Declaration<'a> {
                     if parser.options.try_parsing_value_in_custom_property
                         && let Ok(values) = parser.try_parse(Parser::parse_declaration_value)
                     {
-                        break 'value values;
+                        break 'value (values, None);
                     }
-
-                    let mut values = parser.vec_with_capacity(3);
-                    let mut pairs = Vec::with_capacity(1);
-                    loop {
-                        match &peek!(parser).token {
-                            Token::Dedent(..) | Token::Linebreak(..) | Token::Eof(..) => break,
-                            Token::Semicolon(..) if pairs.is_empty() => {
-                                break;
-                            }
-                            Token::LParen(..) => {
-                                pairs.push(PairedToken::Paren);
-                            }
-                            Token::RParen(..) => {
-                                if let Some(PairedToken::Paren) = pairs.pop() {
-                                } else {
-                                    break;
-                                }
-                            }
-                            Token::LBracket(..) => {
-                                pairs.push(PairedToken::Bracket);
-                            }
-                            Token::RBracket(..) => {
-                                if let Some(PairedToken::Bracket) = pairs.pop() {
-                                } else {
-                                    break;
-                                }
-                            }
-                            Token::LBrace(..) | Token::HashLBrace(..) => {
-                                pairs.push(PairedToken::Brace);
-                            }
-                            Token::RBrace(..) => {
-                                if let Some(PairedToken::Brace) = pairs.pop() {
-                                } else {
-                                    break;
-                                }
-                            }
-                            // An interpolated string (e.g. `'#{$expr}'` inside
-                            // `filter: progid:...`) must be parsed structurally:
-                            // the tokenizer needs `scan_string_template` to resume
-                            // the string after each `#{...}`, so consuming its
-                            // tokens as a plain stream would mis-lex the rest.
-                            Token::StrTemplate(..) => {
-                                values.push(ComponentValue::InterpolableStr(parser.parse()?));
-                                continue;
-                            }
-                            _ => {}
-                        }
-                        values.push(ComponentValue::TokenWithSpan(bump!(parser)));
-                    }
-                    values
+                    (parser.parse_declaration_value_tokens(false)?, None)
                 }
-                _ => parser.parse_declaration_value()?,
+                // In CSS, a declaration value is any sequence of component
+                // values (CSS Syntax §5): serialized selectors (`b: .c > d`),
+                // map-like blocks (`b: (3: 4)`), or stray delimiters are all
+                // valid preserved tokens even though the typed grammar has no
+                // node for them. Try the typed grammar first; if it fails, or
+                // succeeds without accounting for everything up to the
+                // declaration terminator, re-parse the whole value as raw
+                // tokens. Scss/Sass/Less keep the strict grammar: their
+                // dialects assign meaning to these tokens and are expected to
+                // reject exactly what their reference compilers reject.
+                _ if parser.syntax == Syntax::Css => {
+                    let typed = parser.try_parse(|p| {
+                        let values = p.parse_declaration_value()?;
+                        let important = match &peek!(p).token {
+                            Token::Exclamation(..) => Some(p.parse::<ImportantAnnotation>()?),
+                            _ => None,
+                        };
+                        let next = peek!(p);
+                        match &next.token {
+                            Token::Semicolon(..)
+                            | Token::RBrace(..)
+                            | Token::RParen(..)
+                            | Token::Dedent(..)
+                            | Token::Linebreak(..)
+                            | Token::Eof(..) => Ok((values, important)),
+                            _ => Err(Error {
+                                kind: ErrorKind::ExpectComponentValue,
+                                span: next.span.clone(),
+                            }),
+                        }
+                    });
+                    match typed {
+                        Ok(value_and_important) => value_and_important,
+                        Err(error) => {
+                            let values = parser.parse_declaration_value_tokens(true)?;
+                            // Ending at a top-level `{` means this construct is
+                            // really a qualified rule that failed to parse, not
+                            // a declaration — reject with the typed error.
+                            if let Token::LBrace(..) = &peek!(parser).token {
+                                return Err(error);
+                            }
+                            (values, None)
+                        }
+                    }
+                }
+                _ => (parser.parse_declaration_value()?, None),
             }
         };
 
-        let important = if let Token::Exclamation(..) = &peek!(input).token {
-            input.parse::<ImportantAnnotation>().map(Some)?
-        } else {
-            None
-        };
+        if important.is_none()
+            && let Token::Exclamation(..) = &peek!(input).token
+        {
+            important = Some(input.parse::<ImportantAnnotation>()?);
+        }
 
         let span = Span {
             start: name_prefix_start.unwrap_or(name.span().start),
@@ -237,6 +233,73 @@ impl<'a> Parse<'a> for Stylesheet<'a> {
 }
 
 impl<'a> Parser<'a> {
+    /// Consume a declaration value as raw tokens (CSS Syntax "preserved
+    /// tokens"), balancing `()`/`[]`/`{}` pairs, until a top-level `;`, an
+    /// unbalanced closer, or a statement boundary. Used for custom-property
+    /// values and as the fallback for CSS values the typed grammar rejects.
+    ///
+    /// `stop_at_top_level_brace` implements the CSS Nesting disambiguation: a
+    /// `{` at the top level of a normal declaration's value means the whole
+    /// construct is really a qualified rule, so the value must end there.
+    /// Custom properties are exempt (`--foo: {a:b}` is a valid value).
+    pub(super) fn parse_declaration_value_tokens(
+        &mut self,
+        stop_at_top_level_brace: bool,
+    ) -> PResult<oxc_allocator::Vec<'a, ComponentValue<'a>>> {
+        let mut values = self.vec_with_capacity(3);
+        let mut pairs = Vec::with_capacity(1);
+        loop {
+            match &peek!(self).token {
+                Token::Dedent(..) | Token::Linebreak(..) | Token::Eof(..) => break,
+                Token::Semicolon(..) if pairs.is_empty() => {
+                    break;
+                }
+                Token::LBrace(..) if stop_at_top_level_brace && pairs.is_empty() => {
+                    break;
+                }
+                Token::LParen(..) => {
+                    pairs.push(PairedToken::Paren);
+                }
+                Token::RParen(..) => {
+                    if let Some(PairedToken::Paren) = pairs.pop() {
+                    } else {
+                        break;
+                    }
+                }
+                Token::LBracket(..) => {
+                    pairs.push(PairedToken::Bracket);
+                }
+                Token::RBracket(..) => {
+                    if let Some(PairedToken::Bracket) = pairs.pop() {
+                    } else {
+                        break;
+                    }
+                }
+                Token::LBrace(..) | Token::HashLBrace(..) => {
+                    pairs.push(PairedToken::Brace);
+                }
+                Token::RBrace(..) => {
+                    if let Some(PairedToken::Brace) = pairs.pop() {
+                    } else {
+                        break;
+                    }
+                }
+                // An interpolated string (e.g. `'#{$expr}'` inside
+                // `filter: progid:...`) must be parsed structurally:
+                // the tokenizer needs `scan_string_template` to resume
+                // the string after each `#{...}`, so consuming its
+                // tokens as a plain stream would mis-lex the rest.
+                Token::StrTemplate(..) => {
+                    values.push(ComponentValue::InterpolableStr(self.parse()?));
+                    continue;
+                }
+                _ => {}
+            }
+            values.push(ComponentValue::TokenWithSpan(bump!(self)));
+        }
+        Ok(values)
+    }
+
     pub(super) fn parse_declaration_value(
         &mut self,
     ) -> PResult<oxc_allocator::Vec<'a, ComponentValue<'a>>> {

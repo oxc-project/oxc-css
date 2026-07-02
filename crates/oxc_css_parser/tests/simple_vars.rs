@@ -27,9 +27,19 @@ fn default_options_reject_dollar_variable_declaration() {
     parse_css_err("$primary: red;", None);
 }
 
+// Without the flag there is no structured node, but the declaration still
+// parses: `$` is a valid CSS `<delim-token>`, so the value falls back to raw
+// preserved tokens (contrast with the structured `PostcssSimpleVar` below).
 #[test]
-fn default_options_reject_dollar_variable_reference() {
-    parse_css_err(".a { color: $primary; }", None);
+fn default_options_keep_dollar_variable_reference_as_raw_tokens() {
+    let ss = parse_css(".a { color: $primary; }", None);
+    let Statement::QualifiedRule(rule) = &ss.statements[0] else {
+        panic!("expected qualified rule");
+    };
+    let Statement::Declaration(decl) = &rule.block.statements[0] else {
+        panic!("expected declaration");
+    };
+    assert!(matches!(decl.value[0], ComponentValue::TokenWithSpan(_)));
 }
 
 // `@media (max-width: $var)` parses even without the flag because the parser

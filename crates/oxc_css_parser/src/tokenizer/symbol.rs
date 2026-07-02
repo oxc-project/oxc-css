@@ -403,6 +403,13 @@ impl TokenSymbol for Tilde {
     }
 }
 
+impl TokenSymbol for Unknown {
+    #[inline]
+    fn symbol() -> &'static str {
+        "<unknown>"
+    }
+}
+
 impl TokenSymbol for TildeEqual {
     #[inline]
     fn symbol() -> &'static str {
@@ -486,6 +493,7 @@ impl Token<'_> {
             StrTemplate(..) => "<string template>",
             Tilde(..) => "~",
             TildeEqual(..) => "~=",
+            Unknown(..) => "<unknown>",
             UrlRaw(..) => "<url>",
             UrlTemplate(..) => "<url template>",
         }

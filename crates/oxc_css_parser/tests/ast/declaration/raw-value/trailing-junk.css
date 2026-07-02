@@ -1,0 +1,4 @@
+a {
+  b: foo bar !important hux;
+  c: var/**/(--broken);
+}

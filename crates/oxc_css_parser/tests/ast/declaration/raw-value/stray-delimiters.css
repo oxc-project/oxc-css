@@ -1,0 +1,10 @@
+a {
+  b: $var;
+  c: 0 @width;
+  d: 50vw - 35em;
+  e: 3-"bar";
+  f: -;
+  g: %c;
+  h: [c=d], e;
+  i: &;
+}

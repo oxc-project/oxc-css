@@ -6,5 +6,3 @@ error: unknown token
   │
 1 │ a {b: calc($)}
   │            ^
-
-

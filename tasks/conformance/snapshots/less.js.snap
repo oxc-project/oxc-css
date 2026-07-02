@@ -1,11 +1,11 @@
 suite: less.js
 sha: 8ae2cc3bfa79f0718ad6fe5f263a1d6819fe9d5c
-files: 459   success: 385   failed: 52   expected: 22
-clean: 385  recovered: 3  hard_error: 49  panic: 0
+files: 459   success: 395   failed: 42   expected: 22
+clean: 395  recovered: 3  hard_error: 39  panic: 0
 
 failures:
 ERROR    packages/test-data/tests-config/at-rules-compressed-evaluation/at-rules-compressed-evaluation.css    expect token `{`, but found `<ident>`
-ERROR    packages/test-data/tests-config/compression/compression.css    unknown token
+ERROR    packages/test-data/tests-config/compression/compression.css    expect token `{`, but found `<unknown>`
 ERROR    packages/test-data/tests-config/compression/compression.less    unknown token
 ERROR    packages/test-data/tests-config/debug/all/linenumbers-all.css    expect token `:`, but found `{`
 ERROR    packages/test-data/tests-config/debug/comments/linenumbers-comments.css    expect token `{`, but found `<ident>`
@@ -13,13 +13,7 @@ ERROR    packages/test-data/tests-config/debug/mediaquery/linenumbers-mediaquery
 ERROR    packages/test-data/tests-config/math-always/mixins-guards.less    expect token `;`, but found `<ident>`
 ERROR    packages/test-data/tests-config/math-parens-division/mixins-args.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-config/math-strict/mixins-args.less    expect token `;`, but found `{`
-ERROR    packages/test-data/tests-config/math/parens-division/mixins-args.css    component value is expected
-ERROR    packages/test-data/tests-config/math/parens-division/parens.css    component value is expected
-ERROR    packages/test-data/tests-config/math/strict/mixins-args.css    component value is expected
-ERROR    packages/test-data/tests-config/math/strict/parens.css    component value is expected
-ERROR    packages/test-data/tests-config/static-urls/urls.css    invalid URL
 ERROR    packages/test-data/tests-config/static-urls/urls.less    expect token `;`, but found `{`
-ERROR    packages/test-data/tests-config/url-args/urls.css    invalid URL
 ERROR    packages/test-data/tests-config/url-args/urls.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-error/eval/detached-ruleset-2.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-error/eval/mixin-not-defined-2.less    expect token `;`, but found `{`
@@ -32,10 +26,8 @@ ERROR    packages/test-data/tests-unit/container/container.less    expect token 
 RECOVER  packages/test-data/tests-unit/css-3/css-3.css    unicode range end value exceeds max allowed code point
 RECOVER  packages/test-data/tests-unit/css-3/css-3.less    unicode range end value exceeds max allowed code point
 ERROR    packages/test-data/tests-unit/css-guards/css-guards.less    expect token `(`, but found `:`
-ERROR    packages/test-data/tests-unit/extract-and-length/extract-and-length.css    component value is expected
 ERROR    packages/test-data/tests-unit/extract-and-length/extract-and-length.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/functions-each/functions-each.less    expect token `;`, but found `{`
-ERROR    packages/test-data/tests-unit/functions/functions.css    component value is expected
 ERROR    packages/test-data/tests-unit/functions/functions.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/import/import-inline.css    unterminated string
 ERROR    packages/test-data/tests-unit/import/import-reference.css    expect token `{`, but found `:`
@@ -44,7 +36,6 @@ ERROR    packages/test-data/tests-unit/layer/layer.less    expect token `;`, but
 ERROR    packages/test-data/tests-unit/media/media.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/mixins-guards/mixins-guards.less    expect token `;`, but found `<ident>`
 ERROR    packages/test-data/tests-unit/namespace-targeted/namespace-targeted.less    expect token `;`, but found `{`
-ERROR    packages/test-data/tests-unit/operations/operations-advanced.css    component value is expected
 ERROR    packages/test-data/tests-unit/operations/operations.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/parser-slashed-combinator/parser-slashed-combinator.css    expect token `{`, but found `/`
 ERROR    packages/test-data/tests-unit/parser-slashed-combinator/parser-slashed-combinator.less    expect token `;`, but found `/`
@@ -52,8 +43,7 @@ ERROR    packages/test-data/tests-unit/permissive-parse/permissive-parse.less   
 ERROR    packages/test-data/tests-unit/property-name-interp/property-name-interp.css    expect token `:`, but found `+`
 ERROR    packages/test-data/tests-unit/property-name-interp/property-name-interp.less    expect token `(`, but found `{`
 ERROR    packages/test-data/tests-unit/strings/strings.less    expect token `;`, but found `{`
-ERROR    packages/test-data/tests-unit/urls/actual.css    invalid URL
-ERROR    packages/test-data/tests-unit/urls/urls.css    invalid URL
+ERROR    packages/test-data/tests-unit/urls/actual.css    unterminated string
 ERROR    packages/test-data/tests-unit/urls/urls.less    expect token `;`, but found `{`
 ERROR    packages/test-data/tests-unit/variables-in-at-rules/variables-in-at-rules.less    expect token `<string>`, but found `<string template>`
 
