@@ -232,6 +232,22 @@ impl<'a> Parse<'a> for StyleQuery<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
         if let Ok(condition) = input.try_parse(StyleCondition::parse) {
             Ok(StyleQuery::Condition(condition))
+        } else if let Ok(name) = input.try_parse(|p| {
+            // a bare custom-property existence test: `style(--theme)`
+            let name = p.parse::<InterpolableIdent>()?;
+            match (&name, &peek!(p).token) {
+                (InterpolableIdent::Literal(ident), Token::RParen(..))
+                    if ident.name.starts_with("--") =>
+                {
+                    Ok(name)
+                }
+                _ => {
+                    let span = peek!(p).span.clone();
+                    Err(Error { kind: ErrorKind::TryParseError, span })
+                }
+            }
+        }) {
+            Ok(StyleQuery::FeatureName(name))
         } else {
             let feature = input.parse().map(StyleQuery::Feature);
             eat!(input, Semicolon);

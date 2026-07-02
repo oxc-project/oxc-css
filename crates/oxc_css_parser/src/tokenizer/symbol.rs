@@ -32,6 +32,13 @@ impl TokenSymbol for AsteriskEqual {
     }
 }
 
+impl<'s> TokenSymbol for BadStr<'s> {
+    #[inline]
+    fn symbol() -> &'static str {
+        "<bad string>"
+    }
+}
+
 impl TokenSymbol for At {
     #[inline]
     fn symbol() -> &'static str {
@@ -437,6 +444,7 @@ impl Token<'_> {
         match self {
             Eof(..) => "<eof>",
             Ampersand(..) => "&",
+            BadStr(..) => "<bad string>",
             Asterisk(..) => "*",
             AsteriskEqual(..) => "*=",
             At(..) => "@",

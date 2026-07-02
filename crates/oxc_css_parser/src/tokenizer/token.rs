@@ -25,6 +25,7 @@ pub enum CommentKind {
 pub enum Token<'s> {
     Eof(Eof),
     Ampersand(Ampersand),
+    BadStr(BadStr<'s>),
     Asterisk(Asterisk),
     AsteriskEqual(AsteriskEqual),
     At(At),
@@ -108,6 +109,16 @@ pub struct Asterisk {}
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "kind", rename_all = "camelCase"))]
 pub struct AsteriskEqual {}
+
+/// CSS Syntax `<bad-string-token>`: a string terminated by a newline or EOF
+/// instead of its quote. Not a tokenizer error in CSS — it is a preserved
+/// token that raw component-value contexts keep verbatim.
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serialize", derive(Serialize))]
+#[cfg_attr(feature = "serialize", serde(tag = "kind", rename_all = "camelCase"))]
+pub struct BadStr<'s> {
+    pub raw: &'s str,
+}
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]

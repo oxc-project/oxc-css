@@ -1,29 +1,15 @@
 suite: sass-spec
 sha: a2ead9225786d49e91f5cc36755b7713596a2338
-files: 26787   success: 26476   failed: 20   expected: 291
-clean: 26476  recovered: 0  hard_error: 20  panic: 0
+files: 26787   success: 26490   failed: 6   expected: 291
+clean: 26490  recovered: 0  hard_error: 6  panic: 0
 
 failures:
-ERROR    spec/core_functions/string/unquote.hrx::meaningful_css_characters/output.css    expect token `}`, but found `<eof>`
-ERROR    spec/css/plain/hacks.hrx::output.css    unexpected whitespace
-ERROR    spec/css/plain/hacks.hrx::plain.css    unexpected whitespace
 ERROR    spec/libsass-todo-issues/issue_221262.hrx::input.scss    CSS rule is expected
 ERROR    spec/libsass-todo-issues/issue_221262.hrx::output.css    CSS rule is expected
 ERROR    spec/libsass-todo-issues/issue_221292.hrx::input.scss    CSS rule is expected
 ERROR    spec/libsass-todo-issues/issue_221292.hrx::output.css    CSS rule is expected
-ERROR    spec/non_conformant/basic/36_extra_commas_in_selectors.hrx::input.scss    simple selector is expected
 ERROR    spec/non_conformant/extend-tests/selector_list.hrx::input.scss    expect token `;`, but found `#{`
-ERROR    spec/non_conformant/misc/trailing_comma_in_selector.hrx::input.scss    simple selector is expected
-ERROR    spec/non_conformant/parser/interpolate/27_escaped_double_quotes/01_inline.hrx::output.css    unterminated string
-ERROR    spec/non_conformant/parser/interpolate/27_escaped_double_quotes/02_variable.hrx::output.css    unterminated string
-ERROR    spec/non_conformant/parser/interpolate/27_escaped_double_quotes/03_inline_double.hrx::output.css    unterminated string
-ERROR    spec/non_conformant/parser/interpolate/27_escaped_double_quotes/04_variable_double.hrx::output.css    unterminated string
-ERROR    spec/non_conformant/parser/interpolate/28_escaped_single_quotes/01_inline.hrx::output.css    unterminated string
-ERROR    spec/non_conformant/parser/interpolate/28_escaped_single_quotes/02_variable.hrx::output.css    unterminated string
-ERROR    spec/non_conformant/parser/interpolate/28_escaped_single_quotes/03_inline_double.hrx::output.css    unterminated string
-ERROR    spec/non_conformant/parser/interpolate/28_escaped_single_quotes/04_variable_double.hrx::output.css    unterminated string
 ERROR    spec/non_conformant/sass/pseudo.hrx::input.sass    CSS rule is expected
-ERROR    spec/non_conformant/scss-tests/044_test_trailing_comma_in_selector.hrx::input.scss    simple selector is expected
 
 expected failures (error tests, correct behavior):
 RECOVER  spec/callable/arguments.hrx::mixin/error/comma_only/input.scss    component value is expected

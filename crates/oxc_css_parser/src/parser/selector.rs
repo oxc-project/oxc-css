@@ -1091,6 +1091,14 @@ impl<'a> Parse<'a> for SelectorList<'a> {
         while let Some((_, comma_span)) = eat!(input, Comma) {
             span.end = comma_span.end;
             comma_spans.push(comma_span);
+            // legacy corpora carry doubled/trailing commas (`div,, span,, {`);
+            // absorb the extras in SCSS like libsass did
+            if input.syntax == Syntax::Scss {
+                while let Some((_, comma_span)) = eat!(input, Comma) {
+                    span.end = comma_span.end;
+                    comma_spans.push(comma_span);
+                }
+            }
             // In the indented syntax a deeper line after the comma continues
             // the selector list (`a,\n    b\n  c: d`); a same-level line or
             // `{` means the comma was trailing.
@@ -1110,10 +1118,12 @@ impl<'a> Parse<'a> for SelectorList<'a> {
             selectors.push(selector);
         }
 
+        // absorbed doubled/trailing commas can outnumber the selectors, so
+        // phrase the invariants without subtraction (usize underflow)
         debug_assert!(if is_css {
-            selectors.len() - comma_spans.len() == 1
+            selectors.len() == comma_spans.len() + 1
         } else {
-            selectors.len() - comma_spans.len() <= 1
+            selectors.len() <= comma_spans.len() + 1
         });
 
         Ok(SelectorList { selectors, comma_spans, span })
@@ -1358,11 +1368,12 @@ impl<'a> Parser<'a> {
                     Err(_) => Ok(None),
                 }
             }
-            // deprecated shadow combinators `^` and `^^` (Less corpora)
+            // deprecated shadow combinators `^` and `^^` (Less corpora and
+            // the CSS files Less emits)
             TokenWithSpan {
                 token: Token::Unknown(..),
                 span,
-            } if self.syntax == Syntax::Less
+            } if !matches!(self.syntax, Syntax::Scss | Syntax::Sass)
                 && self.source.as_bytes().get(span.start) == Some(&b'^') =>
             {
                 let start = bump!(self).span.start;

@@ -750,6 +750,16 @@ impl<'a> Tokenizer<'a> {
                     });
                 }
                 Some((end, '\n')) => {
+                    // CSS Syntax: an unterminated string is a
+                    // `<bad-string-token>` (parse error, not a lexer failure);
+                    // the dialects' reference compilers reject it outright.
+                    if self.syntax == Syntax::Css {
+                        let raw = unsafe { self.source.get_unchecked(start..end) };
+                        return Ok(TokenWithSpan {
+                            token: Token::BadStr(BadStr { raw }),
+                            span: Span { start, end },
+                        });
+                    }
                     return Err(Error {
                         kind: ErrorKind::UnterminatedString,
                         span: Span { start, end },
@@ -757,9 +767,17 @@ impl<'a> Tokenizer<'a> {
                 }
                 Some(..) => {}
                 None => {
+                    let end = self.source.len();
+                    if self.syntax == Syntax::Css {
+                        let raw = unsafe { self.source.get_unchecked(start..end) };
+                        return Ok(TokenWithSpan {
+                            token: Token::BadStr(BadStr { raw }),
+                            span: Span { start, end },
+                        });
+                    }
                     return Err(Error {
                         kind: ErrorKind::UnterminatedString,
-                        span: Span { start, end: self.source.len() },
+                        span: Span { start, end },
                     });
                 }
             }

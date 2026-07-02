@@ -1,0 +1,8 @@
+---
+source: crates/oxc_css_parser/tests/error.rs
+---
+error: expect token `;`, but found `<ident>`
+  ┌─ guard-on-each-selector.less:1:4
+  │
+1 │ .a when (@ie8 = true),
+  │    ^^^^

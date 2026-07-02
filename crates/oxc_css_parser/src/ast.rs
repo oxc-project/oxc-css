@@ -235,6 +235,7 @@ pub enum ComponentValue<'a> {
     InterpolableIdent(InterpolableIdent<'a>),
     InterpolableStr(InterpolableStr<'a>),
     LayerName(LayerName<'a>),
+    LessAnonymousMixin(LessAnonymousMixin<'a>),
     LessBinaryOperation(LessBinaryOperation<'a>),
     LessCondition(Box<'a, LessCondition<'a>>),
     LessDetachedRuleset(LessDetachedRuleset<'a>),
@@ -748,6 +749,15 @@ pub enum LessBinaryConditionOperatorKind {
 #[derive(Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize))]
 #[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
+pub struct LessAnonymousMixin<'a> {
+    pub params: LessMixinParameters<'a>,
+    pub block: SimpleBlock<'a>,
+    pub span: Span,
+}
+
+#[derive(Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize))]
+#[cfg_attr(feature = "serialize", serde(tag = "type", rename_all = "camelCase"))]
 pub struct LessBinaryOperation<'a> {
     pub left: Box<'a, ComponentValue<'a>>,
     pub op: LessOperationOperator,
@@ -930,6 +940,7 @@ pub enum LessLookupName<'a> {
     LessVariable(LessVariable<'a>),
     LessVariableVariable(LessVariableVariable<'a>),
     LessPropertyVariable(LessPropertyVariable<'a>),
+    LessPropertyInterpolation(LessPropertyInterpolation<'a>),
     Ident(Ident<'a>),
 }
 
@@ -2397,6 +2408,9 @@ pub enum StyleInParensKind<'a> {
 pub enum StyleQuery<'a> {
     Condition(StyleCondition<'a>),
     Feature(Declaration<'a>),
+    /// A bare `<custom-property-name>` existence test: `style(--theme)`
+    /// (css-conditional-5 `<style-feature>`).
+    FeatureName(InterpolableIdent<'a>),
 }
 
 #[derive(Debug)]

@@ -611,6 +611,15 @@ impl<'a> Parser<'a> {
                 Token::LBrace(..) if self.syntax == Syntax::Less => {
                     values.push(self.parse().map(ComponentValue::LessDetachedRuleset)?);
                 }
+                Token::Dot(..) | Token::NumberSign(..) if self.syntax == Syntax::Less => {
+                    if let Ok(mixin) = self.try_parse(Parser::parse_less_anonymous_mixin) {
+                        values.push(ComponentValue::LessAnonymousMixin(mixin));
+                    } else if let Ok(value) = self.try_parse(ComponentValue::parse) {
+                        values.push(value);
+                    } else {
+                        values.push(ComponentValue::TokenWithSpan(bump!(self)));
+                    }
+                }
                 Token::Indent(..) | Token::Dedent(..) | Token::Linebreak(..) => {
                     bump!(self);
                 }

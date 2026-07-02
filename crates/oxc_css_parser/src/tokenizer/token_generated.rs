@@ -114,6 +114,7 @@ impl_enum_as_is!(Token<'s> {
     tuple: [
         Eof(Eof) => is_eof, as_eof,
         Ampersand(Ampersand) => is_ampersand, as_ampersand,
+        BadStr(BadStr<'s>) => is_bad_str, as_bad_str,
         Asterisk(Asterisk) => is_asterisk, as_asterisk,
         AsteriskEqual(AsteriskEqual) => is_asterisk_equal, as_asterisk_equal,
         At(At) => is_at, as_at,

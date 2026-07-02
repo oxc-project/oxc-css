@@ -147,7 +147,12 @@ const SUITES: &[Suite] = &[
         sha: "8ae2cc3bfa79f0718ad6fe5f263a1d6819fe9d5c",
         sparse: &["packages/test-data"],
         walk: "packages/test-data",
-        expect_error_under: &["packages/test-data/tests-error/parse"],
+        expect_error_under: &[
+            "packages/test-data/tests-error/parse",
+            // under eval/, but less.js's own parser throws these
+            // ("Guards are only currently allowed on a single selector.")
+            "packages/test-data/tests-error/eval/multiple-guards-on-css-selectors",
+        ],
         postcss_simple_vars: false,
         note: "Less reference suite (tests compilation; we parse only)",
     },

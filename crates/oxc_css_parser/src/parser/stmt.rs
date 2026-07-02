@@ -14,12 +14,19 @@ use crate::{
 
 impl<'a> Parse<'a> for Declaration<'a> {
     fn parse(input: &mut Parser<'a>) -> PResult<Self> {
-        // Legacy IE hack: a `*` glued to the property name (e.g. `*color: red`)
-        // makes IE<=7 apply the declaration. Keep it as a property-name prefix — but
-        // only when glued: `* color` (whitespace or a comment after `*`) is not the
-        // hack, so leave the `*` for the normal (failing) parse.
-        let name_prefix_start = if input.state.allow_ie_star_hack
-            && let TokenWithSpan { token: Token::Asterisk(..), span } = peek!(input)
+        // Legacy IE hacks glued to the property name: `*color: red` targets
+        // IE<=7; dart-sass's plain-CSS parser additionally accepts `:x`, `.x`
+        // and `#x` prefixes. Keep them as a property-name prefix — but only
+        // when glued: `* color` (whitespace or a comment after the sigil) is
+        // not the hack, so leave the token for the normal (failing) parse.
+        let mut name_prefix = if input.state.allow_ie_star_hack
+            && let TokenWithSpan { token, span } = peek!(input)
+            && let Some(prefix) = match token {
+                Token::Asterisk(..) => Some('*'),
+                Token::Dot(..) if input.syntax == Syntax::Css => Some('.'),
+                Token::Colon(..) if input.syntax == Syntax::Css => Some(':'),
+                _ => None,
+            }
             && input
                 .source
                 .as_bytes()
@@ -28,7 +35,7 @@ impl<'a> Parse<'a> for Declaration<'a> {
         {
             let start = span.start;
             bump!(input);
-            Some(start)
+            Some((start, prefix))
         } else {
             None
         };
@@ -37,6 +44,26 @@ impl<'a> Parse<'a> for Declaration<'a> {
         let name = if let Token::Placeholder(..) = peek!(input).token {
             let (placeholder, span) = expect!(input, Placeholder);
             InterpolableIdent::Placeholder((placeholder, span).into())
+        } else if name_prefix.is_none()
+            && input.state.allow_ie_star_hack
+            && input.syntax == Syntax::Css
+            && matches!(peek!(input).token, Token::Hash(..))
+        {
+            // `#x: y` — the `#` and the name arrive as one <hash-token>.
+            let TokenWithSpan { token: Token::Hash(hash), span } = bump!(input) else {
+                unreachable!()
+            };
+            name_prefix = Some((span.start, '#'));
+            let name = if hash.escaped {
+                crate::util::handle_escape_in(hash.raw, input.allocator())
+            } else {
+                hash.raw
+            };
+            InterpolableIdent::Literal(Ident {
+                name,
+                raw: hash.raw,
+                span: Span { start: span.start + 1, end: span.end },
+            })
         } else {
             input
                 .with_state(ParserState {
@@ -56,7 +83,10 @@ impl<'a> Parse<'a> for Declaration<'a> {
             None
         };
 
-        let less_property_merge = if input.syntax == Syntax::Less { input.parse()? } else { None };
+        // Less property merge (`prop+: v`, `prop+_: v`) — also accepted for
+        // plain CSS since Less serializes the flag into its output.
+        let less_property_merge =
+            if matches!(input.syntax, Syntax::Less | Syntax::Css) { input.parse()? } else { None };
 
         let (_, colon_span) = expect!(input, Colon);
         let (mut value, mut important) = {
@@ -163,7 +193,7 @@ impl<'a> Parse<'a> for Declaration<'a> {
         }
 
         let span = Span {
-            start: name_prefix_start.unwrap_or(name.span().start),
+            start: name_prefix.map_or(name.span().start, |(start, _)| start),
             end: if let Some(important) = &important {
                 important.span.end
             } else if let Some(last) = value.last() {
@@ -174,7 +204,7 @@ impl<'a> Parse<'a> for Declaration<'a> {
         };
         Ok(Declaration {
             name,
-            name_prefix: name_prefix_start.map(|_| '*'),
+            name_prefix: name_prefix.map(|(_, prefix)| prefix),
             name_suffix,
             colon_span,
             value,
@@ -261,6 +291,14 @@ impl<'a> Parse<'a> for SimpleBlock<'a> {
         };
 
         let statements = input.parse_statements(/* is_top_level */ false)?;
+
+        // CSS Syntax: EOF closes all open constructs (a parse error, but the
+        // tree is valid — browsers accept unclosed blocks at EOF). The
+        // dialects' reference compilers reject them.
+        if input.syntax == Syntax::Css && matches!(peek!(input).token, Token::Eof(..)) {
+            let end = peek!(input).span.start;
+            return Ok(SimpleBlock { statements, span: Span { start, end } });
+        }
 
         if is_sass {
             match bump!(input) {
@@ -482,7 +520,14 @@ impl<'a> Parser<'a> {
                         }
                     }
                 }
-                Token::Dot(..) | Token::Hash(..) if self.syntax == Syntax::Less => {
+                // `.3D(...)` — less.js allows digit-led mixin names, which
+                // tokenize as a dimension glued to `(`
+                Token::Dot(..) | Token::Hash(..) | Token::Dimension(..)
+                    if self.syntax == Syntax::Less
+                        && (!matches!(token, Token::Dimension(..))
+                            || (self.source.as_bytes().get(span.start) == Some(&b'.')
+                                && self.source.as_bytes().get(span.end) == Some(&b'('))) =>
+                {
                     let stmt = if let Ok(stmt) = self.try_parse(Parser::parse_less_qualified_rule) {
                         is_block_element = true;
                         stmt
@@ -495,8 +540,14 @@ impl<'a> Parser<'a> {
                     statements.push(stmt);
                 }
                 Token::Dot(..) | Token::Hash(..) if !self.state.in_keyframes_at_rule => {
-                    statements.push(Statement::QualifiedRule(self.parse()?));
-                    is_block_element = true;
+                    if self.syntax == Syntax::Css {
+                        let (stmt, is_block) = self.parse_rule_or_declaration(is_top_level)?;
+                        is_block_element = is_block;
+                        statements.push(stmt);
+                    } else {
+                        statements.push(Statement::QualifiedRule(self.parse()?));
+                        is_block_element = true;
+                    }
                 }
                 Token::Ampersand(..)
                 | Token::LBracket(..)
@@ -538,6 +589,12 @@ impl<'a> Parser<'a> {
                             statements.push(self.parse_less_qualified_rule()?);
                             is_block_element = true;
                         }
+                    } else if self.syntax == Syntax::Css
+                        && matches!(peek!(self).token, Token::Colon(..))
+                    {
+                        let (stmt, is_block) = self.parse_rule_or_declaration(is_top_level)?;
+                        is_block_element = is_block;
+                        statements.push(stmt);
                     } else {
                         statements.push(Statement::QualifiedRule(self.parse()?));
                         is_block_element = true;

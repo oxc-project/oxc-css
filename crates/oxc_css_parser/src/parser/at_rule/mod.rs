@@ -44,18 +44,27 @@ impl<'a> Parse<'a> for AtRule<'a> {
                 // reparses such queries after resolving `#{...}`; plain
                 // malformed logic (`@media a and b or c`) must keep erroring.
                 Err(_) => {
-                    let raw = if matches!(input.syntax, Syntax::Scss | Syntax::Sass) {
+                    // Only substitution constructs justify the raw form —
+                    // `#{...}` in Sass (dart-sass reparses after resolving) and
+                    // variables in Less (`@media @all and @tv {`); plain
+                    // malformed logic must keep erroring.
+                    let raw = if input.syntax != Syntax::Css {
                         input.try_parse(|p| {
                             let raw = p.parse_raw_at_rule_prelude()?;
-                            let has_interpolation = matches!(
+                            let has_substitution = matches!(
                                 &raw,
                                 UnknownAtRulePrelude::TokenSeq(seq)
-                                    if seq.tokens.iter().any(|t| matches!(
-                                        t.token,
-                                        Token::HashLBrace(..) | Token::StrTemplate(..)
-                                    ))
+                                    if seq.tokens.iter().any(|t| match &t.token {
+                                        Token::HashLBrace(..) | Token::StrTemplate(..) => {
+                                            matches!(p.syntax, Syntax::Scss | Syntax::Sass)
+                                        }
+                                        Token::AtKeyword(..) | Token::AtLBraceVar(..) => {
+                                            p.syntax == Syntax::Less
+                                        }
+                                        _ => false,
+                                    })
                             );
-                            if has_interpolation {
+                            if has_substitution {
                                 Ok(raw)
                             } else {
                                 let span = peek!(p).span.clone();
@@ -195,10 +204,39 @@ impl<'a> Parse<'a> for AtRule<'a> {
                 .unwrap_or(at_keyword_span.end);
             (prelude, block, end)
         } else if at_rule_name.eq_ignore_ascii_case("container") {
-            let prelude = Some(AtRulePrelude::Container(input.parse()?));
+            // less.js emits comma-separated query lists
+            // (`@container card (w > 400px), style(--x: y) {`); those — and
+            // only those — are kept as raw tokens. A malformed single query
+            // still errors.
+            let prelude = match input
+                .try_parse_full_prelude(|p| p.parse().map(AtRulePrelude::Container))
+            {
+                Ok(prelude) => prelude,
+                Err(error) => {
+                    let is_query_list = input
+                        .try_parse(|p| {
+                            p.parse::<ContainerPrelude>()?;
+                            if matches!(peek!(p).token, Token::Comma(..)) {
+                                Ok(())
+                            } else {
+                                let span = peek!(p).span.clone();
+                                Err(Error { kind: ErrorKind::TryParseError, span })
+                            }
+                        })
+                        .is_ok();
+                    // a Less variable may stand for the container name:
+                    // `@container @varfoo (min-width: @threshold) {`
+                    let less_variable_name = input.syntax == Syntax::Less
+                        && matches!(peek!(input).token, Token::AtKeyword(..));
+                    if !is_query_list && !less_variable_name {
+                        return Err(error);
+                    }
+                    AtRulePrelude::Unknown(arena_box!(input, input.parse_raw_at_rule_prelude()?))
+                }
+            };
             let block = input.parse::<SimpleBlock>()?;
             let end = block.span.end;
-            (prelude, Some(block), end)
+            (Some(prelude), Some(block), end)
         } else if at_rule_name.eq_ignore_ascii_case("page") {
             let prelude = input.try_parse(PageSelectorList::parse).map(AtRulePrelude::Page).ok();
             let block = input.try_parse(SimpleBlock::parse).ok();
